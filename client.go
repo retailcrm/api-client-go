@@ -12,39 +12,56 @@ import (
 )
 
 const (
-	ApiPrefix = "/api/v5"
+	apiPrefix = "/api"
 )
 
+// Client type
 type Client struct {
 	Url        string
-	apiKey     string
+	Key        string
+	Version    string
 	httpClient *http.Client
 }
 
+// ErrorResponse type
 type ErrorResponse struct {
 	ErrorMsg string            `json:"errorMsg,omitempty"`
 	Errors   map[string]string `json:"errors,omitempty"`
 }
 
-func New(url string, apiKey string) *Client {
-	return &Client{
+// New initalize client
+func New(url string, key string, version string) *Client {
+	return &Client {
 		url,
-		apiKey,
+		key,
+		version,
 		&http.Client{Timeout: 20 * time.Second},
 	}
 }
 
-func (r *Client) GetRequest(urlWithParameters string) ([]byte, int, error) {
-	var res []byte
+func buildUrl(url string, version string) string {
+	var versionPlaceholder string = "/" + version
+	if version == "" {
+		versionPlaceholder = ""
+	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", r.Url, ApiPrefix, urlWithParameters), nil)
+	var requestUrl = fmt.Sprintf("%s%s%s", url, apiPrefix, versionPlaceholder)
+
+	return requestUrl
+}
+
+func (c *Client) getRequest(urlWithParameters string) ([]byte, int, error) {
+	var res []byte
+    var reqUrl = buildUrl(c.Url, c.Version)
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", reqUrl , urlWithParameters), nil)
 	if err != nil {
 		return res, 0, err
 	}
 
-	req.Header.Set("X-API-KEY", r.apiKey)
+	req.Header.Set("X-API-KEY", c.Key)
 
-	resp, err := r.httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return res, 0, err
 	}
@@ -61,12 +78,13 @@ func (r *Client) GetRequest(urlWithParameters string) ([]byte, int, error) {
 	return res, resp.StatusCode, nil
 }
 
-func (r *Client) PostRequest(url string, postParams url.Values) ([]byte, int, error) {
+func (c *Client) postRequest(url string, postParams url.Values) ([]byte, int, error) {
 	var res []byte
+	var reqUrl = buildUrl(c.Url, c.Version)
 
 	req, err := http.NewRequest(
 		"POST",
-		fmt.Sprintf("%s%s%s", r.Url, ApiPrefix, url),
+		fmt.Sprintf("%s%s", reqUrl, url),
 		strings.NewReader(postParams.Encode()),
 	)
 	if err != nil {
@@ -74,9 +92,9 @@ func (r *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("X-API-KEY", r.apiKey)
+	req.Header.Set("X-API-KEY", c.Key)
 
-	resp, err := r.httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return res, 0, err
 	}
@@ -104,9 +122,21 @@ func buildRawResponse(resp *http.Response) ([]byte, error) {
 	return res, nil
 }
 
-func (r *Client) ErrorResponse(data []byte) (*ErrorResponse, error) {
+// ErrorResponse method
+func (c *Client) ErrorResponse(data []byte) (*ErrorResponse, error) {
 	var resp ErrorResponse
 	err := json.Unmarshal(data, &resp)
 
 	return &resp, err
+}
+
+// CheckBy select identifier type
+func CheckBy(by string) string  {
+	var context = "id"
+
+	if by != "id" {
+		context = "externalId"
+	}
+
+	return context
 }
