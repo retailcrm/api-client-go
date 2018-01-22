@@ -1,20 +1,20 @@
 package v5
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
+	"github.com/google/go-querystring/query"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
-	"github.com/google/go-querystring/query"
 )
 
 const (
-	versionedPrefix = "/api/v5"
+	versionedPrefix   = "/api/v5"
 	unversionedPrefix = "/api"
 )
 
@@ -43,7 +43,7 @@ func New(url string, key string) *Client {
 func (c *Client) getRequest(urlWithParameters string) ([]byte, int, error) {
 	var res []byte
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.Url , urlWithParameters), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.Url, urlWithParameters), nil)
 	if err != nil {
 		return res, 0, err
 	}
@@ -119,7 +119,7 @@ func (c *Client) ErrorResponse(data []byte) (*ErrorResponse, error) {
 }
 
 // checkBy select identifier type
-func checkBy(by string) string  {
+func checkBy(by string) string {
 	var context = "id"
 
 	if by != "id" {
@@ -133,13 +133,8 @@ func checkBy(by string) string  {
 func (c *Client) ApiVersions() (*VersionResponse, int, error) {
 	var resp VersionResponse
 	data, status, err := c.getRequest(fmt.Sprintf("%s/api-versions", unversionedPrefix))
-
 	if err != nil {
 		return &resp, status, err
-	}
-
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
 	}
 
 	err = json.Unmarshal(data, &resp)
@@ -151,13 +146,8 @@ func (c *Client) ApiVersions() (*VersionResponse, int, error) {
 func (c *Client) ApiCredentials() (*CredentialResponse, int, error) {
 	var resp CredentialResponse
 	data, status, err := c.getRequest(fmt.Sprintf("%s/credentials", unversionedPrefix))
-
 	if err != nil {
 		return &resp, status, err
-	}
-
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
 	}
 
 	err = json.Unmarshal(data, &resp)
@@ -175,10 +165,6 @@ func (c *Client) Customer(id, by, site string) (*CustomerResponse, int, error) {
 	data, status, err := c.getRequest(fmt.Sprintf("%s/customers/%s?%s", versionedPrefix, id, params.Encode()))
 	if err != nil {
 		return &resp, status, err
-	}
-
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
 	}
 
 	err = json.Unmarshal(data, &resp)
@@ -202,13 +188,8 @@ func (c *Client) Customers(filter CustomersFilter, limit, page int) (*CustomersR
 	params, _ := query.Values(fw)
 
 	data, status, err := c.getRequest(fmt.Sprintf("%s/customers?%s", versionedPrefix, params.Encode()))
-
 	if err != nil {
 		return &resp, status, err
-	}
-
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
 	}
 
 	err = json.Unmarshal(data, &resp)
@@ -216,7 +197,7 @@ func (c *Client) Customers(filter CustomersFilter, limit, page int) (*CustomersR
 	return &resp, status, err
 }
 
-func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerChangeResponse, int, error)  {
+func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 	customerJson, _ := json.Marshal(&customer)
 
@@ -233,14 +214,8 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerCha
 	}
 
 	data, status, err := c.postRequest(fmt.Sprintf("%s/customers/create", versionedPrefix), p)
-
-
 	if err != nil {
 		return &resp, status, err
-	}
-
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
 	}
 
 	err = json.Unmarshal(data, &resp)
@@ -248,7 +223,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerCha
 	return &resp, status, err
 }
 
-func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*CustomerChangeResponse, int, error)  {
+func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.Id)
 	var context = checkBy(by)
@@ -260,7 +235,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*Cu
 	customerJson, _ := json.Marshal(&customer)
 
 	p := url.Values{
-		"by": {string(context)},
+		"by":       {string(context)},
 		"customer": {string(customerJson[:])},
 	}
 
@@ -277,11 +252,11 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*Cu
 		return &resp, status, err
 	}
 
-	if status >= http.StatusBadRequest {
-		return &resp, status, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", status))
-	}
-
 	err = json.Unmarshal(data, &resp)
 
 	return &resp, status, err
+}
+
+func (c *Client) CustomersUpload() {
+
 }
