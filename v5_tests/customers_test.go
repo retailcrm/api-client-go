@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/retailcrm/api-client-go/v5"
 )
 
 func TestClient_CustomersCustomers(t *testing.T) {
 	c := client()
-	f := v5.CustomersFilter{}
-	f.City = "Москва"
+	f := v5.CustomersRequest{
+		Filter: v5.CustomersFilter{
+			City: "Москва",
+		},
+		Page: 3,
+	}
 
-	data, status, err := c.Customers(f, 20, 1)
+	data, status, err := c.Customers(f)
 	if err != nil {
 		t.Errorf("%s", err)
 		t.Fail()
@@ -33,15 +36,16 @@ func TestClient_CustomersCustomers(t *testing.T) {
 
 func TestClient_CustomerChange(t *testing.T) {
 	c := client()
-	f := v5.Customer{}
 
 	random := RandomString(8)
 
-	f.FirstName = "Понтелей"
-	f.LastName = "Турбин"
-	f.Patronymic = "Аристархович"
-	f.ExternalId = random
-	f.Email = fmt.Sprintf("%s@example.com", random)
+	f := v5.Customer{
+		FirstName:  "Понтелей",
+		LastName:   "Турбин",
+		Patronymic: "Аристархович",
+		ExternalId: random,
+		Email:      fmt.Sprintf("%s@example.com", random),
+	}
 
 	cr, sc, err := c.CustomerCreate(f)
 	if err != nil {
@@ -179,10 +183,13 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 
 func TestClient_CustomersHistory(t *testing.T) {
 	c := client()
-	f := v5.CustomersHistoryFilter{}
-	f.StartDate = time.Now().Add(-96 * time.Hour).Format("2006-01-02 15:04:05")
+	f := v5.CustomersHistoryRequest{
+		Filter: v5.CustomersHistoryFilter{
+			SinceId: 100,
+		},
+	}
 
-	data, status, err := c.CustomersHistory(f, 20, 1)
+	data, status, err := c.CustomersHistory(f)
 	if err != nil {
 		t.Errorf("%s", err)
 		t.Fail()
