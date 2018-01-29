@@ -164,3 +164,28 @@ type OrdersHistoryFilter struct {
 	StartDate       string `url:"startDate,omitempty"`
 	EndDate         string `url:"endDate,omitempty"`
 }
+
+// UsersFilter type
+type UsersFilter struct {
+	Email         string   `url:"email,omitempty"`
+	Status        string   `url:"status,omitempty"`
+	Online        int      `url:"online,omitempty"`
+	Active        int      `url:"active,omitempty"`
+	IsManager     int      `url:"isManager,omitempty"`
+	IsAdmin       int      `url:"isAdmin,omitempty"`
+	CreatedAtFrom string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo   string   `url:"createdAtTo,omitempty"`
+	Groups        []string `url:"groups,omitempty"`
+}
+
+// TasksFilter type
+type TasksFilter struct {
+	OrderNumber string `url:"orderNumber,omitempty"`
+	Status      string `url:"status,omitempty"`
+	Customer    string `url:"customer,omitempty"`
+	Text        string `url:"text,omitempty"`
+	DateFrom    string `url:"dateFrom,omitempty"`
+	DateTo      string `url:"dateTo,omitempty"`
+	Creators    []int  `url:"creators,omitempty"`
+	Performers  []int  `url:"performers,omitempty"`
+}

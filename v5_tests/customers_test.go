@@ -185,7 +185,7 @@ func TestClient_CustomersHistory(t *testing.T) {
 	c := client()
 	f := v5.CustomersHistoryRequest{
 		Filter: v5.CustomersHistoryFilter{
-			SinceId: 100,
+			SinceId: 20,
 		},
 	}
 

@@ -51,3 +51,23 @@ type OrdersHistoryRequest struct {
 	Limit  int                 `url:"limit,omitempty"`
 	Page   int                 `url:"page,omitempty"`
 }
+
+// UsersRequest type
+type UsersRequest struct {
+	Filter UsersFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}
+
+// UserGroupsRequest type
+type UserGroupsRequest struct {
+	Limit int `url:"limit,omitempty"`
+	Page  int `url:"page,omitempty"`
+}
+
+// TasksRequest type
+type TasksRequest struct {
+	Filter TasksFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}

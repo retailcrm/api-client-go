@@ -342,3 +342,151 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (*CustomersHisto
 
 	return &resp, status, err
 }
+
+// User get method
+func (c *Client) User(id int) (*UserResponse, int, error) {
+	var resp UserResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/users/%d", versionedPrefix, id))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Users list method
+func (c *Client) Users(parameters UsersRequest) (*UsersResponse, int, error) {
+	var resp UsersResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/users?%s", versionedPrefix, params.Encode()))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// UserGroups list method
+func (c *Client) UserGroups(parameters UserGroupsRequest) (*UserGroupsResponse, int, error) {
+	var resp UserGroupsResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/user-groups", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// UserStatus update method
+func (c *Client) UserStatus(id int, status string) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+
+	p := url.Values{
+		"status": {string(status)},
+	}
+
+	data, st, err := c.PostRequest(fmt.Sprintf("%s/users/%d/status", versionedPrefix, id), p)
+	if err != nil {
+		return &resp, st, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, st, err
+}
+
+// Task get method
+func (c *Client) Task(id int) (*TaskResponse, int, error) {
+	var resp TaskResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/tasks/%d", versionedPrefix, id))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Tasks list method
+func (c *Client) Tasks(parameters TasksRequest) (*TasksResponse, int, error) {
+	var resp TasksResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/tasks?%s", versionedPrefix, params.Encode()))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// TaskCreate method
+func (c *Client) TaskCreate(task Task, site ...string) (*TaskChangeResponse, int, error) {
+	var resp TaskChangeResponse
+	taskJson, _ := json.Marshal(&task)
+
+	p := url.Values{
+		"task": {string(taskJson[:])},
+	}
+
+	if len(site) > 0 {
+		s := site[0]
+
+		if s != "" {
+			p.Add("site", s)
+		}
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/create", versionedPrefix), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// TaskEdit method
+func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+	var uid = strconv.Itoa(task.Id)
+
+	taskJson, _ := json.Marshal(&task)
+
+	p := url.Values{
+		"task": {string(taskJson[:])},
+	}
+
+	if len(site) > 0 {
+		s := site[0]
+
+		if s != "" {
+			p.Add("site", s)
+		}
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/%s/edit", versionedPrefix, uid), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}

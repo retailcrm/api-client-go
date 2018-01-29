@@ -78,40 +78,44 @@ type Property struct {
 	Value string `json:"value,omitempty"`
 }
 
+/**
+Customer related types
+*/
+
 // Customer type
 type Customer struct {
-	Id                           int                 `json:"id,omitempty"`
-	ExternalId                   string              `json:"externalId,omitempty"`
-	FirstName                    string              `json:"firstName,omitempty"`
-	LastName                     string              `json:"lastName,omitempty"`
-	Patronymic                   string              `json:"patronymic,omitempty"`
-	Sex                          string              `json:"sex,omitempty"`
-	Email                        string              `json:"email,omitempty"`
-	Phones                       []CustomerPhone     `json:"phones,brackets,omitempty"`
-	Address                      *Address            `json:"address,omitempty"`
-	CreatedAt                    string              `json:"createdAt,omitempty"`
-	Birthday                     string              `json:"birthday,omitempty"`
-	ManagerId                    int                 `json:"managerId,omitempty"`
-	Vip                          bool                `json:"vip,omitempty"`
-	Bad                          bool                `json:"bad,omitempty"`
-	Site                         string              `json:"site,omitempty"`
-	Source                       *Source             `json:"source,omitempty"`
-	Contragent                   *Contragent         `json:"contragent,omitempty"`
-	PersonalDiscount             float32             `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32             `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string              `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string              `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32             `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32             `json:"marginSumm,omitempty"`
-	TotalSumm                    float32             `json:"totalSumm,omitempty"`
-	AverageSumm                  float32             `json:"averageSumm,omitempty"`
-	OrdersCount                  int                 `json:"ordersCount,omitempty"`
-	CostSumm                     float32             `json:"costSumm,omitempty"`
-	MaturationTime               int                 `json:"maturationTime,omitempty"`
-	FirstClientId                string              `json:"firstClientId,omitempty"`
-	LastClientId                 string              `json:"lastClientId,omitempty"`
-	BrowserId                    string              `json:"browserId,omitempty"`
-	CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
+	Id                           int             `json:"id,omitempty"`
+	ExternalId                   string          `json:"externalId,omitempty"`
+	FirstName                    string          `json:"firstName,omitempty"`
+	LastName                     string          `json:"lastName,omitempty"`
+	Patronymic                   string          `json:"patronymic,omitempty"`
+	Sex                          string          `json:"sex,omitempty"`
+	Email                        string          `json:"email,omitempty"`
+	Phones                       []CustomerPhone `json:"phones,brackets,omitempty"`
+	Address                      *Address        `json:"address,omitempty"`
+	CreatedAt                    string          `json:"createdAt,omitempty"`
+	Birthday                     string          `json:"birthday,omitempty"`
+	ManagerId                    int             `json:"managerId,omitempty"`
+	Vip                          bool            `json:"vip,omitempty"`
+	Bad                          bool            `json:"bad,omitempty"`
+	Site                         string          `json:"site,omitempty"`
+	Source                       *Source         `json:"source,omitempty"`
+	Contragent                   *Contragent     `json:"contragent,omitempty"`
+	PersonalDiscount             float32         `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32         `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string          `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string          `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32         `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32         `json:"marginSumm,omitempty"`
+	TotalSumm                    float32         `json:"totalSumm,omitempty"`
+	AverageSumm                  float32         `json:"averageSumm,omitempty"`
+	OrdersCount                  int             `json:"ordersCount,omitempty"`
+	CostSumm                     float32         `json:"costSumm,omitempty"`
+	MaturationTime               int             `json:"maturationTime,omitempty"`
+	FirstClientId                string          `json:"firstClientId,omitempty"`
+	LastClientId                 string          `json:"lastClientId,omitempty"`
+	BrowserId                    string          `json:"browserId,omitempty"`
+	//CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
 }
 
 // CustomerPhone type
@@ -137,6 +141,10 @@ type CustomerHistoryRecord struct {
 	ApiKey    *ApiKey   `json:"apiKey,omitempty,brackets"`
 	Customer  *Customer `json:"customer,omitempty,brackets"`
 }
+
+/**
+Order related types
+*/
 
 // Order type
 type Order struct {
@@ -270,6 +278,7 @@ type OrdersHistoryRecord struct {
 	Order     *Order  `json:"order,omitempty,brackets"`
 }
 
+// Offer type
 type Offer struct {
 	Id         int    `json:"id,omitempty"`
 	ExternalId string `json:"externalId,omitempty"`
@@ -277,13 +286,47 @@ type Offer struct {
 	VatRate    string `json:"vatRate,omitempty"`
 }
 
+/**
+User related types
+*/
+
+// User type
 type User struct {
-	Id         int    `json:"id,omitempty"`
-	FirstName  string `json:"firstName,omitempty"`
-	LastName   string `json:"lastName,omitempty"`
-	Patronymic string `json:"patronymic,omitempty"`
+	Id         int         `json:"id,omitempty"`
+	FirstName  string      `json:"firstName,omitempty"`
+	LastName   string      `json:"lastName,omitempty"`
+	Patronymic string      `json:"patronymic,omitempty"`
+	CreatedAt  string      `json:"createdAt,omitempty"`
+	Active     bool        `json:"active,omitempty"`
+	Online     bool        `json:"online,omitempty"`
+	IsAdmin    bool        `json:"isAdmin,omitempty"`
+	IsManager  bool        `json:"isManager,omitempty"`
+	Email      string      `json:"email,omitempty"`
+	Phone      string      `json:"phone,omitempty"`
+	Status     string      `json:"status,omitempty"`
+	Groups     []UserGroup `json:"groups,omitempty,brackets"`
 }
 
+// UserGroup type
+type UserGroup struct {
+	Name                  string   `json:"name,omitempty"`
+	Code                  string   `json:"code,omitempty"`
+	SignatureTemplate     string   `json:"signatureTemplate,omitempty"`
+	IsManager             bool     `json:"isManager,omitempty"`
+	IsDeliveryMen         bool     `json:"isDeliveryMen,omitempty"`
+	DeliveryTypes         []string `json:"deliveryTypes,omitempty,brackets"`
+	BreakdownOrderTypes   []string `json:"breakdownOrderTypes,omitempty,brackets"`
+	BreakdownSites        []string `json:"breakdownSites,omitempty,brackets"`
+	BreakdownOrderMethods []string `json:"breakdownOrderMethods,omitempty,brackets"`
+	GrantedOrderTypes     []string `json:"grantedOrderTypes,omitempty,brackets"`
+	GrantedSites          []string `json:"grantedSites,omitempty,brackets"`
+}
+
+/**
+Reference related types
+*/
+
+// PriceType type
 type PriceType struct {
 	Name             string `json:"name,omitempty"`
 	Code             string `json:"code,omitempty"`
@@ -291,4 +334,25 @@ type PriceType struct {
 	FilterExpression string `json:"filterExpression,omitempty"`
 	Active           bool   `json:"active,omitempty"`
 	Ordering         int    `json:"ordering,omitempty"`
+}
+
+/**
+Task related types
+*/
+
+// Task type
+type Task struct {
+	Id          int       `json:"id,omitempty"`
+	PerformerId int       `json:"performerId,omitempty"`
+	Text        string    `json:"text,omitempty"`
+	Commentary  string    `json:"commentary,omitempty"`
+	Datetime    string    `json:"datetime,omitempty"`
+	Complete    bool      `json:"complete,omitempty"`
+	CreatedAt   string    `json:"createdAt,omitempty"`
+	Creator     int       `json:"creator,omitempty"`
+	Performer   int       `json:"performer,omitempty"`
+	Phone       string    `json:"phone,omitempty"`
+	PhoneSite   string    `json:"phoneSite,omitempty"`
+	Customer    *Customer `json:"customer,omitempty"`
+	Order       *Order    `json:"order,omitempty"`
 }

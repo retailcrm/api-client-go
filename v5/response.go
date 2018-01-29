@@ -89,3 +89,42 @@ type OrdersHistoryResponse struct {
 	History     []OrdersHistoryRecord `json:"history,omitempty,brackets"`
 	Pagination  *Pagination           `json:"pagination,omitempty"`
 }
+
+// UserResponse type
+type UserResponse struct {
+	Success bool  `json:"success"`
+	User    *User `json:"user,omitempty,brackets"`
+}
+
+// UsersResponse type
+type UsersResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Users      []User      `json:"users,omitempty,brackets"`
+}
+
+// UserGroupsResponse type
+type UserGroupsResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Groups     []UserGroup `json:"groups,omitempty,brackets"`
+}
+
+// TaskResponse type
+type TaskResponse struct {
+	Success bool  `json:"success"`
+	Task    *Task `json:"task,omitempty,brackets"`
+}
+
+// TaskChangeResponse type
+type TaskChangeResponse struct {
+	Success bool `json:"success"`
+	Id      int  `json:"id,omitempty"`
+}
+
+// TasksResponse type
+type TasksResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Tasks      []Task      `json:"tasks,omitempty,brackets"`
+}
