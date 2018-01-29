@@ -78,6 +78,12 @@ type Property struct {
 	Value string `json:"value,omitempty"`
 }
 
+// IdentifiersPair type
+type IdentifiersPair struct {
+	Id         int    `json:"id,omitempty"`
+	ExternalId string `json:"externalId,omitempty"`
+}
+
 /**
 Customer related types
 */
@@ -121,12 +127,6 @@ type Customer struct {
 // CustomerPhone type
 type CustomerPhone struct {
 	Number string `json:"number,omitempty"`
-}
-
-// CustomerIdentifiers type
-type CustomerIdentifiers struct {
-	Id         int    `json:"id,omitempty"`
-	ExternalId string `json:"externalId,omitempty"`
 }
 
 // CustomerHistoryRecord type

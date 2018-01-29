@@ -159,7 +159,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 		t.Fail()
 	}
 
-	customers := []v5.CustomerIdentifiers{{
+	customers := []v5.IdentifiersPair{{
 		Id:         cr.Id,
 		ExternalId: RandomString(8),
 	}}

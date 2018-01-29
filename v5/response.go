@@ -57,8 +57,8 @@ type CustomerChangeResponse struct {
 
 // CustomersUploadResponse type
 type CustomersUploadResponse struct {
-	Success           bool                  `json:"success"`
-	UploadedCustomers []CustomerIdentifiers `json:"uploadedCustomers,omitempty,brackets"`
+	Success           bool              `json:"success"`
+	UploadedCustomers []IdentifiersPair `json:"uploadedCustomers,omitempty,brackets"`
 }
 
 // CustomersHistoryResponse type
@@ -80,6 +80,18 @@ type OrdersResponse struct {
 	Success    bool        `json:"success"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Orders     []Order     `json:"orders,omitempty,brackets"`
+}
+
+// OrderChangeResponse type
+type OrderChangeResponse struct {
+	Success bool `json:"success"`
+	Id      int  `json:"id,omitempty"`
+}
+
+// OrdersUploadResponse type
+type OrdersUploadResponse struct {
+	Success        bool              `json:"success"`
+	UploadedOrders []IdentifiersPair `json:"uploadedOrders,omitempty,brackets"`
 }
 
 // OrdersHistoryResponse type

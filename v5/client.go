@@ -109,9 +109,21 @@ func checkBy(by string) string {
 	return context
 }
 
+// fillSite add site code to parameters if present
+func fillSite(p *url.Values, site []string) {
+	if len(site) > 0 {
+		s := site[0]
+
+		if s != "" {
+			p.Add("site", s)
+		}
+	}
+}
+
 // ApiVersions get available API versions
 func (c *Client) ApiVersions() (*VersionResponse, int, error) {
 	var resp VersionResponse
+
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/api-versions", unversionedPrefix))
 	if err != nil {
 		return &resp, status, err
@@ -125,6 +137,7 @@ func (c *Client) ApiVersions() (*VersionResponse, int, error) {
 // ApiCredentials get available API methods
 func (c *Client) ApiCredentials() (*CredentialResponse, int, error) {
 	var resp CredentialResponse
+
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/credentials", unversionedPrefix))
 	if err != nil {
 		return &resp, status, err
@@ -177,13 +190,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerCha
 		"customer": {string(customerJson[:])},
 	}
 
-	if len(site) > 0 {
-		s := site[0]
-
-		if s != "" {
-			p.Add("site", s)
-		}
-	}
+	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/create", versionedPrefix), p)
 	if err != nil {
@@ -212,13 +219,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*Cu
 		"customer": {string(customerJson[:])},
 	}
 
-	if len(site) > 0 {
-		s := site[0]
-
-		if s != "" {
-			p.Add("site", s)
-		}
-	}
+	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/%s/edit", versionedPrefix, uid), p)
 	if err != nil {
@@ -240,13 +241,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (*Custome
 		"customers": {string(uploadJson[:])},
 	}
 
-	if len(site) > 0 {
-		s := site[0]
-
-		if s != "" {
-			p.Add("site", s)
-		}
-	}
+	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/upload", versionedPrefix), p)
 	if err != nil {
@@ -259,7 +254,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (*Custome
 }
 
 // CustomersFixExternalIds method
-func (c *Client) CustomersFixExternalIds(customers []CustomerIdentifiers) (*SucessfulResponse, int, error) {
+func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (*SucessfulResponse, int, error) {
 	var resp SucessfulResponse
 
 	customersJson, _ := json.Marshal(&customers)
@@ -318,6 +313,98 @@ func (c *Client) Orders(parameters OrdersRequest) (*OrdersResponse, int, error) 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders?%s", versionedPrefix, params.Encode()))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrderCreate method
+func (c *Client) OrderCreate(order Order, site ...string) (*OrderChangeResponse, int, error) {
+	var resp OrderChangeResponse
+	orderJson, _ := json.Marshal(&order)
+
+	p := url.Values{
+		"order": {string(orderJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/create", versionedPrefix), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CustomerEdit method
+func (c *Client) OrderEdit(order Order, by string, site ...string) (*OrderChangeResponse, int, error) {
+	var resp OrderChangeResponse
+	var uid = strconv.Itoa(order.Id)
+	var context = checkBy(by)
+
+	if context == "externalId" {
+		uid = order.ExternalId
+	}
+
+	orderJson, _ := json.Marshal(&order)
+
+	p := url.Values{
+		"by":    {string(context)},
+		"order": {string(orderJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/%s/edit", versionedPrefix, uid), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrdersUpload method
+func (c *Client) OrdersUpload(orders []Order, site ...string) (*OrdersUploadResponse, int, error) {
+	var resp OrdersUploadResponse
+
+	uploadJson, _ := json.Marshal(&orders)
+
+	p := url.Values{
+		"orders": {string(uploadJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/upload", versionedPrefix), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrdersFixExternalIds method
+func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+
+	ordersJson, _ := json.Marshal(&orders)
+
+	p := url.Values{
+		"orders": {string(ordersJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/fix-external-ids", versionedPrefix), p)
 	if err != nil {
 		return &resp, status, err
 	}

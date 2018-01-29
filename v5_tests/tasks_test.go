@@ -7,26 +7,6 @@ import (
 	"github.com/retailcrm/api-client-go/v5"
 )
 
-func TestClient_TasksTask(t *testing.T) {
-	c := client()
-
-	data, st, err := c.Task(88)
-	if err != nil {
-		t.Errorf("%s", err)
-		t.Fail()
-	}
-
-	if st != http.StatusOK {
-		t.Errorf("%s", err)
-		t.Fail()
-	}
-
-	if data.Success != true {
-		t.Errorf("%s", err)
-		t.Fail()
-	}
-}
-
 func TestClient_TasksTasks(t *testing.T) {
 	c := client()
 	f := v5.TasksRequest{
@@ -82,6 +62,22 @@ func TestClient_TaskChange(t *testing.T) {
 
 	f.Id = cr.Id
 	f.Commentary = random2
+
+	gt, sg, err := c.Task(f.Id)
+	if err != nil {
+		t.Errorf("%s", err)
+		t.Fail()
+	}
+
+	if sg != http.StatusOK {
+		t.Errorf("%s", err)
+		t.Fail()
+	}
+
+	if gt.Success != true {
+		t.Errorf("%s", err)
+		t.Fail()
+	}
 
 	data, status, err := c.TaskEdit(f)
 	if err != nil {
