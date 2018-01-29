@@ -155,6 +155,7 @@ func (c *Client) Customer(id, by, site string) (*CustomerResponse, int, error) {
 
 	fw := CustomerRequest{context, site}
 	params, _ := query.Values(fw)
+
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/%s?%s", versionedPrefix, id, params.Encode()))
 	if err != nil {
 		return &resp, status, err
@@ -184,6 +185,7 @@ func (c *Client) Customers(parameters CustomersRequest) (*CustomersResponse, int
 // CustomerCreate method
 func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
+
 	customerJson, _ := json.Marshal(&customer)
 
 	p := url.Values{
@@ -296,6 +298,7 @@ func (c *Client) Order(id, by, site string) (*OrderResponse, int, error) {
 
 	fw := OrderRequest{context, site}
 	params, _ := query.Values(fw)
+
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/%s?%s", versionedPrefix, id, params.Encode()))
 	if err != nil {
 		return &resp, status, err
@@ -531,13 +534,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (*TaskChangeResponse, int
 		"task": {string(taskJson[:])},
 	}
 
-	if len(site) > 0 {
-		s := site[0]
-
-		if s != "" {
-			p.Add("site", s)
-		}
-	}
+	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/create", versionedPrefix), p)
 	if err != nil {
@@ -560,13 +557,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, e
 		"task": {string(taskJson[:])},
 	}
 
-	if len(site) > 0 {
-		s := site[0]
-
-		if s != "" {
-			p.Add("site", s)
-		}
-	}
+	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/%s/edit", versionedPrefix, uid), p)
 	if err != nil {
