@@ -2,14 +2,10 @@ package v5_tests
 
 import (
 	"net/http"
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/retailcrm/api-client-go/v5"
 )
-
-var user, _ = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
 
 func TestClient_UsersUsers(t *testing.T) {
 	c := client()
@@ -40,7 +36,7 @@ func TestClient_UsersUsers(t *testing.T) {
 func TestClient_UsersUser(t *testing.T) {
 	c := client()
 
-	data, st, err := c.User(user)
+	data, st, err := c.User(GetUser())
 	if err != nil {
 		t.Errorf("%s", err)
 		t.Fail()
@@ -83,7 +79,7 @@ func TestClient_UsersGroups(t *testing.T) {
 func TestClient_UsersUpdate(t *testing.T) {
 	c := client()
 
-	data, st, err := c.UserStatus(user, "busy")
+	data, st, err := c.UserStatus(GetUser(), "busy")
 	if err != nil {
 		t.Errorf("%s", err)
 		t.Fail()

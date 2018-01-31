@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -27,6 +28,12 @@ var r *rand.Rand // Rand for this package.
 
 func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+}
+
+func GetUser() int {
+	uid, _ := strconv.Atoi(os.Getenv("RETAILCRM_USER"))
+
+	return uid
 }
 
 func RandomString(strlen int) string {

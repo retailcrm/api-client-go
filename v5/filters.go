@@ -67,7 +67,7 @@ type CustomersHistoryFilter struct {
 
 // OrdersFilter type
 type OrdersFilter struct {
-	Ids                            []string          `url:"ids,omitempty,brackets"`
+	Ids                            []int             `url:"ids,omitempty,brackets"`
 	ExternalIds                    []string          `url:"externalIds,omitempty,brackets"`
 	Numbers                        []string          `url:"numbers,omitempty,brackets"`
 	Customer                       string            `url:"customer,omitempty"`
@@ -188,4 +188,15 @@ type TasksFilter struct {
 	DateTo      string `url:"dateTo,omitempty"`
 	Creators    []int  `url:"creators,omitempty"`
 	Performers  []int  `url:"performers,omitempty"`
+}
+
+// NotesFilter type
+type NotesFilter struct {
+	Ids                 []int    `url:"ids,omitempty,brackets"`
+	CustomerIds         []int    `url:"customerIds,omitempty,brackets"`
+	CustomerExternalIds []string `url:"customerExternalIds,omitempty,brackets"`
+	ManagerIds          []int    `url:"managerIds,omitempty,brackets"`
+	Text                string   `url:"text,omitempty"`
+	CreatedAtFrom       string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
 }

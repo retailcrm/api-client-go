@@ -28,6 +28,7 @@ func New(url string, key string) *Client {
 	}
 }
 
+// GetRequest implements GET Request
 func (c *Client) GetRequest(urlWithParameters string) ([]byte, int, error) {
 	var res []byte
 
@@ -55,6 +56,7 @@ func (c *Client) GetRequest(urlWithParameters string) ([]byte, int, error) {
 	return res, resp.StatusCode, nil
 }
 
+// PostRequest implements POST Request
 func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, error) {
 	var res []byte
 
@@ -139,6 +141,20 @@ func (c *Client) ApiCredentials() (*CredentialResponse, int, error) {
 	var resp CredentialResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/credentials", unversionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// StaticticUpdate update statistic
+func (c *Client) StaticticUpdate() (*VersionResponse, int, error) {
+	var resp VersionResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/statistic/update", versionedPrefix))
 	if err != nil {
 		return &resp, status, err
 	}
@@ -326,8 +342,8 @@ func (c *Client) Orders(parameters OrdersRequest) (*OrdersResponse, int, error) 
 }
 
 // OrderCreate method
-func (c *Client) OrderCreate(order Order, site ...string) (*OrderChangeResponse, int, error) {
-	var resp OrderChangeResponse
+func (c *Client) OrderCreate(order Order, site ...string) (*CreateResponse, int, error) {
+	var resp CreateResponse
 	orderJson, _ := json.Marshal(&order)
 
 	p := url.Values{
@@ -346,9 +362,9 @@ func (c *Client) OrderCreate(order Order, site ...string) (*OrderChangeResponse,
 	return &resp, status, err
 }
 
-// CustomerEdit method
-func (c *Client) OrderEdit(order Order, by string, site ...string) (*OrderChangeResponse, int, error) {
-	var resp OrderChangeResponse
+// OrderEdit method
+func (c *Client) OrderEdit(order Order, by string, site ...string) (*CreateResponse, int, error) {
+	var resp CreateResponse
 	var uid = strconv.Itoa(order.Id)
 	var context = checkBy(by)
 
@@ -560,6 +576,62 @@ func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, e
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/%s/edit", versionedPrefix, uid), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Notes list method
+func (c *Client) Notes(parameters NotesRequest) (*NotesResponse, int, error) {
+	var resp NotesResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/notes?%s", versionedPrefix, params.Encode()))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// NoteCreate method
+func (c *Client) NoteCreate(note Note, site ...string) (*CreateResponse, int, error) {
+	var resp CreateResponse
+
+	noteJson, _ := json.Marshal(&note)
+
+	p := url.Values{
+		"note": {string(noteJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/notes/create", versionedPrefix), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// NoteDelete method
+func (c *Client) NoteDelete(id int) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+
+	p := url.Values{
+		"id": {string(id)},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/notes/%d/delete", versionedPrefix, id), p)
 	if err != nil {
 		return &resp, status, err
 	}

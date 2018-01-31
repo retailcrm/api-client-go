@@ -21,6 +21,12 @@ type SucessfulResponse struct {
 	Success bool `json:"success,omitempty"`
 }
 
+// CreateResponse type
+type CreateResponse struct {
+	Success bool `json:"success"`
+	Id      int  `json:"id,omitempty"`
+}
+
 // VersionResponse return available API versions
 type VersionResponse struct {
 	Success  bool     `json:"success,omitempty"`
@@ -82,12 +88,6 @@ type OrdersResponse struct {
 	Orders     []Order     `json:"orders,omitempty,brackets"`
 }
 
-// OrderChangeResponse type
-type OrderChangeResponse struct {
-	Success bool `json:"success"`
-	Id      int  `json:"id,omitempty"`
-}
-
 // OrdersUploadResponse type
 type OrdersUploadResponse struct {
 	Success        bool              `json:"success"`
@@ -139,4 +139,11 @@ type TasksResponse struct {
 	Success    bool        `json:"success"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Tasks      []Task      `json:"tasks,omitempty,brackets"`
+}
+
+// NotesResponse type
+type NotesResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Notes      []Note      `json:"notes,omitempty,brackets"`
 }

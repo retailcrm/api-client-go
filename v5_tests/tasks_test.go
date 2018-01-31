@@ -9,9 +9,10 @@ import (
 
 func TestClient_TasksTasks(t *testing.T) {
 	c := client()
+
 	f := v5.TasksRequest{
 		Filter: v5.TasksFilter{
-			Creators: []int{6},
+			Creators: []int{GetUser()},
 		},
 		Page: 1,
 	}
@@ -41,7 +42,7 @@ func TestClient_TaskChange(t *testing.T) {
 
 	f := v5.Task{
 		Text:        random1,
-		PerformerId: 6,
+		PerformerId: GetUser(),
 	}
 
 	cr, sc, err := c.TaskCreate(f)

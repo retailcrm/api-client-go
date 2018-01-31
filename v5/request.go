@@ -39,7 +39,7 @@ type OrdersRequest struct {
 	Page   int          `url:"page,omitempty"`
 }
 
-// CustomersUploadRequest type
+// OrdersUploadRequest type
 type OrdersUploadRequest struct {
 	Customers []Order `url:"orders,omitempty,brackets"`
 	Site      string  `url:"site,omitempty"`
@@ -67,6 +67,13 @@ type UserGroupsRequest struct {
 
 // TasksRequest type
 type TasksRequest struct {
+	Filter TasksFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}
+
+// NotesRequest type
+type NotesRequest struct {
 	Filter TasksFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
