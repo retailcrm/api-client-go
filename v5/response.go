@@ -128,12 +128,6 @@ type TaskResponse struct {
 	Task    *Task `json:"task,omitempty,brackets"`
 }
 
-// TaskChangeResponse type
-type TaskChangeResponse struct {
-	Success bool `json:"success"`
-	Id      int  `json:"id,omitempty"`
-}
-
 // TasksResponse type
 type TasksResponse struct {
 	Success    bool        `json:"success"`

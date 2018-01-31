@@ -61,7 +61,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 	f := v5.Note{
 		Text:      "some text",
 		ManagerId: GetUser(),
-		Customer: v5.Customer{
+		Customer: &v5.Customer{
 			Id: createCustomerResponse.Id,
 		},
 	}

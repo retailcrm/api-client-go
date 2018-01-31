@@ -542,8 +542,8 @@ func (c *Client) Tasks(parameters TasksRequest) (*TasksResponse, int, error) {
 }
 
 // TaskCreate method
-func (c *Client) TaskCreate(task Task, site ...string) (*TaskChangeResponse, int, error) {
-	var resp TaskChangeResponse
+func (c *Client) TaskCreate(task Task, site ...string) (*CreateResponse, int, error) {
+	var resp CreateResponse
 	taskJson, _ := json.Marshal(&task)
 
 	p := url.Values{

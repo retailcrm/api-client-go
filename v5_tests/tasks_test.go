@@ -37,11 +37,8 @@ func TestClient_TasksTasks(t *testing.T) {
 func TestClient_TaskChange(t *testing.T) {
 	c := client()
 
-	random1 := RandomString(15)
-	random2 := RandomString(20)
-
 	f := v5.Task{
-		Text:        random1,
+		Text:        RandomString(15),
 		PerformerId: GetUser(),
 	}
 
@@ -62,7 +59,7 @@ func TestClient_TaskChange(t *testing.T) {
 	}
 
 	f.Id = cr.Id
-	f.Commentary = random2
+	f.Commentary = RandomString(20)
 
 	gt, sg, err := c.Task(f.Id)
 	if err != nil {
