@@ -378,3 +378,19 @@ type Note struct {
 	CreatedAt string    `json:"createdAt,omitempty"`
 	Customer  *Customer `json:"customer,omitempty"`
 }
+
+/*
+	Payments related types
+*/
+
+// Payment type
+type Payment struct {
+	Id         int     `json:"id,omitempty"`
+	ExternalId string  `json:"externalId,omitempty"`
+	PaidAt     string  `json:"paidAt,omitempty"`
+	Amount     float32 `json:"amount,omitempty"`
+	Comment    string  `json:"comment,omitempty"`
+	Status     string  `json:"status,omitempty"`
+	Type       string  `json:"type,omitempty"`
+	Order      *Order  `json:"order,omitempty"`
+}

@@ -640,3 +640,71 @@ func (c *Client) NoteDelete(id int) (*SucessfulResponse, int, error) {
 
 	return &resp, status, err
 }
+
+// PaymentCreate method
+func (c *Client) PaymentCreate(payment Payment, site ...string) (*CreateResponse, int, error) {
+	var resp CreateResponse
+
+	paymentJson, _ := json.Marshal(&payment)
+
+	p := url.Values{
+		"payment": {string(paymentJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/create", versionedPrefix), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentDelete method
+func (c *Client) PaymentDelete(id int) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+
+	p := url.Values{
+		"id": {string(id)},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/%d/delete", versionedPrefix, id), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentEdit method
+func (c *Client) PaymentEdit(payment Payment, by string, site ...string) (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
+	var uid = strconv.Itoa(payment.Id)
+	var context = checkBy(by)
+
+	if context == "externalId" {
+		uid = payment.ExternalId
+	}
+
+	paymentJson, _ := json.Marshal(&payment)
+
+	p := url.Values{
+		"payment": {string(paymentJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/%s/edit", versionedPrefix, uid), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
