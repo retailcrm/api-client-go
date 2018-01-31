@@ -78,3 +78,10 @@ type NotesRequest struct {
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
+
+// SegmentsRequest type
+type SegmentsRequest struct {
+	Filter SegmentsFilter `url:"filter,omitempty"`
+	Limit  int            `url:"limit,omitempty"`
+	Page   int            `url:"page,omitempty"`
+}

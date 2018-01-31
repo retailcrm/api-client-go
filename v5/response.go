@@ -141,3 +141,112 @@ type NotesResponse struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Notes      []Note      `json:"notes,omitempty,brackets"`
 }
+
+// SegmentsResponse type
+type SegmentsResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Segments   []Segment   `json:"segments,omitempty,brackets"`
+}
+
+// CountriesResponse type
+type CountriesResponse struct {
+	Success      bool     `json:"success"`
+	CountriesIso []string `json:"countriesIso,omitempty,brackets"`
+}
+
+// CostGroupsResponse type
+type CostGroupsResponse struct {
+	Success    bool        `json:"success"`
+	CostGroups []CostGroup `json:"costGroups,omitempty,brackets"`
+}
+
+// CostItemsResponse type
+type CostItemsResponse struct {
+	Success   bool       `json:"success"`
+	CostItems []CostItem `json:"costItems,omitempty,brackets"`
+}
+
+// CouriersResponse type
+type CouriersResponse struct {
+	Success  bool      `json:"success"`
+	Couriers []Courier `json:"couriers,omitempty,brackets"`
+}
+
+// DeliveryServiceResponse type
+type DeliveryServiceResponse struct {
+	Success          bool                       `json:"success"`
+	DeliveryServices map[string]DeliveryService `json:"deliveryServices,omitempty,brackets"`
+}
+
+// DeliveryTypesResponse type
+type DeliveryTypesResponse struct {
+	Success       bool                    `json:"success"`
+	DeliveryTypes map[string]DeliveryType `json:"deliveryTypes,omitempty,brackets"`
+}
+
+// LegalEntitiesResponse type
+type LegalEntitiesResponse struct {
+	Success       bool          `json:"success"`
+	LegalEntities []LegalEntity `json:"legalEntities,omitempty,brackets"`
+}
+
+// OrderMethodsResponse type
+type OrderMethodsResponse struct {
+	Success      bool                   `json:"success"`
+	OrderMethods map[string]OrderMethod `json:"orderMethods,omitempty,brackets"`
+}
+
+// OrderTypesResponse type
+type OrderTypesResponse struct {
+	Success    bool                 `json:"success"`
+	OrderTypes map[string]OrderType `json:"orderTypes,omitempty,brackets"`
+}
+
+// PaymentStatusesResponse type
+type PaymentStatusesResponse struct {
+	Success         bool                     `json:"success"`
+	PaymentStatuses map[string]PaymentStatus `json:"paymentStatuses,omitempty,brackets"`
+}
+
+// PaymentTypesResponse type
+type PaymentTypesResponse struct {
+	Success      bool                   `json:"success"`
+	PaymentTypes map[string]PaymentType `json:"paymentTypes,omitempty,brackets"`
+}
+
+// PriceTypesResponse type
+type PriceTypesResponse struct {
+	Success    bool        `json:"success"`
+	PriceTypes []PriceType `json:"priceTypes,omitempty,brackets"`
+}
+
+// ProductStatusesResponse type
+type ProductStatusesResponse struct {
+	Success         bool                     `json:"success"`
+	ProductStatuses map[string]ProductStatus `json:"productStatuses,omitempty,brackets"`
+}
+
+// StatusesResponse type
+type StatusesResponse struct {
+	Success  bool              `json:"success"`
+	Statuses map[string]Status `json:"statuses,omitempty,brackets"`
+}
+
+// StatusGroupsResponse type
+type StatusGroupsResponse struct {
+	Success      bool                   `json:"success"`
+	StatusGroups map[string]StatusGroup `json:"statusGroups,omitempty,brackets"`
+}
+
+// SitesResponse type
+type SitesResponse struct {
+	Success bool            `json:"success"`
+	Sites   map[string]Site `json:"sites,omitempty,brackets"`
+}
+
+// StoresResponse type
+type StoresResponse struct {
+	Success bool    `json:"success"`
+	Stores  []Store `json:"stores,omitempty,brackets"`
+}

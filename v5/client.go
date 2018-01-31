@@ -151,10 +151,26 @@ func (c *Client) ApiCredentials() (*CredentialResponse, int, error) {
 }
 
 // StaticticUpdate update statistic
-func (c *Client) StaticticUpdate() (*VersionResponse, int, error) {
-	var resp VersionResponse
+func (c *Client) StaticticUpdate() (*SucessfulResponse, int, error) {
+	var resp SucessfulResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/statistic/update", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Segments get segments
+func (c *Client) Segments(parameters SegmentsRequest) (*SegmentsResponse, int, error) {
+	var resp SegmentsResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/segments?%s", versionedPrefix, params.Encode()))
 	if err != nil {
 		return &resp, status, err
 	}
@@ -700,6 +716,244 @@ func (c *Client) PaymentEdit(payment Payment, by string, site ...string) (*Suces
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/%s/edit", versionedPrefix, uid), p)
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Countries method
+func (c *Client) Countries() (*CountriesResponse, int, error) {
+	var resp CountriesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/countries", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CostGroups method
+func (c *Client) CostGroups() (*CostGroupsResponse, int, error) {
+	var resp CostGroupsResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/cost-groups", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CostItems method
+func (c *Client) CostItems() (*CostItemsResponse, int, error) {
+	var resp CostItemsResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/cost-items", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Couriers method
+func (c *Client) Couriers() (*CouriersResponse, int, error) {
+	var resp CouriersResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/couriers", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryService method
+func (c *Client) DeliveryService() (*DeliveryServiceResponse, int, error) {
+	var resp DeliveryServiceResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/delivery-services", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryTypes method
+func (c *Client) DeliveryTypes() (*DeliveryTypesResponse, int, error) {
+	var resp DeliveryTypesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/delivery-types", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// LegalEntities method
+func (c *Client) LegalEntities() (*LegalEntitiesResponse, int, error) {
+	var resp LegalEntitiesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/legal-entities", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrderMethods method
+func (c *Client) OrderMethods() (*OrderMethodsResponse, int, error) {
+	var resp OrderMethodsResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/order-methods", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrderTypes method
+func (c *Client) OrderTypes() (*OrderTypesResponse, int, error) {
+	var resp OrderTypesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/order-types", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentStatuses method
+func (c *Client) PaymentStatuses() (*PaymentStatusesResponse, int, error) {
+	var resp PaymentStatusesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/payment-statuses", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentTypes method
+func (c *Client) PaymentTypes() (*PaymentTypesResponse, int, error) {
+	var resp PaymentTypesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/payment-types", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PriceTypes method
+func (c *Client) PriceTypes() (*PriceTypesResponse, int, error) {
+	var resp PriceTypesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/price-types", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// ProductStatuses method
+func (c *Client) ProductStatuses() (*ProductStatusesResponse, int, error) {
+	var resp ProductStatusesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/product-statuses", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Statuses method
+func (c *Client) Statuses() (*StatusesResponse, int, error) {
+	var resp StatusesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/statuses", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// StatusGroups method
+func (c *Client) StatusGroups() (*StatusGroupsResponse, int, error) {
+	var resp StatusGroupsResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/status-groups", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Sites method
+func (c *Client) Sites() (*SitesResponse, int, error) {
+	var resp SitesResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/sites", versionedPrefix))
+	if err != nil {
+		return &resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Stores method
+func (c *Client) Stores() (*StoresResponse, int, error) {
+	var resp StoresResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/stores", versionedPrefix))
 	if err != nil {
 		return &resp, status, err
 	}

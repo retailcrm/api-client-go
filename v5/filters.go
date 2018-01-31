@@ -9,14 +9,14 @@ type CustomersFilter struct {
 	Name                       string            `url:"name,omitempty"`
 	Email                      string            `url:"email,omitempty"`
 	Notes                      string            `url:"notes,omitempty"`
-	MinOrdersCount             string            `url:"minOrdersCount,omitempty"`
-	MaxOrdersCount             string            `url:"maxOrdersCount,omitempty"`
-	MinAverageSumm             string            `url:"minAverageSumm,omitempty"`
-	MaxAverageSumm             string            `url:"maxAverageSumm,omitempty"`
-	MinTotalSumm               string            `url:"minTotalSumm,omitempty"`
-	MaxTotalSumm               string            `url:"maxTotalSumm,omitempty"`
-	MinCostSumm                string            `url:"minCostSumm,omitempty"`
-	MaxCostSumm                string            `url:"maxCostSumm,omitempty"`
+	MinOrdersCount             int               `url:"minOrdersCount,omitempty"`
+	MaxOrdersCount             int               `url:"maxOrdersCount,omitempty"`
+	MinAverageSumm             float32           `url:"minAverageSumm,omitempty"`
+	MaxAverageSumm             float32           `url:"maxAverageSumm,omitempty"`
+	MinTotalSumm               float32           `url:"minTotalSumm,omitempty"`
+	MaxTotalSumm               float32           `url:"maxTotalSumm,omitempty"`
+	MinCostSumm                float32           `url:"minCostSumm,omitempty"`
+	MaxCostSumm                float32           `url:"maxCostSumm,omitempty"`
 	ClassSegment               string            `url:"classSegment,omitempty"`
 	Vip                        int               `url:"vip,omitempty"`
 	Bad                        int               `url:"bad,omitempty"`
@@ -199,4 +199,16 @@ type NotesFilter struct {
 	Text                string   `url:"text,omitempty"`
 	CreatedAtFrom       string   `url:"createdAtFrom,omitempty"`
 	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
+}
+
+// SegmentsFilter type
+type SegmentsFilter struct {
+	Ids               []int  `url:"ids,omitempty,brackets"`
+	Active            int    `url:"active,omitempty,brackets"`
+	Name              string `url:"name,omitempty,brackets"`
+	Type              string `url:"type,omitempty,brackets"`
+	MinCustomersCount int    `url:"minCustomersCount,omitempty,brackets"`
+	MaxCustomersCount int    `url:"maxCustomersCount,omitempty,brackets"`
+	DateFrom          string `url:"dateFrom,omitempty"`
+	DateTo            string `url:"dateTo,omitempty"`
 }

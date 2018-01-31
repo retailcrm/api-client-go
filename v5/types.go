@@ -40,6 +40,15 @@ type Address struct {
 	Text         string `json:"text,omitempty"`
 }
 
+// GeoHierarchyRow type
+type GeoHierarchyRow struct {
+	Country  string `json:"country,omitempty"`
+	Region   string `json:"region,omitempty"`
+	RegionId int    `json:"regionId,omitempty"`
+	City     string `json:"city,omitempty"`
+	CityId   int    `json:"cityId,omitempty"`
+}
+
 // Source type
 type Source struct {
 	Source   string `json:"source,omitempty"`
@@ -92,42 +101,42 @@ Customer related types
 
 // Customer type
 type Customer struct {
-	Id                           int             `json:"id,omitempty"`
-	ExternalId                   string          `json:"externalId,omitempty"`
-	FirstName                    string          `json:"firstName,omitempty"`
-	LastName                     string          `json:"lastName,omitempty"`
-	Patronymic                   string          `json:"patronymic,omitempty"`
-	Sex                          string          `json:"sex,omitempty"`
-	Email                        string          `json:"email,omitempty"`
-	Phones                       []CustomerPhone `json:"phones,brackets,omitempty"`
-	Address                      *Address        `json:"address,omitempty"`
-	CreatedAt                    string          `json:"createdAt,omitempty"`
-	Birthday                     string          `json:"birthday,omitempty"`
-	ManagerId                    int             `json:"managerId,omitempty"`
-	Vip                          bool            `json:"vip,omitempty"`
-	Bad                          bool            `json:"bad,omitempty"`
-	Site                         string          `json:"site,omitempty"`
-	Source                       *Source         `json:"source,omitempty"`
-	Contragent                   *Contragent     `json:"contragent,omitempty"`
-	PersonalDiscount             float32         `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32         `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string          `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string          `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32         `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32         `json:"marginSumm,omitempty"`
-	TotalSumm                    float32         `json:"totalSumm,omitempty"`
-	AverageSumm                  float32         `json:"averageSumm,omitempty"`
-	OrdersCount                  int             `json:"ordersCount,omitempty"`
-	CostSumm                     float32         `json:"costSumm,omitempty"`
-	MaturationTime               int             `json:"maturationTime,omitempty"`
-	FirstClientId                string          `json:"firstClientId,omitempty"`
-	LastClientId                 string          `json:"lastClientId,omitempty"`
-	BrowserId                    string          `json:"browserId,omitempty"`
+	Id                           int         `json:"id,omitempty"`
+	ExternalId                   string      `json:"externalId,omitempty"`
+	FirstName                    string      `json:"firstName,omitempty"`
+	LastName                     string      `json:"lastName,omitempty"`
+	Patronymic                   string      `json:"patronymic,omitempty"`
+	Sex                          string      `json:"sex,omitempty"`
+	Email                        string      `json:"email,omitempty"`
+	Phones                       []Phone     `json:"phones,brackets,omitempty"`
+	Address                      *Address    `json:"address,omitempty"`
+	CreatedAt                    string      `json:"createdAt,omitempty"`
+	Birthday                     string      `json:"birthday,omitempty"`
+	ManagerId                    int         `json:"managerId,omitempty"`
+	Vip                          bool        `json:"vip,omitempty"`
+	Bad                          bool        `json:"bad,omitempty"`
+	Site                         string      `json:"site,omitempty"`
+	Source                       *Source     `json:"source,omitempty"`
+	Contragent                   *Contragent `json:"contragent,omitempty"`
+	PersonalDiscount             float32     `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32     `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string      `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string      `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32     `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32     `json:"marginSumm,omitempty"`
+	TotalSumm                    float32     `json:"totalSumm,omitempty"`
+	AverageSumm                  float32     `json:"averageSumm,omitempty"`
+	OrdersCount                  int         `json:"ordersCount,omitempty"`
+	CostSumm                     float32     `json:"costSumm,omitempty"`
+	MaturationTime               int         `json:"maturationTime,omitempty"`
+	FirstClientId                string      `json:"firstClientId,omitempty"`
+	LastClientId                 string      `json:"lastClientId,omitempty"`
+	BrowserId                    string      `json:"browserId,omitempty"`
 	// CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
 }
 
-// CustomerPhone type
-type CustomerPhone struct {
+// Phone type
+type Phone struct {
 	Number string `json:"number,omitempty"`
 }
 
@@ -332,20 +341,6 @@ type UserGroup struct {
 }
 
 /**
-Reference related types
-*/
-
-// PriceType type
-type PriceType struct {
-	Name             string `json:"name,omitempty"`
-	Code             string `json:"code,omitempty"`
-	Description      string `json:"description,omitempty"`
-	FilterExpression string `json:"filterExpression,omitempty"`
-	Active           bool   `json:"active,omitempty"`
-	Ordering         int    `json:"ordering,omitempty"`
-}
-
-/**
 Task related types
 */
 
@@ -393,4 +388,221 @@ type Payment struct {
 	Status     string  `json:"status,omitempty"`
 	Type       string  `json:"type,omitempty"`
 	Order      *Order  `json:"order,omitempty"`
+}
+
+/*
+	Segment related types
+*/
+
+// Segment type
+type Segment struct {
+	Id             int    `json:"id,omitempty"`
+	Code           string `json:"code,omitempty"`
+	Name           string `json:"name,omitempty"`
+	CreatedAt      string `json:"createdAt,omitempty"`
+	CustomersCount int    `json:"customersCount,omitempty"`
+	IsDynamic      bool   `json:"isDynamic,omitempty"`
+	Active         bool   `json:"active,omitempty"`
+}
+
+/**
+Reference related types
+*/
+
+// CostGroup type
+type CostGroup struct {
+	Name     string `json:"name,omitempty"`
+	Code     string `json:"code,omitempty"`
+	Color    string `json:"color,omitempty"`
+	Active   bool   `json:"active,omitempty"`
+	Ordering int    `json:"ordering,omitempty"`
+}
+
+// CostItem type
+type CostItem struct {
+	Name            string  `json:"name,omitempty"`
+	Code            string  `json:"code,omitempty"`
+	Group           string  `json:"group,omitempty"`
+	Type            string  `json:"type,omitempty"`
+	Active          bool    `json:"active,omitempty"`
+	AppliesToOrders bool    `json:"appliesToOrders,omitempty"`
+	AppliesToUsers  bool    `json:"appliesToUsers,omitempty"`
+	Ordering        int     `json:"ordering,omitempty"`
+	Source          *Source `json:"source,omitempty"`
+}
+
+// Courier type
+type Courier struct {
+	Id          int    `json:"id,omitempty"`
+	FirstName   string `json:"firstName,omitempty"`
+	LastName    string `json:"lastName,omitempty"`
+	Patronymic  string `json:"patronymic,omitempty"`
+	Email       string `json:"email,omitempty"`
+	Description string `json:"description,omitempty"`
+	Active      bool   `json:"active,omitempty"`
+	Phone       *Phone `json:"phone,omitempty"`
+}
+
+// DeliveryService type
+type DeliveryService struct {
+	Name   string `json:"name,omitempty"`
+	Code   string `json:"code,omitempty"`
+	Active bool   `json:"active,omitempty"`
+}
+
+// DeliveryType type
+type DeliveryType struct {
+	Name             string   `json:"name,omitempty"`
+	Code             string   `json:"code,omitempty"`
+	Active           bool     `json:"active,omitempty"`
+	DefaultCost      float32  `json:"defaultCost,omitempty"`
+	DefaultNetCost   float32  `json:"defaultNetCost,omitempty"`
+	Description      string   `json:"description,omitempty"`
+	IntegrationCode  string   `json:"integrationCode,omitempty"`
+	VatRate          string   `json:"vatRate,omitempty"`
+	DefaultForCrm    bool     `json:"defaultForCrm,omitempty"`
+	DeliveryServices []string `json:"deliveryServices,omitempty"`
+	PaymentTypes     []string `json:"paymentTypes,omitempty"`
+}
+
+// LegalEntity type
+type LegalEntity struct {
+	Code              string `json:"code,omitempty"`
+	VatRate           string `json:"vatRate,omitempty"`
+	CountryIso        string `json:"countryIso,omitempty"`
+	ContragentType    string `json:"contragentType,omitempty"`
+	LegalName         string `json:"legalName,omitempty"`
+	LegalAddress      string `json:"legalAddress,omitempty"`
+	INN               string `json:"INN,omitempty"`
+	OKPO              string `json:"OKPO,omitempty"`
+	KPP               string `json:"KPP,omitempty"`
+	OGRN              string `json:"OGRN,omitempty"`
+	OGRNIP            string `json:"OGRNIP,omitempty"`
+	CertificateNumber string `json:"certificateNumber,omitempty"`
+	CertificateDate   string `json:"certificateDate,omitempty"`
+	BIK               string `json:"BIK,omitempty"`
+	Bank              string `json:"bank,omitempty"`
+	BankAddress       string `json:"bankAddress,omitempty"`
+	CorrAccount       string `json:"corrAccount,omitempty"`
+	BankAccount       string `json:"bankAccount,omitempty"`
+}
+
+// OrderMethod type
+type OrderMethod struct {
+	Name          string `json:"name,omitempty"`
+	Code          string `json:"code,omitempty"`
+	Active        bool   `json:"active,omitempty"`
+	DefaultForCrm bool   `json:"defaultForCrm,omitempty"`
+	DefaultForApi bool   `json:"defaultForApi,omitempty"`
+}
+
+// OrderType type
+type OrderType struct {
+	Name          string `json:"name,omitempty"`
+	Code          string `json:"code,omitempty"`
+	Active        bool   `json:"active,omitempty"`
+	DefaultForCrm bool   `json:"defaultForCrm,omitempty"`
+	DefaultForApi bool   `json:"defaultForApi,omitempty"`
+}
+
+// PaymentStatus type
+type PaymentStatus struct {
+	Name            string   `json:"name,omitempty"`
+	Code            string   `json:"code,omitempty"`
+	Active          bool     `json:"active,omitempty"`
+	DefaultForCrm   bool     `json:"defaultForCrm,omitempty"`
+	DefaultForApi   bool     `json:"defaultForApi,omitempty"`
+	PaymentComplete bool     `json:"paymentComplete,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	Ordering        int      `json:"ordering,omitempty"`
+	PaymentTypes    []string `json:"paymentTypes,omitempty,brackets"`
+}
+
+// PaymentType type
+type PaymentType struct {
+	Name            string   `json:"name,omitempty"`
+	Code            string   `json:"code,omitempty"`
+	Active          bool     `json:"active,omitempty"`
+	DefaultForCrm   bool     `json:"defaultForCrm,omitempty"`
+	DefaultForApi   bool     `json:"defaultForApi,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	DeliveryTypes   []string `json:"deliveryTypes,omitempty,brackets"`
+	PaymentStatuses []string `json:"PaymentStatuses,omitempty,brackets"`
+}
+
+// PriceType type
+type PriceType struct {
+	Id               int               `json:"id,omitempty"`
+	Code             string            `json:"code,omitempty"`
+	Name             string            `json:"name,omitempty"`
+	Active           bool              `json:"active,omitempty"`
+	Default          bool              `json:"default,omitempty"`
+	Description      string            `json:"description,omitempty"`
+	FilterExpression string            `json:"filterExpression,omitempty"`
+	Ordering         int               `json:"ordering,omitempty"`
+	Groups           []string          `json:"groups,omitempty,brackets"`
+	Geo              []GeoHierarchyRow `json:"geo,omitempty,brackets"`
+}
+
+// ProductStatus type
+type ProductStatus struct {
+	Name                        string `json:"name,omitempty"`
+	Code                        string `json:"code,omitempty"`
+	Active                      bool   `json:"active,omitempty"`
+	Ordering                    int    `json:"ordering,omitempty"`
+	CreatedAt                   string `json:"createdAt,omitempty"`
+	CancelStatus                bool   `json:"cancelStatus,omitempty"`
+	OrderStatusByProductStatus  string `json:"orderStatusByProductStatus,omitempty"`
+	OrderStatusForProductStatus string `json:"orderStatusForProductStatus,omitempty"`
+}
+
+// Status type
+type Status struct {
+	Name     string `json:"name,omitempty"`
+	Code     string `json:"code,omitempty"`
+	Active   bool   `json:"active,omitempty"`
+	Ordering int    `json:"ordering,omitempty"`
+	Group    string `json:"group,omitempty"`
+}
+
+// StatusGroup type
+type StatusGroup struct {
+	Name     string   `json:"name,omitempty"`
+	Code     string   `json:"code,omitempty"`
+	Active   bool     `json:"active,omitempty"`
+	Ordering int      `json:"ordering,omitempty"`
+	Process  bool     `json:"process,omitempty"`
+	Statuses []string `json:"statuses,omitempty,brackets"`
+}
+
+// Site type
+type Site struct {
+	Name             string       `json:"name,omitempty"`
+	Code             string       `json:"code,omitempty"`
+	Url              string       `json:"url,omitempty"`
+	Description      string       `json:"description,omitempty"`
+	Phones           string       `json:"phones,omitempty"`
+	Zip              string       `json:"zip,omitempty"`
+	Address          string       `json:"address,omitempty"`
+	CountryIso       string       `json:"countryIso,omitempty"`
+	YmlUrl           string       `json:"ymlUrl,omitempty"`
+	LoadFromYml      bool         `json:"loadFromYml,omitempty"`
+	CatalogUpdatedAt string       `json:"catalogUpdatedAt,omitempty"`
+	CatalogLoadingAt string       `json:"catalogLoadingAt,omitempty"`
+	Contragent       *LegalEntity `json:"contragent,omitempty"`
+}
+
+// Store type
+type Store struct {
+	Name          string   `json:"name,omitempty"`
+	Code          string   `json:"code,omitempty"`
+	ExternalId    string   `json:"externalId,omitempty"`
+	Description   string   `json:"description,omitempty"`
+	XmlId         string   `json:"xmlId,omitempty"`
+	Email         string   `json:"email,omitempty"`
+	Type          string   `json:"type,omitempty"`
+	InventoryType string   `json:"inventoryType,omitempty"`
+	Active        bool     `json:"active,omitempty"`
+	Phone         *Phone   `json:"phone,omitempty"`
+	Address       *Address `json:"address,omitempty"`
 }
