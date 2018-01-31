@@ -11,36 +11,43 @@ go get -x github.com/retailcrm/api-client-go
 ## Usage
 
 ```golang
+package main
+
 import (
-	c "github.com/retailcrm/api-client-go"
+	"fmt"
+	"net/http"
+
+	"github.com/retailcrm/api-client-go/v5"
 )
 
-var client = c.Version5("https://demo.retailcrm.ru", "09jIJ09j0JKhgyfvyuUIKhiugF")
+func main() {
+	var client = v5.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF")
 
-data, status, err := c.Customers(CustomersRequest{
-    Filter: CustomersFilter{
-        MinCostSumm: 500,
-    },
-    Page: 2,
-})
+	data, status, err := client.Orders(v5.OrdersRequest{
+		Filter: v5.OrdersFilter{},
+		Limit: 20,
+		Page: 1,
+	})
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
 
-if err != nil {
-    t.Errorf("%s", err)
-    t.Fail()
+	if status >= http.StatusBadRequest {
+		fmt.Printf("%v", err)
+	}
+
+	for _, value := range data.Orders {
+		fmt.Printf("%v\n", value.Email)
+	}
+
+	fmt.Println(data.Orders[1].FirstName)
 }
-
-if status >= http.StatusBadRequest {
-    t.Errorf("%s", err)
-    t.Fail()
-}
-
-var email = data.Customers[0].Email
 ```
 
 ## Testing
 
 ```bash
-export RETAILCRM_URL="https://demo.retailcrm.ru"
+export RETAILCRM_URL="https://demo.retailcrm.pro"
 export RETAILCRM_KEY="09jIJ09j0JKhgyfvyuUIKhiugF"
 export RETAILCRM_USER="1"
 
