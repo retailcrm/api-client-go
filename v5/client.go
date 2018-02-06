@@ -2,7 +2,6 @@ package v5
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -29,36 +28,46 @@ func New(url string, key string) *Client {
 }
 
 // GetRequest implements GET Request
-func (c *Client) GetRequest(urlWithParameters string) ([]byte, int, error) {
+func (c *Client) GetRequest(urlWithParameters string) ([]byte, int, ErrorResponse) {
 	var res []byte
+	var bug ErrorResponse
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", c.Url, urlWithParameters), nil)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
+		return res, 0, bug
 	}
 
 	req.Header.Set("X-API-KEY", c.Key)
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
+		return res, 0, bug
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return res, resp.StatusCode, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
+		bug.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, bug
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
 	}
 
-	return res, resp.StatusCode, nil
+	eresp, _ := c.ErrorResponse(res)
+	if eresp.ErrorMsg != "" {
+		return res, resp.StatusCode, eresp
+	}
+
+	return res, resp.StatusCode, bug
 }
 
 // PostRequest implements POST Request
-func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, error) {
+func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, ErrorResponse) {
 	var res []byte
+	var bug ErrorResponse
 
 	req, err := http.NewRequest(
 		"POST",
@@ -66,7 +75,8 @@ func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 		strings.NewReader(postParams.Encode()),
 	)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
+		return res, 0, bug
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -74,19 +84,27 @@ func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
+		return res, 0, bug
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return res, resp.StatusCode, errors.New(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
+		bug.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, bug
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		return res, 0, err
+		bug.ErrorMsg = err.Error()
+		return res, 0, bug
 	}
 
-	return res, resp.StatusCode, nil
+	eresp, _ := c.ErrorResponse(res)
+	if eresp.ErrorMsg != "" {
+		return res, resp.StatusCode, eresp
+	}
+
+	return res, resp.StatusCode, bug
 }
 
 func buildRawResponse(resp *http.Response) ([]byte, error) {
@@ -123,65 +141,65 @@ func fillSite(p *url.Values, site []string) {
 }
 
 // ApiVersions get available API versions
-func (c *Client) ApiVersions() (*VersionResponse, int, error) {
+func (c *Client) ApiVersions() (*VersionResponse, int, ErrorResponse) {
 	var resp VersionResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/api-versions", unversionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // ApiCredentials get available API methods
-func (c *Client) ApiCredentials() (*CredentialResponse, int, error) {
+func (c *Client) ApiCredentials() (*CredentialResponse, int, ErrorResponse) {
 	var resp CredentialResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/credentials", unversionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // StaticticUpdate update statistic
-func (c *Client) StaticticUpdate() (*SucessfulResponse, int, error) {
+func (c *Client) StaticticUpdate() (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/statistic/update", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Segments get segments
-func (c *Client) Segments(parameters SegmentsRequest) (*SegmentsResponse, int, error) {
+func (c *Client) Segments(parameters SegmentsRequest) (*SegmentsResponse, int, ErrorResponse) {
 	var resp SegmentsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/segments?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Customer get method
-func (c *Client) Customer(id, by, site string) (*CustomerResponse, int, error) {
+func (c *Client) Customer(id, by, site string) (*CustomerResponse, int, ErrorResponse) {
 	var resp CustomerResponse
 	var context = checkBy(by)
 
@@ -189,33 +207,33 @@ func (c *Client) Customer(id, by, site string) (*CustomerResponse, int, error) {
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/%s?%s", versionedPrefix, id, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Customers list method
-func (c *Client) Customers(parameters CustomersRequest) (*CustomersResponse, int, error) {
+func (c *Client) Customers(parameters CustomersRequest) (*CustomersResponse, int, ErrorResponse) {
 	var resp CustomersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CustomerCreate method
-func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerChangeResponse, int, error) {
+func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerChangeResponse, int, ErrorResponse) {
 	var resp CustomerChangeResponse
 
 	customerJson, _ := json.Marshal(&customer)
@@ -227,17 +245,17 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (*CustomerCha
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/create", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CustomerEdit method
-func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*CustomerChangeResponse, int, error) {
+func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*CustomerChangeResponse, int, ErrorResponse) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.Id)
 	var context = checkBy(by)
@@ -256,17 +274,17 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (*Cu
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/%s/edit", versionedPrefix, uid), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CustomersUpload method
-func (c *Client) CustomersUpload(customers []Customer, site ...string) (*CustomersUploadResponse, int, error) {
+func (c *Client) CustomersUpload(customers []Customer, site ...string) (*CustomersUploadResponse, int, ErrorResponse) {
 	var resp CustomersUploadResponse
 
 	uploadJson, _ := json.Marshal(&customers)
@@ -278,17 +296,17 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (*Custome
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/upload", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CustomersFixExternalIds method
-func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (*SucessfulResponse, int, error) {
+func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	customersJson, _ := json.Marshal(&customers)
@@ -298,33 +316,33 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (*Sucessfu
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/fix-external-ids", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CustomersHistory method
-func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (*CustomersHistoryResponse, int, error) {
+func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (*CustomersHistoryResponse, int, ErrorResponse) {
 	var resp CustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/history?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Order get method
-func (c *Client) Order(id, by, site string) (*OrderResponse, int, error) {
+func (c *Client) Order(id, by, site string) (*OrderResponse, int, ErrorResponse) {
 	var resp OrderResponse
 	var context = checkBy(by)
 
@@ -332,33 +350,33 @@ func (c *Client) Order(id, by, site string) (*OrderResponse, int, error) {
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/%s?%s", versionedPrefix, id, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Orders list method
-func (c *Client) Orders(parameters OrdersRequest) (*OrdersResponse, int, error) {
+func (c *Client) Orders(parameters OrdersRequest) (*OrdersResponse, int, ErrorResponse) {
 	var resp OrdersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrderCreate method
-func (c *Client) OrderCreate(order Order, site ...string) (*CreateResponse, int, error) {
+func (c *Client) OrderCreate(order Order, site ...string) (*CreateResponse, int, ErrorResponse) {
 	var resp CreateResponse
 	orderJson, _ := json.Marshal(&order)
 
@@ -369,17 +387,17 @@ func (c *Client) OrderCreate(order Order, site ...string) (*CreateResponse, int,
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/create", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrderEdit method
-func (c *Client) OrderEdit(order Order, by string, site ...string) (*CreateResponse, int, error) {
+func (c *Client) OrderEdit(order Order, by string, site ...string) (*CreateResponse, int, ErrorResponse) {
 	var resp CreateResponse
 	var uid = strconv.Itoa(order.Id)
 	var context = checkBy(by)
@@ -398,17 +416,17 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (*CreateRespo
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/%s/edit", versionedPrefix, uid), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrdersUpload method
-func (c *Client) OrdersUpload(orders []Order, site ...string) (*OrdersUploadResponse, int, error) {
+func (c *Client) OrdersUpload(orders []Order, site ...string) (*OrdersUploadResponse, int, ErrorResponse) {
 	var resp OrdersUploadResponse
 
 	uploadJson, _ := json.Marshal(&orders)
@@ -420,17 +438,17 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (*OrdersUploadResp
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/upload", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrdersFixExternalIds method
-func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (*SucessfulResponse, int, error) {
+func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	ordersJson, _ := json.Marshal(&orders)
@@ -440,77 +458,77 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (*SucessfulRespo
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/fix-external-ids", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrdersHistory method
-func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (*CustomersHistoryResponse, int, error) {
+func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (*CustomersHistoryResponse, int, ErrorResponse) {
 	var resp CustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/history?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // User get method
-func (c *Client) User(id int) (*UserResponse, int, error) {
+func (c *Client) User(id int) (*UserResponse, int, ErrorResponse) {
 	var resp UserResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/users/%d", versionedPrefix, id))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Users list method
-func (c *Client) Users(parameters UsersRequest) (*UsersResponse, int, error) {
+func (c *Client) Users(parameters UsersRequest) (*UsersResponse, int, ErrorResponse) {
 	var resp UsersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/users?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // UserGroups list method
-func (c *Client) UserGroups(parameters UserGroupsRequest) (*UserGroupsResponse, int, error) {
+func (c *Client) UserGroups(parameters UserGroupsRequest) (*UserGroupsResponse, int, ErrorResponse) {
 	var resp UserGroupsResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/user-groups", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // UserStatus update method
-func (c *Client) UserStatus(id int, status string) (*SucessfulResponse, int, error) {
+func (c *Client) UserStatus(id int, status string) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	p := url.Values{
@@ -518,47 +536,47 @@ func (c *Client) UserStatus(id int, status string) (*SucessfulResponse, int, err
 	}
 
 	data, st, err := c.PostRequest(fmt.Sprintf("%s/users/%d/status", versionedPrefix, id), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, st, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, st, err
 }
 
 // Task get method
-func (c *Client) Task(id int) (*TaskResponse, int, error) {
+func (c *Client) Task(id int) (*TaskResponse, int, ErrorResponse) {
 	var resp TaskResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/tasks/%d", versionedPrefix, id))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Tasks list method
-func (c *Client) Tasks(parameters TasksRequest) (*TasksResponse, int, error) {
+func (c *Client) Tasks(parameters TasksRequest) (*TasksResponse, int, ErrorResponse) {
 	var resp TasksResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/tasks?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // TaskCreate method
-func (c *Client) TaskCreate(task Task, site ...string) (*CreateResponse, int, error) {
+func (c *Client) TaskCreate(task Task, site ...string) (*CreateResponse, int, ErrorResponse) {
 	var resp CreateResponse
 	taskJson, _ := json.Marshal(&task)
 
@@ -569,17 +587,17 @@ func (c *Client) TaskCreate(task Task, site ...string) (*CreateResponse, int, er
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/create", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // TaskEdit method
-func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, error) {
+func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 	var uid = strconv.Itoa(task.Id)
 
@@ -592,33 +610,33 @@ func (c *Client) TaskEdit(task Task, site ...string) (*SucessfulResponse, int, e
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/tasks/%s/edit", versionedPrefix, uid), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Notes list method
-func (c *Client) Notes(parameters NotesRequest) (*NotesResponse, int, error) {
+func (c *Client) Notes(parameters NotesRequest) (*NotesResponse, int, ErrorResponse) {
 	var resp NotesResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/notes?%s", versionedPrefix, params.Encode()))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // NoteCreate method
-func (c *Client) NoteCreate(note Note, site ...string) (*CreateResponse, int, error) {
+func (c *Client) NoteCreate(note Note, site ...string) (*CreateResponse, int, ErrorResponse) {
 	var resp CreateResponse
 
 	noteJson, _ := json.Marshal(&note)
@@ -630,17 +648,17 @@ func (c *Client) NoteCreate(note Note, site ...string) (*CreateResponse, int, er
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/notes/create", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // NoteDelete method
-func (c *Client) NoteDelete(id int) (*SucessfulResponse, int, error) {
+func (c *Client) NoteDelete(id int) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	p := url.Values{
@@ -648,17 +666,17 @@ func (c *Client) NoteDelete(id int) (*SucessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/notes/%d/delete", versionedPrefix, id), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PaymentCreate method
-func (c *Client) PaymentCreate(payment Payment, site ...string) (*CreateResponse, int, error) {
+func (c *Client) PaymentCreate(payment Payment, site ...string) (*CreateResponse, int, ErrorResponse) {
 	var resp CreateResponse
 
 	paymentJson, _ := json.Marshal(&payment)
@@ -670,17 +688,17 @@ func (c *Client) PaymentCreate(payment Payment, site ...string) (*CreateResponse
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/create", versionedPrefix), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PaymentDelete method
-func (c *Client) PaymentDelete(id int) (*SucessfulResponse, int, error) {
+func (c *Client) PaymentDelete(id int) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 
 	p := url.Values{
@@ -688,17 +706,17 @@ func (c *Client) PaymentDelete(id int) (*SucessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/%d/delete", versionedPrefix, id), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PaymentEdit method
-func (c *Client) PaymentEdit(payment Payment, by string, site ...string) (*SucessfulResponse, int, error) {
+func (c *Client) PaymentEdit(payment Payment, by string, site ...string) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
 	var uid = strconv.Itoa(payment.Id)
 	var context = checkBy(by)
@@ -716,249 +734,249 @@ func (c *Client) PaymentEdit(payment Payment, by string, site ...string) (*Suces
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/payments/%s/edit", versionedPrefix, uid), p)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Countries method
-func (c *Client) Countries() (*CountriesResponse, int, error) {
+func (c *Client) Countries() (*CountriesResponse, int, ErrorResponse) {
 	var resp CountriesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/countries", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CostGroups method
-func (c *Client) CostGroups() (*CostGroupsResponse, int, error) {
+func (c *Client) CostGroups() (*CostGroupsResponse, int, ErrorResponse) {
 	var resp CostGroupsResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/cost-groups", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // CostItems method
-func (c *Client) CostItems() (*CostItemsResponse, int, error) {
+func (c *Client) CostItems() (*CostItemsResponse, int, ErrorResponse) {
 	var resp CostItemsResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/cost-items", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Couriers method
-func (c *Client) Couriers() (*CouriersResponse, int, error) {
+func (c *Client) Couriers() (*CouriersResponse, int, ErrorResponse) {
 	var resp CouriersResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/couriers", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // DeliveryService method
-func (c *Client) DeliveryService() (*DeliveryServiceResponse, int, error) {
+func (c *Client) DeliveryService() (*DeliveryServiceResponse, int, ErrorResponse) {
 	var resp DeliveryServiceResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/delivery-services", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // DeliveryTypes method
-func (c *Client) DeliveryTypes() (*DeliveryTypesResponse, int, error) {
+func (c *Client) DeliveryTypes() (*DeliveryTypesResponse, int, ErrorResponse) {
 	var resp DeliveryTypesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/delivery-types", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // LegalEntities method
-func (c *Client) LegalEntities() (*LegalEntitiesResponse, int, error) {
+func (c *Client) LegalEntities() (*LegalEntitiesResponse, int, ErrorResponse) {
 	var resp LegalEntitiesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/legal-entities", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrderMethods method
-func (c *Client) OrderMethods() (*OrderMethodsResponse, int, error) {
+func (c *Client) OrderMethods() (*OrderMethodsResponse, int, ErrorResponse) {
 	var resp OrderMethodsResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/order-methods", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // OrderTypes method
-func (c *Client) OrderTypes() (*OrderTypesResponse, int, error) {
+func (c *Client) OrderTypes() (*OrderTypesResponse, int, ErrorResponse) {
 	var resp OrderTypesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/order-types", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PaymentStatuses method
-func (c *Client) PaymentStatuses() (*PaymentStatusesResponse, int, error) {
+func (c *Client) PaymentStatuses() (*PaymentStatusesResponse, int, ErrorResponse) {
 	var resp PaymentStatusesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/payment-statuses", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PaymentTypes method
-func (c *Client) PaymentTypes() (*PaymentTypesResponse, int, error) {
+func (c *Client) PaymentTypes() (*PaymentTypesResponse, int, ErrorResponse) {
 	var resp PaymentTypesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/payment-types", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // PriceTypes method
-func (c *Client) PriceTypes() (*PriceTypesResponse, int, error) {
+func (c *Client) PriceTypes() (*PriceTypesResponse, int, ErrorResponse) {
 	var resp PriceTypesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/price-types", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // ProductStatuses method
-func (c *Client) ProductStatuses() (*ProductStatusesResponse, int, error) {
+func (c *Client) ProductStatuses() (*ProductStatusesResponse, int, ErrorResponse) {
 	var resp ProductStatusesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/product-statuses", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Statuses method
-func (c *Client) Statuses() (*StatusesResponse, int, error) {
+func (c *Client) Statuses() (*StatusesResponse, int, ErrorResponse) {
 	var resp StatusesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/statuses", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // StatusGroups method
-func (c *Client) StatusGroups() (*StatusGroupsResponse, int, error) {
+func (c *Client) StatusGroups() (*StatusGroupsResponse, int, ErrorResponse) {
 	var resp StatusGroupsResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/status-groups", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Sites method
-func (c *Client) Sites() (*SitesResponse, int, error) {
+func (c *Client) Sites() (*SitesResponse, int, ErrorResponse) {
 	var resp SitesResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/sites", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }
 
 // Stores method
-func (c *Client) Stores() (*StoresResponse, int, error) {
+func (c *Client) Stores() (*StoresResponse, int, ErrorResponse) {
 	var resp StoresResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/stores", versionedPrefix))
-	if err != nil {
+	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
+	json.Unmarshal(data, &resp)
 
 	return &resp, status, err
 }

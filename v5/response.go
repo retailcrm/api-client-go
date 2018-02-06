@@ -9,11 +9,11 @@ type ErrorResponse struct {
 }
 
 // ErrorResponse method
-func (c *Client) ErrorResponse(data []byte) (*ErrorResponse, error) {
+func (c *Client) ErrorResponse(data []byte) (ErrorResponse, error) {
 	var resp ErrorResponse
 	err := json.Unmarshal(data, &resp)
 
-	return &resp, err
+	return resp, err
 }
 
 // SucessfulResponse type

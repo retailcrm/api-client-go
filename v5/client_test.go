@@ -55,7 +55,7 @@ func TestClient_ApiVersionsVersions(t *testing.T) {
 	c := client()
 
 	data, status, err := c.ApiVersions()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Fail()
 	}
 
@@ -72,7 +72,7 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 	c := client()
 
 	data, status, err := c.ApiCredentials()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Fail()
 	}
 
@@ -95,7 +95,7 @@ func TestClient_CustomersCustomers(t *testing.T) {
 		Page: 3,
 	})
 
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -123,7 +123,7 @@ func TestClient_CustomerChange(t *testing.T) {
 	}
 
 	cr, sc, err := c.CustomerCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -142,7 +142,7 @@ func TestClient_CustomerChange(t *testing.T) {
 	f.Vip = true
 
 	ed, se, err := c.CustomerEdit(f, "id")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -158,7 +158,7 @@ func TestClient_CustomerChange(t *testing.T) {
 	}
 
 	data, status, err := c.Customer(f.ExternalId, "externalId", "")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -193,7 +193,7 @@ func TestClient_CustomersUpload(t *testing.T) {
 	}
 
 	data, status, err := c.CustomersUpload(customers)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -219,7 +219,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 	}
 
 	cr, sc, err := c.CustomerCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%s", sc)
 		t.Fail()
 	}
@@ -240,7 +240,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 	}}
 
 	fx, fe, err := c.CustomersFixExternalIds(customers)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -265,7 +265,7 @@ func TestClient_CustomersHistory(t *testing.T) {
 	}
 
 	data, status, err := c.CustomersHistory(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -290,7 +290,7 @@ func TestClient_NotesNotes(t *testing.T) {
 	c := client()
 
 	data, status, err := c.Notes(NotesRequest{Page: 1})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -316,7 +316,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		ExternalId: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -338,7 +338,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 			Id: createCustomerResponse.Id,
 		},
 	})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -354,7 +354,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 	}
 
 	noteDeleteResponse, noteDeleteStatus, err := c.NoteDelete(noteCreateResponse.Id)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -374,7 +374,7 @@ func TestClient_OrdersOrders(t *testing.T) {
 	c := client()
 
 	data, status, err := c.Orders(OrdersRequest{Filter: OrdersFilter{City: "Москва"}, Page: 1})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -404,7 +404,7 @@ func TestClient_OrderChange(t *testing.T) {
 	}
 
 	cr, sc, err := c.OrderCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -423,7 +423,7 @@ func TestClient_OrderChange(t *testing.T) {
 	f.CustomerComment = "test comment"
 
 	ed, se, err := c.OrderEdit(f, "id")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -439,7 +439,7 @@ func TestClient_OrderChange(t *testing.T) {
 	}
 
 	data, status, err := c.Order(f.ExternalId, "externalId", "")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -474,7 +474,7 @@ func TestClient_OrdersUpload(t *testing.T) {
 	}
 
 	data, status, err := c.OrdersUpload(orders)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -500,7 +500,7 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 	}
 
 	cr, sc, err := c.OrderCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%s", sc)
 		t.Fail()
 	}
@@ -521,7 +521,7 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 	}}
 
 	fx, fe, err := c.OrdersFixExternalIds(orders)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -541,7 +541,7 @@ func TestClient_OrdersHistory(t *testing.T) {
 	c := client()
 
 	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{SinceId: 20}})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -574,7 +574,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	createOrderResponse, status, err := c.OrderCreate(order)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -598,7 +598,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	paymentCreateResponse, status, err := c.PaymentCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -619,7 +619,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	paymentEditResponse, status, err := c.PaymentEdit(k, "id")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -635,7 +635,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	paymentDeleteResponse, status, err := c.PaymentDelete(paymentCreateResponse.Id)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -662,7 +662,7 @@ func TestClient_TasksTasks(t *testing.T) {
 	}
 
 	data, status, err := c.Tasks(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -687,7 +687,7 @@ func TestClient_TaskChange(t *testing.T) {
 	}
 
 	cr, sc, err := c.TaskCreate(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -706,7 +706,7 @@ func TestClient_TaskChange(t *testing.T) {
 	f.Commentary = RandomString(20)
 
 	gt, sg, err := c.Task(f.Id)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -722,7 +722,7 @@ func TestClient_TaskChange(t *testing.T) {
 	}
 
 	data, status, err := c.TaskEdit(f)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -742,7 +742,7 @@ func TestClient_UsersUsers(t *testing.T) {
 	c := client()
 
 	data, status, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 1}, Page: 1})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -762,7 +762,7 @@ func TestClient_UsersUser(t *testing.T) {
 	c := client()
 
 	data, st, err := c.User(user)
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -782,7 +782,7 @@ func TestClient_UsersGroups(t *testing.T) {
 	c := client()
 
 	data, status, err := c.UserGroups(UserGroupsRequest{Page: 1})
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -802,7 +802,7 @@ func TestClient_UsersUpdate(t *testing.T) {
 	c := client()
 
 	data, st, err := c.UserStatus(user, "busy")
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -822,7 +822,7 @@ func TestClient_StaticticUpdate(t *testing.T) {
 	c := client()
 
 	data, st, err := c.StaticticUpdate()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -842,7 +842,7 @@ func TestClient_Countries(t *testing.T) {
 	c := client()
 
 	data, st, err := c.Couriers()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -862,7 +862,7 @@ func TestClient_CostGroups(t *testing.T) {
 	c := client()
 
 	data, st, err := c.CostGroups()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -882,7 +882,7 @@ func TestClient_CostItems(t *testing.T) {
 	c := client()
 
 	data, st, err := c.CostItems()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -902,7 +902,7 @@ func TestClient_Couriers(t *testing.T) {
 	c := client()
 
 	data, st, err := c.Couriers()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -922,7 +922,7 @@ func TestClient_DeliveryService(t *testing.T) {
 	c := client()
 
 	data, st, err := c.DeliveryService()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -942,7 +942,7 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	c := client()
 
 	data, st, err := c.DeliveryTypes()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -962,7 +962,7 @@ func TestClient_LegalEntities(t *testing.T) {
 	c := client()
 
 	data, st, err := c.LegalEntities()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -982,7 +982,7 @@ func TestClient_OrderMethods(t *testing.T) {
 	c := client()
 
 	data, st, err := c.OrderMethods()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1002,7 +1002,7 @@ func TestClient_OrderTypes(t *testing.T) {
 	c := client()
 
 	data, st, err := c.OrderTypes()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1022,7 +1022,7 @@ func TestClient_PaymentStatuses(t *testing.T) {
 	c := client()
 
 	data, st, err := c.PaymentStatuses()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1042,7 +1042,7 @@ func TestClient_PaymentTypes(t *testing.T) {
 	c := client()
 
 	data, st, err := c.PaymentTypes()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1062,7 +1062,7 @@ func TestClient_PriceTypes(t *testing.T) {
 	c := client()
 
 	data, st, err := c.PriceTypes()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1082,7 +1082,7 @@ func TestClient_ProductStatuses(t *testing.T) {
 	c := client()
 
 	data, st, err := c.ProductStatuses()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1102,7 +1102,7 @@ func TestClient_Statuses(t *testing.T) {
 	c := client()
 
 	data, st, err := c.Statuses()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1122,7 +1122,7 @@ func TestClient_StatusGroups(t *testing.T) {
 	c := client()
 
 	data, st, err := c.StatusGroups()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1142,7 +1142,7 @@ func TestClient_Sites(t *testing.T) {
 	c := client()
 
 	data, st, err := c.Sites()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
@@ -1162,7 +1162,7 @@ func TestClient_Stores(t *testing.T) {
 	c := client()
 
 	data, st, err := c.Stores()
-	if err != nil {
+	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
 	}
