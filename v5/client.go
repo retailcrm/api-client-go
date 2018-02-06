@@ -305,6 +305,28 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (*Custome
 	return &resp, status, err
 }
 
+// CustomersCombine method
+func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	combineJsonIn, _ := json.Marshal(&customers)
+	combineJsonOut, _ := json.Marshal(&resultCustomer)
+
+	p := url.Values{
+		"customers":      {string(combineJsonIn[:])},
+		"resultCustomer": {string(combineJsonOut[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/customers/combine", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
 // CustomersFixExternalIds method
 func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (*SucessfulResponse, int, ErrorResponse) {
 	var resp SucessfulResponse
@@ -438,6 +460,29 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (*OrdersUploadResp
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/upload", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrdersCombine method
+func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (*OperationResponse, int, ErrorResponse) {
+	var resp OperationResponse
+
+	combineJsonIn, _ := json.Marshal(&order)
+	combineJsonOut, _ := json.Marshal(&resultOrder)
+
+	p := url.Values{
+		"technique":   {technique},
+		"order":       {string(combineJsonIn[:])},
+		"resultOrder": {string(combineJsonOut[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/combine", versionedPrefix), p)
 	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}

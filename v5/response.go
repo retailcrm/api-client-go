@@ -27,6 +27,12 @@ type CreateResponse struct {
 	Id      int  `json:"id,omitempty"`
 }
 
+// OperationResponse type
+type OperationResponse struct {
+	Success bool              `json:"success"`
+	Errors  map[string]string `json:"errors,omitempty,brackets"`
+}
+
 // VersionResponse return available API versions
 type VersionResponse struct {
 	Success  bool     `json:"success,omitempty"`

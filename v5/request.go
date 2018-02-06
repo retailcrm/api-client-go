@@ -41,8 +41,8 @@ type OrdersRequest struct {
 
 // OrdersUploadRequest type
 type OrdersUploadRequest struct {
-	Customers []Order `url:"orders,omitempty,brackets"`
-	Site      string  `url:"site,omitempty"`
+	Orders []Order `url:"orders,omitempty,brackets"`
+	Site   string  `url:"site,omitempty"`
 }
 
 // OrdersHistoryRequest type
