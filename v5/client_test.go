@@ -13,6 +13,7 @@ import (
 
 var r *rand.Rand // Rand for this package.
 var user, _ = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
+var statuses = map[int]bool{http.StatusOK: true, http.StatusCreated: true}
 
 func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -921,7 +922,7 @@ func TestClient_Couriers(t *testing.T) {
 func TestClient_DeliveryService(t *testing.T) {
 	c := client()
 
-	data, st, err := c.DeliveryService()
+	data, st, err := c.DeliveryServices()
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err)
 		t.Fail()
@@ -1174,6 +1175,377 @@ func TestClient_Stores(t *testing.T) {
 
 	if data.Success != true {
 		t.Errorf("%v", err)
+		t.Fail()
+	}
+}
+
+func TestClient_CostGroupItemEdit(t *testing.T) {
+	c := client()
+
+	uid := RandomString(4)
+
+	data, st, err := c.CostGroupEdit(CostGroup{
+		Code:   fmt.Sprintf("cost-gr-%s", uid),
+		Active: false,
+		Color:  "#da5c98",
+		Name:   fmt.Sprintf("CostGroup-%s", uid),
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	idata, st, err := c.CostItemEdit(CostItem{
+		Code:            fmt.Sprintf("cost-it-%s", uid),
+		Name:            fmt.Sprintf("CostItem-%s", uid),
+		Group:           fmt.Sprintf("cost-gr-%s", uid),
+		Type:            "const",
+		AppliesToOrders: true,
+		Active:          false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if idata.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+}
+
+func TestClient_Courier(t *testing.T) {
+	c := client()
+
+	cur := Courier{
+		Active:    true,
+		Email:     fmt.Sprintf("%s@example.com", RandomString(5)),
+		FirstName: fmt.Sprintf("%s", RandomString(5)),
+		LastName:  fmt.Sprintf("%s", RandomString(5)),
+	}
+
+	data, st, err := c.CourierCreate(cur)
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	cur.Id = data.Id
+	cur.Patronymic = fmt.Sprintf("%s", RandomString(5))
+
+	idata, st, err := c.CourierEdit(cur)
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if idata.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+}
+
+func TestClient_DeliveryServiceEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.DeliveryServiceEdit(DeliveryService{
+		Active: false,
+		Code:   RandomString(5),
+		Name:   RandomString(5),
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+}
+
+func TestClient_DeliveryTypeEdit(t *testing.T) {
+	c := client()
+
+	x := []string{"cash", "bank-card"}
+
+	data, st, err := c.DeliveryTypeEdit(DeliveryType{
+		Active:        false,
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		DefaultCost:   300,
+		PaymentTypes:  x,
+		DefaultForCrm: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+		t.Fail()
+	}
+}
+
+func TestClient_OrderMethodEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.OrderMethodEdit(OrderMethod{
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		Active:        false,
+		DefaultForCrm: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_OrderTypeEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.OrderTypeEdit(OrderType{
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		Active:        false,
+		DefaultForCrm: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_PaymentStatusEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.PaymentStatusEdit(PaymentStatus{
+		Code:            RandomString(5),
+		Name:            RandomString(5),
+		Active:          false,
+		DefaultForCrm:   false,
+		PaymentTypes:    []string{"cash"},
+		PaymentComplete: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_PaymentTypeEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.PaymentTypeEdit(PaymentType{
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		Active:        false,
+		DefaultForCrm: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_PriceTypeEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.PriceTypeEdit(PriceType{
+		Code:   RandomString(5),
+		Name:   RandomString(5),
+		Active: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_ProductStatusEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.ProductStatusEdit(ProductStatus{
+		Code:         RandomString(5),
+		Name:         RandomString(5),
+		Active:       false,
+		CancelStatus: false,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_StatusEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.StatusEdit(Status{
+		Code:   RandomString(5),
+		Name:   RandomString(5),
+		Active: false,
+		Group:  "new",
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_SiteEdit(t *testing.T) {
+	c := client()
+
+	data, _, err := c.SiteEdit(Site{
+		Code:        RandomString(5),
+		Name:        RandomString(5),
+		Url:         fmt.Sprintf("https://%s.example.com", RandomString(4)),
+		LoadFromYml: false,
+	})
+	if err.ErrorMsg == "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != false {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_StoreEdit(t *testing.T) {
+	c := client()
+
+	data, st, err := c.StoreEdit(Store{
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		Active:        false,
+		Type:          "store-type-warehouse",
+		InventoryType: "integer",
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
 }

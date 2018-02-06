@@ -799,8 +799,8 @@ func (c *Client) Couriers() (*CouriersResponse, int, ErrorResponse) {
 	return &resp, status, err
 }
 
-// DeliveryService method
-func (c *Client) DeliveryService() (*DeliveryServiceResponse, int, ErrorResponse) {
+// DeliveryServices method
+func (c *Client) DeliveryServices() (*DeliveryServiceResponse, int, ErrorResponse) {
 	var resp DeliveryServiceResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/delivery-services", versionedPrefix))
@@ -972,6 +972,326 @@ func (c *Client) Stores() (*StoresResponse, int, ErrorResponse) {
 	var resp StoresResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("%s/reference/stores", versionedPrefix))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CostGroupEdit method
+func (c *Client) CostGroupEdit(costGroup CostGroup) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&costGroup)
+
+	p := url.Values{
+		"costGroup": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/cost-groups/%s/edit", versionedPrefix, costGroup.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CostItemEdit method
+func (c *Client) CostItemEdit(costItem CostItem) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&costItem)
+
+	p := url.Values{
+		"costItem": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/cost-items/%s/edit", versionedPrefix, costItem.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CourierCreate method
+func (c *Client) CourierCreate(courier Courier) (*CreateResponse, int, ErrorResponse) {
+	var resp CreateResponse
+
+	objJson, _ := json.Marshal(&courier)
+
+	p := url.Values{
+		"courier": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/couriers/create", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// CourierEdit method
+func (c *Client) CourierEdit(courier Courier) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&courier)
+
+	p := url.Values{
+		"courier": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/couriers/%d/edit", versionedPrefix, courier.Id), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryServiceEdit method
+func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&deliveryService)
+
+	p := url.Values{
+		"deliveryService": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/delivery-services/%s/edit", versionedPrefix, deliveryService.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryTypeEdit method
+func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&deliveryType)
+
+	p := url.Values{
+		"deliveryType": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/delivery-types/%s/edit", versionedPrefix, deliveryType.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// LegalEntityEditorderMe method
+func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&legalEntity)
+
+	p := url.Values{
+		"legalEntity": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/legal-entities/%s/edit", versionedPrefix, legalEntity.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrderMethodEdit method
+func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&orderMethod)
+
+	p := url.Values{
+		"orderMethod": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/order-methods/%s/edit", versionedPrefix, orderMethod.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// OrderTypeEdit method
+func (c *Client) OrderTypeEdit(orderType OrderType) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&orderType)
+
+	p := url.Values{
+		"orderType": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/order-types/%s/edit", versionedPrefix, orderType.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentStatusEdit method
+func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&paymentStatus)
+
+	p := url.Values{
+		"paymentStatus": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/payment-statuses/%s/edit", versionedPrefix, paymentStatus.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PaymentTypeEdit method
+func (c *Client) PaymentTypeEdit(paymentType PaymentType) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&paymentType)
+
+	p := url.Values{
+		"paymentType": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/payment-types/%s/edit", versionedPrefix, paymentType.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PriceTypeEdit method
+func (c *Client) PriceTypeEdit(priceType PriceType) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&priceType)
+
+	p := url.Values{
+		"priceType": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/price-types/%s/edit", versionedPrefix, priceType.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// ProductStatusEdit method
+func (c *Client) ProductStatusEdit(productStatus ProductStatus) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&productStatus)
+
+	p := url.Values{
+		"productStatus": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/product-statuses/%s/edit", versionedPrefix, productStatus.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// StatusEdit method
+func (c *Client) StatusEdit(st Status) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&st)
+
+	p := url.Values{
+		"status": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/statuses/%s/edit", versionedPrefix, st.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// SiteEdit method
+func (c *Client) SiteEdit(site Site) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&site)
+
+	p := url.Values{
+		"site": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/sites/%s/edit", versionedPrefix, site.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// StoreEdit method
+func (c *Client) StoreEdit(store Store) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	objJson, _ := json.Marshal(&store)
+
+	p := url.Values{
+		"store": {string(objJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/reference/stores/%s/edit", versionedPrefix, store.Code), p)
 	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}
