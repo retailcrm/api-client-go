@@ -99,3 +99,10 @@ type SegmentsRequest struct {
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
 }
+
+// InventoriesRequest type
+type InventoriesRequest struct {
+	Filter InventoriesFilter `url:"filter,omitempty"`
+	Limit  int               `url:"limit,omitempty"`
+	Page   int               `url:"page,omitempty"`
+}

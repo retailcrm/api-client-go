@@ -1834,3 +1834,23 @@ func TestClient_Packs(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestClient_Inventories(t *testing.T) {
+	c := client()
+
+	data, status, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Details: 1}, Page: 1})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}

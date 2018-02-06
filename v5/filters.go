@@ -227,3 +227,16 @@ type PacksFilter struct {
 	InvoiceNumber      string   `url:"invoiceNumber,omitempty"`
 	DeliveryNoteNumber string   `url:"deliveryNoteNumber,omitempty"`
 }
+
+// InventoriesFilter type
+type InventoriesFilter struct {
+	Ids               []int    `url:"ids,omitempty,brackets"`
+	ProductExternalId string   `url:"productExternalId,omitempty"`
+	ProductArticle    string   `url:"productArticle,omitempty"`
+	OfferExternalId   string   `url:"offerExternalId,omitempty"`
+	OfferXmlId        string   `url:"offerXmlId,omitempty"`
+	OfferArticle      string   `url:"offerArticle,omitempty"`
+	ProductActive     int      `url:"productActive,omitempty"`
+	Details           int      `url:"details,omitempty"`
+	Sites             []string `url:"sites,omitempty"`
+}

@@ -330,10 +330,52 @@ type PacksHistoryRecord struct {
 
 // Offer type
 type Offer struct {
-	Id         int    `json:"id,omitempty"`
-	ExternalId string `json:"externalId,omitempty"`
-	XmlId      string `json:"xmlId,omitempty"`
-	VatRate    string `json:"vatRate,omitempty"`
+	Id            int                 `json:"id,omitempty"`
+	ExternalId    string              `json:"externalId,omitempty"`
+	Name          string              `json:"name,omitempty"`
+	XmlId         string              `json:"xmlId,omitempty"`
+	Article       string              `json:"article,omitempty"`
+	VatRate       string              `json:"vatRate,omitempty"`
+	Price         float32             `json:"price,omitempty"`
+	PurchasePrice float32             `json:"purchasePrice,omitempty"`
+	Quantity      float32             `json:"quantity,omitempty"`
+	Height        float32             `json:"height,omitempty"`
+	Width         float32             `json:"width,omitempty"`
+	Length        float32             `json:"length,omitempty"`
+	Weight        float32             `json:"weight,omitempty"`
+	Stores        []Inventory         `json:"stores,omitempty,brackets"`
+	Properties    []map[string]string `json:"properties,omitempty,brackets"`
+	Prices        []OfferPrice        `json:"prices,omitempty,brackets"`
+	Images        []string            `json:"images,omitempty,brackets"`
+}
+
+// Inventory type
+type Inventory struct {
+	PurchasePrice float32 `json:"purchasePrice,omitempty"`
+	Quantity      float32 `json:"quantity,omitempty"`
+	Store         string  `json:"store,omitempty"`
+}
+
+// InventoryUpload type
+type InventoryUpload struct {
+	Id         int                    `json:"id,omitempty"`
+	ExternalId string                 `json:"externalId,omitempty"`
+	XmlId      string                 `json:"xmlId,omitempty"`
+	Stores     []InventoryUploadStore `json:"stores,omitempty"`
+}
+
+// InventoryUploadStore type
+type InventoryUploadStore struct {
+	PurchasePrice float32 `json:"purchasePrice,omitempty"`
+	Available     float32 `json:"available,omitempty"`
+	Code          string  `json:"code,omitempty"`
+}
+
+// OfferPrice type
+type OfferPrice struct {
+	Price     float32 `json:"price,omitempty"`
+	Ordering  int     `json:"ordering,omitempty"`
+	PriceType string  `json:"priceType,omitempty"`
 }
 
 /**

@@ -277,3 +277,17 @@ type StoresResponse struct {
 	Success bool    `json:"success"`
 	Stores  []Store `json:"stores,omitempty,brackets"`
 }
+
+// InventoriesResponse type
+type InventoriesResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Offers     []Offer     `json:"offers,omitempty"`
+}
+
+// InventoriesUploadResponse type
+type InventoriesUploadResponse struct {
+	Success              bool    `json:"success"`
+	ProcessedOffersCount int     `json:"processedOffersCount,omitempty"`
+	NotFoundOffers       []Offer `json:"notFoundOffers,omitempty"`
+}

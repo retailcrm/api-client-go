@@ -28,12 +28,12 @@ func main() {
 		Limit: 20,
 		Page: 1,
 	})
-	if err != nil {
-		fmt.Printf("%v", err)
+	if err.ErrorMsg != "" {
+		fmt.Printf("%v", err.ErrorMsg)
 	}
 
 	if status >= http.StatusBadRequest {
-		fmt.Printf("%v", err)
+		fmt.Printf("%v", err.ErrorMsg)
 	}
 
 	for _, value := range data.Orders {
@@ -41,6 +41,36 @@ func main() {
 	}
 
 	fmt.Println(data.Orders[1].FirstName)
+
+	idata, status, err := c.InventoriesUpload(
+        []InventoryUpload{
+            {
+                XmlId: "pTKIKAeghYzX21HTdzFCe1",
+                Stores: []InventoryUploadStore{
+                    {Code: "test-store-v5", Available: 10, PurchasePrice: 1500},
+                    {Code: "test-store-v4", Available: 20, PurchasePrice: 1530},
+                    {Code: "test-store", Available: 30, PurchasePrice: 1510},
+                },
+            },
+            {
+                XmlId: "JQIvcrCtiSpOV3AAfMiQB3",
+                Stores: []InventoryUploadStore{
+                    {Code: "test-store-v5", Available: 45, PurchasePrice: 1500},
+                    {Code: "test-store-v4", Available: 32, PurchasePrice: 1530},
+                    {Code: "test-store", Available: 46, PurchasePrice: 1510},
+                },
+            },
+        },
+    )
+    if err.ErrorMsg != "" {
+        fmt.Printf("%v", err.ErrorMsg)
+    }
+
+    if status >= http.StatusBadRequest {
+        fmt.Printf("%v", err.ErrorMsg)
+    }
+
+    fmt.Println(idata.processedOffersCount)
 }
 ```
 

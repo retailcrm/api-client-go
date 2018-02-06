@@ -1444,3 +1444,41 @@ func (c *Client) StoreEdit(store Store) (*SucessfulResponse, int, ErrorResponse)
 
 	return &resp, status, err
 }
+
+// Inventories method
+func (c *Client) Inventories(parameters InventoriesRequest) (*InventoriesResponse, int, ErrorResponse) {
+	var resp InventoriesResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/store/inventories?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// InventoriesUpload method
+func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (*InventoriesUploadResponse, int, ErrorResponse) {
+	var resp InventoriesUploadResponse
+
+	uploadJson, _ := json.Marshal(&inventories)
+
+	p := url.Values{
+		"offers": {string(uploadJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/store/inventories/upload", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
