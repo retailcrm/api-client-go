@@ -212,3 +212,18 @@ type SegmentsFilter struct {
 	DateFrom          string `url:"dateFrom,omitempty"`
 	DateTo            string `url:"dateTo,omitempty"`
 }
+
+// PacksFilter type
+type PacksFilter struct {
+	Ids                []int    `url:"ids,omitempty,brackets"`
+	Stores             []string `url:"stores,omitempty"`
+	ItemId             int      `url:"itemId,omitempty"`
+	OfferXmlId         string   `url:"offerXmlId,omitempty"`
+	OfferExternalId    string   `url:"offerExternalId,omitempty"`
+	OrderId            int      `url:"orderId,omitempty"`
+	OrderExternalId    string   `url:"orderExternalId,omitempty"`
+	ShipmentDateFrom   string   `url:"shipmentDateFrom,omitempty"`
+	ShipmentDateTo     string   `url:"shipmentDateTo,omitempty"`
+	InvoiceNumber      string   `url:"invoiceNumber,omitempty"`
+	DeliveryNoteNumber string   `url:"deliveryNoteNumber,omitempty"`
+}

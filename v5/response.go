@@ -108,6 +108,27 @@ type OrdersHistoryResponse struct {
 	Pagination  *Pagination           `json:"pagination,omitempty"`
 }
 
+// PackResponse type
+type PackResponse struct {
+	Success bool  `json:"success"`
+	Pack    *Pack `json:"pack,omitempty,brackets"`
+}
+
+// PacksResponse type
+type PacksResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Packs      []Pack      `json:"packs,omitempty,brackets"`
+}
+
+// PacksHistoryResponse type
+type PacksHistoryResponse struct {
+	Success     bool                 `json:"success,omitempty"`
+	GeneratedAt string               `json:"generatedAt,omitempty"`
+	History     []PacksHistoryRecord `json:"history,omitempty,brackets"`
+	Pagination  *Pagination          `json:"pagination,omitempty"`
+}
+
 // UserResponse type
 type UserResponse struct {
 	Success bool  `json:"success"`

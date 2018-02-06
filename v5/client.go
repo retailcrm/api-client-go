@@ -518,7 +518,106 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (*CustomersHisto
 
 	params, _ := query.Values(parameters)
 
-	data, status, err := c.GetRequest(fmt.Sprintf("%s/customers/history?%s", versionedPrefix, params.Encode()))
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/history?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Pack get method
+func (c *Client) Pack(id int) (*PackResponse, int, ErrorResponse) {
+	var resp PackResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/packs/%d", versionedPrefix, id))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// Packs list method
+func (c *Client) Packs(parameters PacksRequest) (*PacksResponse, int, ErrorResponse) {
+	var resp PacksResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/packs?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PackCreate method
+func (c *Client) PackCreate(pack Pack) (*CreateResponse, int, ErrorResponse) {
+	var resp CreateResponse
+	packJson, _ := json.Marshal(&pack)
+
+	p := url.Values{
+		"pack": {string(packJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/packs/create", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PackEdit method
+func (c *Client) PackEdit(pack Pack) (*CreateResponse, int, ErrorResponse) {
+	var resp CreateResponse
+
+	packJson, _ := json.Marshal(&pack)
+
+	p := url.Values{
+		"pack": {string(packJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/packs/%d/edit", versionedPrefix, pack.Id), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PackDelete method
+func (c *Client) PackDelete(id int) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/orders/packs/%d/delete", versionedPrefix, id), url.Values{})
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PacksHistory method
+func (c *Client) PacksHistory(parameters PacksHistoryRequest) (*PacksHistoryResponse, int, ErrorResponse) {
+	var resp PacksHistoryResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/orders/packs/history?%s", versionedPrefix, params.Encode()))
 	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}

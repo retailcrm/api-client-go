@@ -1694,3 +1694,143 @@ func TestClient_StoreEdit(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestClient_PackChange(t *testing.T) {
+	c := client()
+
+	o, status, err := c.OrderCreate(Order{
+		FirstName:  "Понтелей",
+		LastName:   "Турбин",
+		Patronymic: "Аристархович",
+		ExternalId: RandomString(8),
+		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
+		Items:      []OrderItem{{Offer: Offer{Id: 1609}, Quantity: 5}},
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusCreated {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if o.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	g, status, err := c.Order(strconv.Itoa(o.Id), "id", "")
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if o.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	p, status, err := c.PackCreate(Pack{
+		Store:    "test-store",
+		ItemId:   g.Order.Items[0].Id,
+		Quantity: 1,
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusCreated {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if p.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	e, status, err := c.PackEdit(Pack{Id: p.Id, Quantity: 2})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if e.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	d, status, err := c.PackDelete(p.Id)
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if d.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_PacksHistory(t *testing.T) {
+	c := client()
+
+	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{SinceId: 5}})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if len(data.History) == 0 {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_Packs(t *testing.T) {
+	c := client()
+
+	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{}, Page: 1})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}

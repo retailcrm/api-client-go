@@ -278,7 +278,7 @@ type OrderItem struct {
 	Status                string      `json:"status,omitempty"`
 	Comment               string      `json:"comment,omitempty"`
 	IsCanceled            bool        `json:"isCanceled,omitempty"`
-	Offer                 *Offer      `json:"offer,omitempty"`
+	Offer                 Offer       `json:"offer,omitempty"`
 	Properties            []*Property `json:"properties,omitempty,brackets"`
 	PriceType             *PriceType  `json:"priceType,omitempty"`
 }
@@ -294,6 +294,38 @@ type OrdersHistoryRecord struct {
 	User      *User   `json:"user,omitempty,brackets"`
 	ApiKey    *ApiKey `json:"apiKey,omitempty,brackets"`
 	Order     *Order  `json:"order,omitempty,brackets"`
+}
+
+// Pack type
+type Pack struct {
+	Id                 int      `json:"id,omitempty"`
+	PurchasePrice      float32  `json:"purchasePrice,omitempty"`
+	Quantity           float32  `json:"quantity,omitempty"`
+	Store              string   `json:"store,omitempty"`
+	ShipmentDate       string   `json:"shipmentDate,omitempty"`
+	InvoiceNumber      string   `json:"invoiceNumber,omitempty"`
+	DeliveryNoteNumber string   `json:"deliveryNoteNumber,omitempty"`
+	Item               PackItem `json:"item,omitempty"`
+	ItemId             int      `json:"itemId,omitempty"`
+}
+
+// PackItem type
+type PackItem struct {
+	Id    int    `json:"id,omitempty"`
+	Order *Order `json:"order,omitempty"`
+	Offer *Offer `json:"offer,omitempty"`
+}
+
+// PacksHistoryRecord type
+type PacksHistoryRecord struct {
+	Id        int    `json:"id,omitempty"`
+	CreatedAt string `json:"createdAt,omitempty"`
+	Created   bool   `json:"created,omitempty"`
+	Deleted   bool   `json:"deleted,omitempty"`
+	Source    string `json:"source,omitempty"`
+	Field     string `json:"field,omitempty"`
+	User      *User  `json:"user,omitempty,brackets"`
+	Pack      *Pack  `json:"pack,omitempty,brackets"`
 }
 
 // Offer type
