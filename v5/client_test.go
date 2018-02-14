@@ -121,6 +121,11 @@ func TestClient_CustomerChange(t *testing.T) {
 		Patronymic: "Аристархович",
 		ExternalId: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
+		Address: &Address{
+			City:     "Москва",
+			Street:   "Кутузовский",
+			Building: "14",
+		},
 	}
 
 	cr, sc, err := c.CustomerCreate(f)
@@ -1757,6 +1762,22 @@ func TestClient_PackChange(t *testing.T) {
 		t.Fail()
 	}
 
+	s, status, err := c.Pack(p.Id)
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if s.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
 	e, status, err := c.PackEdit(Pack{Id: p.Id, Quantity: 2})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
@@ -1839,6 +1860,26 @@ func TestClient_Inventories(t *testing.T) {
 	c := client()
 
 	data, status, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Details: 1}, Page: 1})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_Segments(t *testing.T) {
+	c := client()
+
+	data, status, err := c.Segments(SegmentsRequest{})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()

@@ -175,7 +175,7 @@ type UsersFilter struct {
 	IsAdmin       int      `url:"isAdmin,omitempty"`
 	CreatedAtFrom string   `url:"createdAtFrom,omitempty"`
 	CreatedAtTo   string   `url:"createdAtTo,omitempty"`
-	Groups        []string `url:"groups,omitempty"`
+	Groups        []string `url:"groups,omitempty,brackets"`
 }
 
 // TasksFilter type
@@ -186,8 +186,8 @@ type TasksFilter struct {
 	Text        string `url:"text,omitempty"`
 	DateFrom    string `url:"dateFrom,omitempty"`
 	DateTo      string `url:"dateTo,omitempty"`
-	Creators    []int  `url:"creators,omitempty"`
-	Performers  []int  `url:"performers,omitempty"`
+	Creators    []int  `url:"creators,omitempty,brackets"`
+	Performers  []int  `url:"performers,omitempty,brackets"`
 }
 
 // NotesFilter type
@@ -204,11 +204,11 @@ type NotesFilter struct {
 // SegmentsFilter type
 type SegmentsFilter struct {
 	Ids               []int  `url:"ids,omitempty,brackets"`
-	Active            int    `url:"active,omitempty,brackets"`
-	Name              string `url:"name,omitempty,brackets"`
-	Type              string `url:"type,omitempty,brackets"`
-	MinCustomersCount int    `url:"minCustomersCount,omitempty,brackets"`
-	MaxCustomersCount int    `url:"maxCustomersCount,omitempty,brackets"`
+	Active            int    `url:"active,omitempty"`
+	Name              string `url:"name,omitempty"`
+	Type              string `url:"type,omitempty"`
+	MinCustomersCount int    `url:"minCustomersCount,omitempty"`
+	MaxCustomersCount int    `url:"maxCustomersCount,omitempty"`
 	DateFrom          string `url:"dateFrom,omitempty"`
 	DateTo            string `url:"dateTo,omitempty"`
 }
@@ -238,5 +238,48 @@ type InventoriesFilter struct {
 	OfferArticle      string   `url:"offerArticle,omitempty"`
 	ProductActive     int      `url:"productActive,omitempty"`
 	Details           int      `url:"details,omitempty"`
-	Sites             []string `url:"sites,omitempty"`
+	Sites             []string `url:"sites,omitempty,brackets"`
+}
+
+// ProductsGroupsFilter type
+type ProductsGroupsFilter struct {
+	Ids           []int    `url:"ids,omitempty,brackets"`
+	Sites         []string `url:"sites,omitempty,brackets"`
+	Active        int      `url:"active,omitempty"`
+	ParentGroupId string   `url:"parentGroupId,omitempty"`
+}
+
+// ProductsFilter type
+type ProductsFilter struct {
+	Ids              []int             `url:"ids,omitempty,brackets"`
+	OfferIds         []int             `url:"offerIds,omitempty,brackets"`
+	Active           int               `url:"active,omitempty"`
+	Recommended      int               `url:"recommended,omitempty"`
+	Novelty          int               `url:"novelty,omitempty"`
+	Stock            int               `url:"stock,omitempty"`
+	Popular          int               `url:"popular,omitempty"`
+	MaxQuantity      float32           `url:"maxQuantity,omitempty"`
+	MinQuantity      float32           `url:"minQuantity,omitempty"`
+	MaxPurchasePrice float32           `url:"maxPurchasePrice,omitempty"`
+	MinPurchasePrice float32           `url:"minPurchasePrice,omitempty"`
+	MaxPrice         float32           `url:"maxPrice,omitempty"`
+	MinPrice         float32           `url:"minPrice,omitempty"`
+	Groups           string            `url:"groups,omitempty"`
+	Name             string            `url:"name,omitempty"`
+	ClassSegment     string            `url:"classSegment,omitempty"`
+	XmlId            string            `url:"xmlId,omitempty"`
+	ExternalId       string            `url:"externalId,omitempty"`
+	Manufacturer     string            `url:"manufacturer,omitempty"`
+	Url              string            `url:"url,omitempty"`
+	PriceType        string            `url:"priceType,omitempty"`
+	OfferExternalId  string            `url:"offerExternalId,omitempty"`
+	Sites            []string          `url:"sites,omitempty,brackets"`
+	Properties       map[string]string `url:"properties,omitempty,brackets"`
+}
+
+// ProductsPropertiesFilter type
+type ProductsPropertiesFilter struct {
+	Code  string   `url:"code,omitempty"`
+	Name  string   `url:"name,omitempty"`
+	Sites []string `url:"sites,omitempty,brackets"`
 }

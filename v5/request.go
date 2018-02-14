@@ -106,3 +106,24 @@ type InventoriesRequest struct {
 	Limit  int               `url:"limit,omitempty"`
 	Page   int               `url:"page,omitempty"`
 }
+
+// ProductsGroupsRequest type
+type ProductsGroupsRequest struct {
+	Filter ProductsGroupsFilter `url:"filter,omitempty"`
+	Limit  int                  `url:"limit,omitempty"`
+	Page   int                  `url:"page,omitempty"`
+}
+
+// ProductsRequest type
+type ProductsRequest struct {
+	Filter ProductsFilter `url:"filter,omitempty"`
+	Limit  int            `url:"limit,omitempty"`
+	Page   int            `url:"page,omitempty"`
+}
+
+// ProductsPropertiesRequest type
+type ProductsPropertiesRequest struct {
+	Filter ProductsPropertiesFilter `url:"filter,omitempty"`
+	Limit  int                      `url:"limit,omitempty"`
+	Page   int                      `url:"page,omitempty"`
+}

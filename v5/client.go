@@ -1462,8 +1462,8 @@ func (c *Client) Inventories(parameters InventoriesRequest) (*InventoriesRespons
 }
 
 // InventoriesUpload method
-func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (*InventoriesUploadResponse, int, ErrorResponse) {
-	var resp InventoriesUploadResponse
+func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (*StoreUploadResponse, int, ErrorResponse) {
+	var resp StoreUploadResponse
 
 	uploadJson, _ := json.Marshal(&inventories)
 
@@ -1474,6 +1474,74 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("%s/store/inventories/upload", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// PricesUpload method
+func (c *Client) PricesUpload(prices []OfferPriceUpload) (*StoreUploadResponse, int, ErrorResponse) {
+	var resp StoreUploadResponse
+
+	uploadJson, _ := json.Marshal(&prices)
+
+	p := url.Values{
+		"prices": {string(uploadJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/store/prices/upload", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// ProductsGroup method
+func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (*ProductsGroupsResponse, int, ErrorResponse) {
+	var resp ProductsGroupsResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/store/product-groups?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// ProductsGroup method
+func (c *Client) Products(parameters ProductsRequest) (*ProductsResponse, int, ErrorResponse) {
+	var resp ProductsResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/store/products?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// ProductsProperties method
+func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (*ProductsPropertiesResponse, int, ErrorResponse) {
+	var resp ProductsPropertiesResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/store/products/properties?%s", versionedPrefix, params.Encode()))
 	if err.ErrorMsg != "" {
 		return &resp, status, err
 	}

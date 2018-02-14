@@ -84,9 +84,10 @@ type ApiKey struct {
 
 // Property type
 type Property struct {
-	Code  string `json:"code,omitempty"`
-	Name  string `json:"name,omitempty"`
-	Value string `json:"value,omitempty"`
+	Code  string   `json:"code,omitempty"`
+	Name  string   `json:"name,omitempty"`
+	Value string   `json:"value,omitempty"`
+	Sites []string `json:"Sites,omitempty,brackets"`
 }
 
 // IdentifiersPair type
@@ -101,38 +102,38 @@ Customer related types
 
 // Customer type
 type Customer struct {
-	Id                           int         `json:"id,omitempty"`
-	ExternalId                   string      `json:"externalId,omitempty"`
-	FirstName                    string      `json:"firstName,omitempty"`
-	LastName                     string      `json:"lastName,omitempty"`
-	Patronymic                   string      `json:"patronymic,omitempty"`
-	Sex                          string      `json:"sex,omitempty"`
-	Email                        string      `json:"email,omitempty"`
-	Phones                       []Phone     `json:"phones,brackets,omitempty"`
-	Address                      *Address    `json:"address,omitempty"`
-	CreatedAt                    string      `json:"createdAt,omitempty"`
-	Birthday                     string      `json:"birthday,omitempty"`
-	ManagerId                    int         `json:"managerId,omitempty"`
-	Vip                          bool        `json:"vip,omitempty"`
-	Bad                          bool        `json:"bad,omitempty"`
-	Site                         string      `json:"site,omitempty"`
-	Source                       *Source     `json:"source,omitempty"`
-	Contragent                   *Contragent `json:"contragent,omitempty"`
-	PersonalDiscount             float32     `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32     `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string      `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string      `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32     `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32     `json:"marginSumm,omitempty"`
-	TotalSumm                    float32     `json:"totalSumm,omitempty"`
-	AverageSumm                  float32     `json:"averageSumm,omitempty"`
-	OrdersCount                  int         `json:"ordersCount,omitempty"`
-	CostSumm                     float32     `json:"costSumm,omitempty"`
-	MaturationTime               int         `json:"maturationTime,omitempty"`
-	FirstClientId                string      `json:"firstClientId,omitempty"`
-	LastClientId                 string      `json:"lastClientId,omitempty"`
-	BrowserId                    string      `json:"browserId,omitempty"`
-	// CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
+	Id                           int                 `json:"id,omitempty"`
+	ExternalId                   string              `json:"externalId,omitempty"`
+	FirstName                    string              `json:"firstName,omitempty"`
+	LastName                     string              `json:"lastName,omitempty"`
+	Patronymic                   string              `json:"patronymic,omitempty"`
+	Sex                          string              `json:"sex,omitempty"`
+	Email                        string              `json:"email,omitempty"`
+	Phones                       []Phone             `json:"phones,brackets,omitempty"`
+	Address                      *Address            `json:"address,omitempty"`
+	CreatedAt                    string              `json:"createdAt,omitempty"`
+	Birthday                     string              `json:"birthday,omitempty"`
+	ManagerId                    int                 `json:"managerId,omitempty"`
+	Vip                          bool                `json:"vip,omitempty"`
+	Bad                          bool                `json:"bad,omitempty"`
+	Site                         string              `json:"site,omitempty"`
+	Source                       *Source             `json:"source,omitempty"`
+	Contragent                   *Contragent         `json:"contragent,omitempty"`
+	PersonalDiscount             float32             `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32             `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string              `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string              `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32             `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32             `json:"marginSumm,omitempty"`
+	TotalSumm                    float32             `json:"totalSumm,omitempty"`
+	AverageSumm                  float32             `json:"averageSumm,omitempty"`
+	OrdersCount                  int                 `json:"ordersCount,omitempty"`
+	CostSumm                     float32             `json:"costSumm,omitempty"`
+	MaturationTime               int                 `json:"maturationTime,omitempty"`
+	FirstClientId                string              `json:"firstClientId,omitempty"`
+	LastClientId                 string              `json:"lastClientId,omitempty"`
+	BrowserId                    string              `json:"browserId,omitempty"`
+	CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
 }
 
 // Phone type
@@ -207,7 +208,7 @@ type Order struct {
 	Marketplace                   *OrderMarketplace   `json:"marketplace,omitempty"`
 	Items                         []OrderItem         `json:"items,omitempty,brackets"`
 	CustomFields                  []map[string]string `json:"customFields,omitempty,brackets"`
-	// Payments                      []OrderPayment    `json:"payments,omitempty,brackets"`
+	Payments                      []OrderPayment      `json:"payments,omitempty,brackets"`
 }
 
 // OrderDelivery type
@@ -265,22 +266,22 @@ type OrderPayment struct {
 
 // OrderItem type
 type OrderItem struct {
-	Id                    int         `json:"id,omitempty"`
-	InitialPrice          float32     `json:"initialPrice,omitempty"`
-	PurchasePrice         float32     `json:"purchasePrice,omitempty"`
-	DiscountTotal         float32     `json:"discountTotal,omitempty"`
-	DiscountManualAmount  float32     `json:"discountManualAmount,omitempty"`
-	DiscountManualPercent float32     `json:"discountManualPercent,omitempty"`
-	ProductName           string      `json:"productName,omitempty"`
-	VatRate               string      `json:"vatRate,omitempty"`
-	CreatedAt             string      `json:"createdAt,omitempty"`
-	Quantity              float32     `json:"quantity,omitempty"`
-	Status                string      `json:"status,omitempty"`
-	Comment               string      `json:"comment,omitempty"`
-	IsCanceled            bool        `json:"isCanceled,omitempty"`
-	Offer                 Offer       `json:"offer,omitempty"`
-	Properties            []*Property `json:"properties,omitempty,brackets"`
-	PriceType             *PriceType  `json:"priceType,omitempty"`
+	Id                    int        `json:"id,omitempty"`
+	InitialPrice          float32    `json:"initialPrice,omitempty"`
+	PurchasePrice         float32    `json:"purchasePrice,omitempty"`
+	DiscountTotal         float32    `json:"discountTotal,omitempty"`
+	DiscountManualAmount  float32    `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent float32    `json:"discountManualPercent,omitempty"`
+	ProductName           string     `json:"productName,omitempty"`
+	VatRate               string     `json:"vatRate,omitempty"`
+	CreatedAt             string     `json:"createdAt,omitempty"`
+	Quantity              float32    `json:"quantity,omitempty"`
+	Status                string     `json:"status,omitempty"`
+	Comment               string     `json:"comment,omitempty"`
+	IsCanceled            bool       `json:"isCanceled,omitempty"`
+	Offer                 Offer      `json:"offer,omitempty"`
+	Properties            []Property `json:"properties,omitempty,brackets"`
+	PriceType             *PriceType `json:"priceType,omitempty"`
 }
 
 // OrdersHistoryRecord type
@@ -298,15 +299,15 @@ type OrdersHistoryRecord struct {
 
 // Pack type
 type Pack struct {
-	Id                 int      `json:"id,omitempty"`
-	PurchasePrice      float32  `json:"purchasePrice,omitempty"`
-	Quantity           float32  `json:"quantity,omitempty"`
-	Store              string   `json:"store,omitempty"`
-	ShipmentDate       string   `json:"shipmentDate,omitempty"`
-	InvoiceNumber      string   `json:"invoiceNumber,omitempty"`
-	DeliveryNoteNumber string   `json:"deliveryNoteNumber,omitempty"`
-	Item               PackItem `json:"item,omitempty"`
-	ItemId             int      `json:"itemId,omitempty"`
+	Id                 int       `json:"id,omitempty"`
+	PurchasePrice      float32   `json:"purchasePrice,omitempty"`
+	Quantity           float32   `json:"quantity,omitempty"`
+	Store              string    `json:"store,omitempty"`
+	ShipmentDate       string    `json:"shipmentDate,omitempty"`
+	InvoiceNumber      string    `json:"invoiceNumber,omitempty"`
+	DeliveryNoteNumber string    `json:"deliveryNoteNumber,omitempty"`
+	Item               *PackItem `json:"item,omitempty"`
+	ItemId             int       `json:"itemId,omitempty"`
 }
 
 // PackItem type
@@ -330,23 +331,23 @@ type PacksHistoryRecord struct {
 
 // Offer type
 type Offer struct {
-	Id            int                 `json:"id,omitempty"`
-	ExternalId    string              `json:"externalId,omitempty"`
-	Name          string              `json:"name,omitempty"`
-	XmlId         string              `json:"xmlId,omitempty"`
-	Article       string              `json:"article,omitempty"`
-	VatRate       string              `json:"vatRate,omitempty"`
-	Price         float32             `json:"price,omitempty"`
-	PurchasePrice float32             `json:"purchasePrice,omitempty"`
-	Quantity      float32             `json:"quantity,omitempty"`
-	Height        float32             `json:"height,omitempty"`
-	Width         float32             `json:"width,omitempty"`
-	Length        float32             `json:"length,omitempty"`
-	Weight        float32             `json:"weight,omitempty"`
-	Stores        []Inventory         `json:"stores,omitempty,brackets"`
-	Properties    []map[string]string `json:"properties,omitempty,brackets"`
-	Prices        []OfferPrice        `json:"prices,omitempty,brackets"`
-	Images        []string            `json:"images,omitempty,brackets"`
+	Id            int               `json:"id,omitempty"`
+	ExternalId    string            `json:"externalId,omitempty"`
+	Name          string            `json:"name,omitempty"`
+	XmlId         string            `json:"xmlId,omitempty"`
+	Article       string            `json:"article,omitempty"`
+	VatRate       string            `json:"vatRate,omitempty"`
+	Price         float32           `json:"price,omitempty"`
+	PurchasePrice float32           `json:"purchasePrice,omitempty"`
+	Quantity      float32           `json:"quantity,omitempty"`
+	Height        float32           `json:"height,omitempty"`
+	Width         float32           `json:"width,omitempty"`
+	Length        float32           `json:"length,omitempty"`
+	Weight        float32           `json:"weight,omitempty"`
+	Stores        []Inventory       `json:"stores,omitempty,brackets"`
+	Properties    map[string]string `json:"properties,omitempty,brackets"`
+	Prices        []OfferPrice      `json:"prices,omitempty,brackets"`
+	Images        []string          `json:"images,omitempty,brackets"`
 }
 
 // Inventory type
@@ -376,6 +377,21 @@ type OfferPrice struct {
 	Price     float32 `json:"price,omitempty"`
 	Ordering  int     `json:"ordering,omitempty"`
 	PriceType string  `json:"priceType,omitempty"`
+}
+
+// OfferPriceUpload type
+type OfferPriceUpload struct {
+	Id         int           `json:"id,omitempty"`
+	ExternalId string        `json:"externalId,omitempty"`
+	XmlId      string        `json:"xmlId,omitempty"`
+	Site       string        `json:"site,omitempty"`
+	Prices     []PriceUpload `json:"prices,omitempty"`
+}
+
+// PriceUpload type
+type PriceUpload struct {
+	Code  string  `json:"code,omitempty"`
+	Price float32 `json:"price,omitempty"`
 }
 
 /**
@@ -679,4 +695,36 @@ type Store struct {
 	Active        bool     `json:"active,omitempty"`
 	Phone         *Phone   `json:"phone,omitempty"`
 	Address       *Address `json:"address,omitempty"`
+}
+
+// ProductGroup type
+type ProductGroup struct {
+	Id       int    `json:"id,omitempty"`
+	ParentId int    `json:"parentId,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Site     string `json:"site,omitempty"`
+	Active   bool   `json:"active,omitempty"`
+}
+
+// Product type
+type Product struct {
+	Id           int               `json:"id,omitempty"`
+	MaxPrice     float32           `json:"maxPrice,omitempty"`
+	MinPrice     float32           `json:"minPrice,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Url          string            `json:"url,omitempty"`
+	Article      string            `json:"article,omitempty"`
+	ExternalId   string            `json:"externalId,omitempty"`
+	Manufacturer string            `json:"manufacturer,omitempty"`
+	ImageUrl     string            `json:"imageUrl,omitempty"`
+	Description  string            `json:"description,omitempty"`
+	Popular      bool              `json:"popular,omitempty"`
+	Stock        bool              `json:"stock,omitempty"`
+	Novelty      bool              `json:"novelty,omitempty"`
+	Recommended  bool              `json:"recommended,omitempty"`
+	Active       bool              `json:"active,omitempty"`
+	Quantity     float32           `json:"quantity,omitempty"`
+	Offers       []Offer           `json:"offers,omitempty,brackets"`
+	Groups       []ProductGroup    `json:"groups,omitempty,brackets"`
+	Properties   map[string]string `json:"properties,omitempty,brackets"`
 }

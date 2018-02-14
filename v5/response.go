@@ -285,9 +285,30 @@ type InventoriesResponse struct {
 	Offers     []Offer     `json:"offers,omitempty"`
 }
 
-// InventoriesUploadResponse type
-type InventoriesUploadResponse struct {
+// StoreUploadResponse type
+type StoreUploadResponse struct {
 	Success              bool    `json:"success"`
 	ProcessedOffersCount int     `json:"processedOffersCount,omitempty"`
 	NotFoundOffers       []Offer `json:"notFoundOffers,omitempty"`
+}
+
+// ProductsGroupsResponse type
+type ProductsGroupsResponse struct {
+	Success      bool           `json:"success"`
+	Pagination   *Pagination    `json:"pagination,omitempty"`
+	ProductGroup []ProductGroup `json:"productGroup,omitempty,brackets"`
+}
+
+// ProductsResponse type
+type ProductsResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Products   []Product   `json:"products,omitempty,brackets"`
+}
+
+// ProductsPropertiesResponse type
+type ProductsPropertiesResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Properties []Property  `json:"properties,omitempty,brackets"`
 }
