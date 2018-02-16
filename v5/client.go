@@ -1550,3 +1550,127 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (*Prod
 
 	return &resp, status, err
 }
+
+// DeliveryTracking method
+func (c *Client) DeliveryTracking(parameters DeliveryTrackingRequest, subcode string) (*SucessfulResponse, int, ErrorResponse) {
+	var resp SucessfulResponse
+
+	updateJson, _ := json.Marshal(&parameters)
+
+	p := url.Values{
+		"statusUpdate": {string(updateJson[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/delivery/generic/%s/tracking", versionedPrefix, subcode), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryShipments method
+func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (*DeliveryShipmentsResponse, int, ErrorResponse) {
+	var resp DeliveryShipmentsResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/delivery/shipments?%s", versionedPrefix, params.Encode()))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryShipments method
+func (c *Client) DeliveryShipment(id int) (*DeliveryShipmentResponse, int, ErrorResponse) {
+	var resp DeliveryShipmentResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/delivery/shipments/%s", versionedPrefix, id))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryShipmentEdit method
+func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (*DeliveryShipmentUpdateResponse, int, ErrorResponse) {
+	var resp DeliveryShipmentUpdateResponse
+	updateJson, _ := json.Marshal(&shipment)
+
+	p := url.Values{
+		"deliveryShipment": {string(updateJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/delivery/shipments/%s/edit", versionedPrefix, strconv.Itoa(shipment.Id)), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// DeliveryShipmentCreate method
+func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType string, site ...string) (*DeliveryShipmentUpdateResponse, int, ErrorResponse) {
+	var resp DeliveryShipmentUpdateResponse
+	updateJson, _ := json.Marshal(&shipment)
+
+	p := url.Values{
+		"deliveryType":     {string(deliveryType)},
+		"deliveryShipment": {string(updateJson[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/delivery/shipments/create", versionedPrefix), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// IntegrationModule method
+func (c *Client) IntegrationModule(code string) (*IntegrationModuleResponse, int, ErrorResponse) {
+	var resp IntegrationModuleResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("%s/integration-modules/%s", versionedPrefix, code))
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}
+
+// IntegrationModuleEdit method
+func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (*IntegrationModuleEditResponse, int, ErrorResponse) {
+	var resp IntegrationModuleEditResponse
+	updateJson, _ := json.Marshal(&integrationModule)
+
+	p := url.Values{"integrationModule": {string(updateJson[:])}}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("%s/integration-modules/%s/edit", versionedPrefix, integrationModule.Code), p)
+	if err.ErrorMsg != "" {
+		return &resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return &resp, status, err
+}

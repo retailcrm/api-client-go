@@ -283,3 +283,16 @@ type ProductsPropertiesFilter struct {
 	Name  string   `url:"name,omitempty"`
 	Sites []string `url:"sites,omitempty,brackets"`
 }
+
+// ShipmentFilter type
+type ShipmentFilter struct {
+	Ids           []int    `url:"ids,omitempty,brackets"`
+	ExternalId    string   `url:"externalId,omitempty"`
+	OrderNumber   string   `url:"orderNumber,omitempty"`
+	DateFrom      string   `url:"dateFrom,omitempty"`
+	DateTo        string   `url:"dateTo,omitempty"`
+	Stores        []string `url:"stores,omitempty,brackets"`
+	Managers      []string `url:"managers,omitempty,brackets"`
+	DeliveryTypes []string `url:"deliveryTypes,omitempty,brackets"`
+	Statuses      []string `url:"statuses,omitempty,brackets"`
+}

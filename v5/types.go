@@ -96,6 +96,13 @@ type IdentifiersPair struct {
 	ExternalId string `json:"externalId,omitempty"`
 }
 
+// DeliveryTime type
+type DeliveryTime struct {
+	From   string `json:"from,omitempty"`
+	To     string `json:"to,omitempty"`
+	Custom string `json:"custom,omitempty"`
+}
+
 /**
 Customer related types
 */
@@ -727,4 +734,133 @@ type Product struct {
 	Offers       []Offer           `json:"offers,omitempty,brackets"`
 	Groups       []ProductGroup    `json:"groups,omitempty,brackets"`
 	Properties   map[string]string `json:"properties,omitempty,brackets"`
+}
+
+// DeliveryHistoryRecord type
+type DeliveryHistoryRecord struct {
+	Code      string `json:"code,omitempty"`
+	UpdatedAt string `json:"updatedAt,omitempty"`
+	Comment   string `json:"comment,omitempty"`
+}
+
+// DeliveryShipment type
+type DeliveryShipment struct {
+	IntegrationCode string            `json:"integrationCode,omitempty"`
+	Id              int               `json:"id,omitempty"`
+	ExternalId      string            `json:"externalId,omitempty"`
+	DeliveryType    string            `json:"deliveryType,omitempty"`
+	Store           string            `json:"store,omitempty"`
+	ManagerId       int               `json:"managerId,omitempty"`
+	Status          string            `json:"status,omitempty"`
+	Date            string            `json:"date,omitempty"`
+	Time            *DeliveryTime     `json:"time,omitempty"`
+	LunchTime       string            `json:"lunchTime,omitempty"`
+	Comment         string            `json:"comment,omitempty"`
+	Orders          []Order           `json:"orders,omitempty,brackets"`
+	ExtraData       map[string]string `json:"extraData,omitempty,brackets"`
+}
+
+// IntegrationModule type
+type IntegrationModule struct {
+	Code               string        `json:"code,omitempty"`
+	IntegrationCode    string        `json:"integrationCode,omitempty"`
+	Active             bool          `json:"active,omitempty"`
+	Freeze             bool          `json:"freeze,omitempty"`
+	Native             bool          `json:"native,omitempty"`
+	Name               string        `json:"name,omitempty"`
+	Logo               string        `json:"logo,omitempty"`
+	ClientId           string        `json:"clientId,omitempty"`
+	BaseUrl            string        `json:"baseUrl,omitempty"`
+	AccountUrl         string        `json:"accountUrl,omitempty"`
+	AvailableCountries []string      `json:"availableCountries,omitempty"`
+	Actions            []string      `json:"actions,omitempty"`
+	Integrations       *Integrations `json:"integrations,omitempty"`
+}
+
+// Integrations type
+type Integrations struct {
+	Telephony *Telephony `json:"telephony,omitempty"`
+	Delivery  *Delivery  `json:"delivery,omitempty"`
+	Store     *Warehouse `json:"store,omitempty"`
+}
+
+// Delivery type
+type Delivery struct {
+	Description           string              `json:"description,omitempty"`
+	Actions               []Action            `json:"actions,omitempty,brackets"`
+	PayerType             []string            `json:"payerType,omitempty,brackets"`
+	PlatePrintLimit       int                 `json:"platePrintLimit,omitempty"`
+	RateDeliveryCost      bool                `json:"rateDeliveryCost,omitempty"`
+	AllowPackages         bool                `json:"allowPackages,omitempty"`
+	CodAvailable          bool                `json:"codAvailable,omitempty"`
+	SelfShipmentAvailable bool                `json:"selfShipmentAvailable,omitempty"`
+	AllowTrackNumber      bool                `json:"allowTrackNumber,omitempty"`
+	AvailableCountries    []string            `json:"availableCountries,omitempty"`
+	RequiredFields        []string            `json:"requiredFields,omitempty"`
+	StatusList            []DeliveryStatus    `json:"statusList,omitempty"`
+	PlateList             []Plate             `json:"plateList,omitempty"`
+	DeliveryDataFieldList []DeliveryDataField `json:"deliveryDataFieldList,omitempty"`
+	ShipmentDataFieldList []DeliveryDataField `json:"shipmentDataFieldList,omitempty"`
+}
+
+// DeliveryStatus type
+type DeliveryStatus struct {
+	Code       string `json:"code,omitempty"`
+	Name       string `json:"name,omitempty"`
+	IsEditable bool   `json:"isEditable,omitempty"`
+}
+
+// Plate type
+type Plate struct {
+	Code  string `json:"code,omitempty"`
+	Label string `json:"label,omitempty"`
+}
+
+// DeliveryDataField type
+type DeliveryDataField struct {
+	Code            string `json:"code,omitempty"`
+	Label           string `json:"label,omitempty"`
+	Hint            string `json:"hint,omitempty"`
+	Type            string `json:"type,omitempty"`
+	AutocompleteUrl string `json:"autocompleteUrl,omitempty"`
+	Multiple        bool   `json:"multiple,omitempty"`
+	Required        bool   `json:"required,omitempty"`
+	AffectsCost     bool   `json:"affectsCost,omitempty"`
+	Editable        bool   `json:"editable,omitempty"`
+}
+
+// Telephony type
+type Telephony struct {
+	MakeCallUrl          string           `json:"makeCallUrl,omitempty"`
+	AllowEdit            bool             `json:"allowEdit,omitempty"`
+	InputEventSupported  bool             `json:"inputEventSupported,omitempty"`
+	OutputEventSupported bool             `json:"outputEventSupported,omitempty"`
+	HangupEventSupported bool             `json:"hangupEventSupported,omitempty"`
+	ChangeUserStatusUrl  string           `json:"changeUserStatusUrl,omitempty"`
+	AdditionalCodes      []AdditionalCode `json:"additionalCodes,omitempty,brackets"`
+	ExternalPhones       []ExternalPhone  `json:"externalPhones,omitempty,brackets"`
+}
+
+// AdditionalCode type
+type AdditionalCode struct {
+	Code   string `json:"code,omitempty"`
+	UserId string `json:"userId,omitempty"`
+}
+
+// ExternalPhone type
+type ExternalPhone struct {
+	SiteCode      string `json:"siteCode,omitempty"`
+	ExternalPhone string `json:"externalPhone,omitempty"`
+}
+
+// Warehouse type
+type Warehouse struct {
+	Actions []Action `json:"actions,omitempty,brackets"`
+}
+
+// Action type
+type Action struct {
+	Code       string   `json:"code,omitempty"`
+	Url        string   `json:"url,omitempty"`
+	CallPoints []string `json:"callPoints,omitempty"`
 }

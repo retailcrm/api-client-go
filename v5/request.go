@@ -127,3 +127,18 @@ type ProductsPropertiesRequest struct {
 	Limit  int                      `url:"limit,omitempty"`
 	Page   int                      `url:"page,omitempty"`
 }
+
+// DeliveryTrackingRequest type
+type DeliveryTrackingRequest struct {
+	DeliveryId  string                  `url:"deliveryId,omitempty"`
+	TrackNumber string                  `url:"trackNumber,omitempty"`
+	History     []DeliveryHistoryRecord `url:"history,omitempty,brackets"`
+	ExtraData   map[string]string       `url:"extraData,omitempty,brackets"`
+}
+
+// DeliveryShipmentsRequest type
+type DeliveryShipmentsRequest struct {
+	Filter ShipmentFilter `url:"filter,omitempty"`
+	Limit  int            `url:"limit,omitempty"`
+	Page   int            `url:"page,omitempty"`
+}

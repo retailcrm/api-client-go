@@ -312,3 +312,35 @@ type ProductsPropertiesResponse struct {
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Properties []Property  `json:"properties,omitempty,brackets"`
 }
+
+// DeliveryShipmentsResponse type
+type DeliveryShipmentsResponse struct {
+	Success           bool               `json:"success"`
+	Pagination        *Pagination        `json:"pagination,omitempty"`
+	DeliveryShipments []DeliveryShipment `json:"deliveryShipments,omitempty,brackets"`
+}
+
+// DeliveryShipmentResponse type
+type DeliveryShipmentResponse struct {
+	Success          bool              `json:"success"`
+	DeliveryShipment *DeliveryShipment `json:"deliveryShipment,omitempty,brackets"`
+}
+
+// DeliveryShipmentUpdateResponse type
+type DeliveryShipmentUpdateResponse struct {
+	Success bool   `json:"success"`
+	Id      int    `json:"id,omitempty"`
+	Status  string `json:"status,omitempty"`
+}
+
+// IntegrationModuleResponse type
+type IntegrationModuleResponse struct {
+	Success           bool               `json:"success"`
+	IntegrationModule *IntegrationModule `json:"integrationModule,omitempty"`
+}
+
+// IntegrationModuleEditResponse type
+type IntegrationModuleEditResponse struct {
+	Success bool              `json:"success"`
+	Info    map[string]string `json:"info,omitempty,brackets"`
+}
