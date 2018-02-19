@@ -1895,3 +1895,184 @@ func TestClient_Segments(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestClient_IntegrationModule(t *testing.T) {
+	c := client()
+
+	name := RandomString(5)
+	code := RandomString(8)
+
+	m, status, err := c.IntegrationModuleEdit(IntegrationModule{
+		Code:            code,
+		IntegrationCode: code,
+		Active:          false,
+		Name:            fmt.Sprintf("Integration module %s", name),
+		AccountUrl:      fmt.Sprintf("http://example.com/%s/account", name),
+		BaseUrl:         fmt.Sprintf("http://example.com/%s", name),
+		ClientId:        RandomString(10),
+		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusCreated {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if m.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	g, status, err := c.IntegrationModule(code)
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_IntegrationModuleFail(t *testing.T) {
+	c := client()
+	code := RandomString(8)
+
+	m, status, err := c.IntegrationModuleEdit(IntegrationModule{
+		Code: code,
+	})
+	if err.ErrorMsg == "" {
+		t.Fail()
+	}
+
+	if status < http.StatusBadRequest {
+		t.Fail()
+	}
+
+	if m.Success != false {
+		t.Fail()
+	}
+
+	g, status, err := c.IntegrationModule(RandomString(12))
+	if err.ErrorMsg == "" {
+		t.Fail()
+	}
+
+	if status < http.StatusBadRequest {
+		t.Fail()
+	}
+
+	if g.Success != false {
+		t.Fail()
+	}
+}
+
+func TestClient_ProductsGroup(t *testing.T) {
+	c := client()
+
+	g, status, err := c.ProductsGroup(ProductsGroupsRequest{
+		Filter: ProductsGroupsFilter{
+			Active: 1,
+		},
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_Products(t *testing.T) {
+	c := client()
+
+	g, status, err := c.Products(ProductsRequest{
+		Filter: ProductsFilter{
+			Active:   1,
+			MinPrice: 1,
+		},
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_ProductsProperties(t *testing.T) {
+	c := client()
+
+	sites := make([]string, 1)
+	sites[0] = os.Getenv("RETAILCRM_SITE")
+
+	g, status, err := c.ProductsProperties(ProductsPropertiesRequest{
+		Filter: ProductsPropertiesFilter{
+			Sites: sites,
+		},
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_DeliveryShipments(t *testing.T) {
+	c := client()
+
+	g, status, err := c.DeliveryShipments(DeliveryShipmentsRequest{
+		Filter: ShipmentFilter{
+			DateFrom: "2017-10-10",
+		},
+	})
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
