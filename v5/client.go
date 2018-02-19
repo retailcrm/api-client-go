@@ -140,7 +140,20 @@ func fillSite(p *url.Values, site []string) {
 	}
 }
 
-// ApiVersions get available API versions
+// ApiVersions get all available API versions for exact account
+// Example:
+// var client = v5.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF")
+// data, status, err := client.ApiVersions()
+// if err.ErrorMsg != "" {
+//     fmt.Printf("%v", err.ErrorMsg)
+// }
+// if status >= http.StatusBadRequest {
+//     fmt.Printf("%v", err.ErrorMsg)
+// }
+//
+// for _, value := range data.versions {
+//     fmt.Printf("%v\n", value)
+// }
 func (c *Client) ApiVersions() (*VersionResponse, int, ErrorResponse) {
 	var resp VersionResponse
 
