@@ -144,21 +144,21 @@ func fillSite(p *url.Values, site []string) {
 //
 // Example:
 //
-// var client = v5.New("https://demo.url", "09jIJ")
+// 	var client = v5.New("https://demo.url", "09jIJ")
 //
-// data, status, err := client.ApiVersions()
+// 	data, status, err := client.ApiVersions()
 //
-// if err.ErrorMsg != "" {
-// 	fmt.Printf("%v", err.ErrorMsg)
-// }
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
 //
-// if status >= http.StatusBadRequest {
-// 	fmt.Printf("%v", err.ErrorMsg)
-// }
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
 //
-// for _, value := range data.versions {
-// 	fmt.Printf("%v\n", value)
-// }
+// 	for _, value := range data.versions {
+// 		fmt.Printf("%v\n", value)
+// 	}
 func (c *Client) ApiVersions() (*VersionResponse, int, ErrorResponse) {
 	var resp VersionResponse
 
