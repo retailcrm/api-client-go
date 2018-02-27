@@ -1,5 +1,4 @@
 [![Build Status](https://img.shields.io/travis/retailcrm/api-client-go/master.svg?style=flat-square)](https://travis-ci.org/retailcrm/api-client-go)
-[![Downloads](https://img.shields.io/github/downloads/dt/retailcrm/api-client-go.svg?style=flat-square)](https://packagist.org/packages/retailcrm/api-client-go/stats)
 
 # retailCRM API Go client
 
