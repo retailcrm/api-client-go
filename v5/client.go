@@ -172,7 +172,25 @@ func (c *Client) ApiVersions() (*VersionResponse, int, ErrorResponse) {
 	return &resp, status, err
 }
 
-// ApiCredentials get available API methods
+// ApiCredentials get all available API methods for exact account
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.ApiCredentials()
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	for _, value := range data.credentials {
+// 		fmt.Printf("%v\n", value)
+// 	}
 func (c *Client) ApiCredentials() (*CredentialResponse, int, ErrorResponse) {
 	var resp CredentialResponse
 
