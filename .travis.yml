@@ -1,7 +1,8 @@
 language: go
 go:
-  - "1.8"
-  - "1.9"
+  - '1.8'
+  - '1.9'
+  - '1.10'
 before_install:
   - go get -v github.com/google/go-querystring/query
 script: go test -v ./...

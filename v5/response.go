@@ -24,7 +24,7 @@ type SucessfulResponse struct {
 // CreateResponse type
 type CreateResponse struct {
 	Success bool `json:"success"`
-	Id      int  `json:"id,omitempty"`
+	ID      int  `json:"id,omitempty"`
 }
 
 // OperationResponse type
@@ -63,7 +63,7 @@ type CustomersResponse struct {
 // CustomerChangeResponse type
 type CustomerChangeResponse struct {
 	Success bool   `json:"success"`
-	Id      int    `json:"id,omitempty"`
+	ID      int    `json:"id,omitempty"`
 	State   string `json:"state,omitempty"`
 }
 
@@ -329,7 +329,7 @@ type DeliveryShipmentResponse struct {
 // DeliveryShipmentUpdateResponse type
 type DeliveryShipmentUpdateResponse struct {
 	Success bool   `json:"success"`
-	Id      int    `json:"id,omitempty"`
+	ID      int    `json:"id,omitempty"`
 	Status  string `json:"status,omitempty"`
 }
 

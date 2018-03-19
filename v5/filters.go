@@ -46,7 +46,7 @@ type CustomersFilter struct {
 	FirstOrderTo               string            `url:"firstOrderTo,omitempty"`
 	LastOrderFrom              string            `url:"lastOrderFrom,omitempty"`
 	LastOrderTo                string            `url:"lastOrderTo,omitempty"`
-	BrowserId                  string            `url:"browserId,omitempty"`
+	BrowserID                  string            `url:"browserId,omitempty"`
 	Commentary                 string            `url:"commentary,omitempty"`
 	SourceName                 string            `url:"sourceName,omitempty"`
 	MediumName                 string            `url:"mediumName,omitempty"`
@@ -58,9 +58,9 @@ type CustomersFilter struct {
 
 // CustomersHistoryFilter type
 type CustomersHistoryFilter struct {
-	CustomerId         int    `url:"customerId,omitempty"`
-	SinceId            int    `url:"sinceId,omitempty"`
-	CustomerExternalId string `url:"customerExternalId,omitempty"`
+	CustomerID         int    `url:"customerId,omitempty"`
+	SinceID            int    `url:"sinceId,omitempty"`
+	CustomerExternalID string `url:"customerExternalId,omitempty"`
 	StartDate          string `url:"startDate,omitempty"`
 	EndDate            string `url:"endDate,omitempty"`
 }
@@ -71,8 +71,8 @@ type OrdersFilter struct {
 	ExternalIds                    []string          `url:"externalIds,omitempty,brackets"`
 	Numbers                        []string          `url:"numbers,omitempty,brackets"`
 	Customer                       string            `url:"customer,omitempty"`
-	CustomerId                     string            `url:"customerId,omitempty"`
-	CustomerExternalId             string            `url:"customerExternalId,omitempty"`
+	CustomerID                     string            `url:"customerId,omitempty"`
+	CustomerExternalID             string            `url:"customerExternalId,omitempty"`
 	Countries                      []string          `url:"countries,omitempty,brackets"`
 	City                           string            `url:"city,omitempty"`
 	Region                         string            `url:"region,omitempty"`
@@ -158,9 +158,9 @@ type OrdersFilter struct {
 
 // OrdersHistoryFilter type
 type OrdersHistoryFilter struct {
-	OrderId         int    `url:"orderId,omitempty"`
-	SinceId         int    `url:"sinceId,omitempty"`
-	OrderExternalId string `url:"orderExternalId,omitempty"`
+	OrderID         int    `url:"orderId,omitempty"`
+	SinceID         int    `url:"sinceId,omitempty"`
+	OrderExternalID string `url:"orderExternalId,omitempty"`
 	StartDate       string `url:"startDate,omitempty"`
 	EndDate         string `url:"endDate,omitempty"`
 }
@@ -217,11 +217,11 @@ type SegmentsFilter struct {
 type PacksFilter struct {
 	Ids                []int    `url:"ids,omitempty,brackets"`
 	Stores             []string `url:"stores,omitempty"`
-	ItemId             int      `url:"itemId,omitempty"`
-	OfferXmlId         string   `url:"offerXmlId,omitempty"`
-	OfferExternalId    string   `url:"offerExternalId,omitempty"`
-	OrderId            int      `url:"orderId,omitempty"`
-	OrderExternalId    string   `url:"orderExternalId,omitempty"`
+	ItemID             int      `url:"itemId,omitempty"`
+	OfferXMLID         string   `url:"offerXmlId,omitempty"`
+	OfferExternalID    string   `url:"offerExternalId,omitempty"`
+	OrderID            int      `url:"orderId,omitempty"`
+	OrderExternalID    string   `url:"orderExternalId,omitempty"`
 	ShipmentDateFrom   string   `url:"shipmentDateFrom,omitempty"`
 	ShipmentDateTo     string   `url:"shipmentDateTo,omitempty"`
 	InvoiceNumber      string   `url:"invoiceNumber,omitempty"`
@@ -231,10 +231,10 @@ type PacksFilter struct {
 // InventoriesFilter type
 type InventoriesFilter struct {
 	Ids               []int    `url:"ids,omitempty,brackets"`
-	ProductExternalId string   `url:"productExternalId,omitempty"`
+	ProductExternalID string   `url:"productExternalId,omitempty"`
 	ProductArticle    string   `url:"productArticle,omitempty"`
-	OfferExternalId   string   `url:"offerExternalId,omitempty"`
-	OfferXmlId        string   `url:"offerXmlId,omitempty"`
+	OfferExternalID   string   `url:"offerExternalId,omitempty"`
+	OfferXMLID        string   `url:"offerXmlId,omitempty"`
 	OfferArticle      string   `url:"offerArticle,omitempty"`
 	ProductActive     int      `url:"productActive,omitempty"`
 	Details           int      `url:"details,omitempty"`
@@ -246,7 +246,7 @@ type ProductsGroupsFilter struct {
 	Ids           []int    `url:"ids,omitempty,brackets"`
 	Sites         []string `url:"sites,omitempty,brackets"`
 	Active        int      `url:"active,omitempty"`
-	ParentGroupId string   `url:"parentGroupId,omitempty"`
+	ParentGroupID string   `url:"parentGroupId,omitempty"`
 }
 
 // ProductsFilter type
@@ -267,12 +267,12 @@ type ProductsFilter struct {
 	Groups           string            `url:"groups,omitempty"`
 	Name             string            `url:"name,omitempty"`
 	ClassSegment     string            `url:"classSegment,omitempty"`
-	XmlId            string            `url:"xmlId,omitempty"`
-	ExternalId       string            `url:"externalId,omitempty"`
+	XMLID            string            `url:"xmlId,omitempty"`
+	ExternalID       string            `url:"externalId,omitempty"`
 	Manufacturer     string            `url:"manufacturer,omitempty"`
-	Url              string            `url:"url,omitempty"`
+	URL              string            `url:"url,omitempty"`
 	PriceType        string            `url:"priceType,omitempty"`
-	OfferExternalId  string            `url:"offerExternalId,omitempty"`
+	OfferExternalID  string            `url:"offerExternalId,omitempty"`
 	Sites            []string          `url:"sites,omitempty,brackets"`
 	Properties       map[string]string `url:"properties,omitempty,brackets"`
 }
@@ -287,7 +287,7 @@ type ProductsPropertiesFilter struct {
 // ShipmentFilter type
 type ShipmentFilter struct {
 	Ids           []int    `url:"ids,omitempty,brackets"`
-	ExternalId    string   `url:"externalId,omitempty"`
+	ExternalID    string   `url:"externalId,omitempty"`
 	OrderNumber   string   `url:"orderNumber,omitempty"`
 	DateFrom      string   `url:"dateFrom,omitempty"`
 	DateTo        string   `url:"dateTo,omitempty"`

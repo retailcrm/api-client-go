@@ -47,7 +47,7 @@ func main() {
 	idata, status, err := c.InventoriesUpload(
         []InventoryUpload{
             {
-                XmlId: "pTKIKAeghYzX21HTdzFCe1",
+                XMLID: "pTKIKAeghYzX21HTdzFCe1",
                 Stores: []InventoryUploadStore{
                     {Code: "test-store-v5", Available: 10, PurchasePrice: 1500},
                     {Code: "test-store-v4", Available: 20, PurchasePrice: 1530},
@@ -55,7 +55,7 @@ func main() {
                 },
             },
             {
-                XmlId: "JQIvcrCtiSpOV3AAfMiQB3",
+                XMLID: "JQIvcrCtiSpOV3AAfMiQB3",
                 Stores: []InventoryUploadStore{
                     {Code: "test-store-v5", Available: 45, PurchasePrice: 1500},
                     {Code: "test-store-v4", Available: 32, PurchasePrice: 1530},
