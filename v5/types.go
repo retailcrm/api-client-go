@@ -4,7 +4,7 @@ import "net/http"
 
 // Client type
 type Client struct {
-	Url        string
+	URL        string
 	Key        string
 	httpClient *http.Client
 }
@@ -22,12 +22,12 @@ type Address struct {
 	Index        string `json:"index,omitempty"`
 	CountryIso   string `json:"countryIso,omitempty"`
 	Region       string `json:"region,omitempty"`
-	RegionId     int    `json:"regionId,omitempty"`
+	RegionID     int    `json:"regionId,omitempty"`
 	City         string `json:"city,omitempty"`
-	CityId       int    `json:"cityId,omitempty"`
+	CityID       int    `json:"cityId,omitempty"`
 	CityType     string `json:"cityType,omitempty"`
 	Street       string `json:"street,omitempty"`
-	StreetId     int    `json:"streetId,omitempty"`
+	StreetID     int    `json:"streetId,omitempty"`
 	StreetType   string `json:"streetType,omitempty"`
 	Building     string `json:"building,omitempty"`
 	Flat         string `json:"flat,omitempty"`
@@ -44,9 +44,9 @@ type Address struct {
 type GeoHierarchyRow struct {
 	Country  string `json:"country,omitempty"`
 	Region   string `json:"region,omitempty"`
-	RegionId int    `json:"regionId,omitempty"`
+	RegionID int    `json:"regionId,omitempty"`
 	City     string `json:"city,omitempty"`
-	CityId   int    `json:"cityId,omitempty"`
+	CityID   int    `json:"cityId,omitempty"`
 }
 
 // Source type
@@ -77,8 +77,8 @@ type Contragent struct {
 	BankAccount       string `json:"bankAccount,omitempty"`
 }
 
-// ApiKey type
-type ApiKey struct {
+// APIKey type
+type APIKey struct {
 	Current bool `json:"current,omitempty"`
 }
 
@@ -92,8 +92,8 @@ type Property struct {
 
 // IdentifiersPair type
 type IdentifiersPair struct {
-	Id         int    `json:"id,omitempty"`
-	ExternalId string `json:"externalId,omitempty"`
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
 }
 
 // DeliveryTime type
@@ -109,8 +109,8 @@ Customer related types
 
 // Customer type
 type Customer struct {
-	Id                           int                 `json:"id,omitempty"`
-	ExternalId                   string              `json:"externalId,omitempty"`
+	ID                           int                 `json:"id,omitempty"`
+	ExternalID                   string              `json:"externalId,omitempty"`
 	FirstName                    string              `json:"firstName,omitempty"`
 	LastName                     string              `json:"lastName,omitempty"`
 	Patronymic                   string              `json:"patronymic,omitempty"`
@@ -120,7 +120,7 @@ type Customer struct {
 	Address                      *Address            `json:"address,omitempty"`
 	CreatedAt                    string              `json:"createdAt,omitempty"`
 	Birthday                     string              `json:"birthday,omitempty"`
-	ManagerId                    int                 `json:"managerId,omitempty"`
+	ManagerID                    int                 `json:"managerId,omitempty"`
 	Vip                          bool                `json:"vip,omitempty"`
 	Bad                          bool                `json:"bad,omitempty"`
 	Site                         string              `json:"site,omitempty"`
@@ -137,9 +137,9 @@ type Customer struct {
 	OrdersCount                  int                 `json:"ordersCount,omitempty"`
 	CostSumm                     float32             `json:"costSumm,omitempty"`
 	MaturationTime               int                 `json:"maturationTime,omitempty"`
-	FirstClientId                string              `json:"firstClientId,omitempty"`
-	LastClientId                 string              `json:"lastClientId,omitempty"`
-	BrowserId                    string              `json:"browserId,omitempty"`
+	FirstClientID                string              `json:"firstClientId,omitempty"`
+	LastClientID                 string              `json:"lastClientId,omitempty"`
+	BrowserID                    string              `json:"browserId,omitempty"`
 	CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
 }
 
@@ -150,14 +150,14 @@ type Phone struct {
 
 // CustomerHistoryRecord type
 type CustomerHistoryRecord struct {
-	Id        int       `json:"id,omitempty"`
+	ID        int       `json:"id,omitempty"`
 	CreatedAt string    `json:"createdAt,omitempty"`
 	Created   bool      `json:"created,omitempty"`
 	Deleted   bool      `json:"deleted,omitempty"`
 	Source    string    `json:"source,omitempty"`
 	Field     string    `json:"field,omitempty"`
 	User      *User     `json:"user,omitempty,brackets"`
-	ApiKey    *ApiKey   `json:"apiKey,omitempty,brackets"`
+	APIKey    *APIKey   `json:"apiKey,omitempty,brackets"`
 	Customer  *Customer `json:"customer,omitempty,brackets"`
 }
 
@@ -167,8 +167,8 @@ Order related types
 
 // Order type
 type Order struct {
-	Id                            int                 `json:"id,omitempty"`
-	ExternalId                    string              `json:"externalId,omitempty"`
+	ID                            int                 `json:"id,omitempty"`
+	ExternalID                    string              `json:"externalId,omitempty"`
 	Number                        string              `json:"number,omitempty"`
 	FirstName                     string              `json:"firstName,omitempty"`
 	LastName                      string              `json:"lastName,omitempty"`
@@ -178,11 +178,11 @@ type Order struct {
 	AdditionalPhone               string              `json:"additionalPhone,omitempty"`
 	CreatedAt                     string              `json:"createdAt,omitempty"`
 	StatusUpdatedAt               string              `json:"statusUpdatedAt,omitempty"`
-	ManagerId                     int                 `json:"managerId,omitempty"`
+	ManagerID                     int                 `json:"managerId,omitempty"`
 	Mark                          int                 `json:"mark,omitempty"`
 	Call                          bool                `json:"call,omitempty"`
 	Expired                       bool                `json:"expired,omitempty"`
-	FromApi                       bool                `json:"fromApi,omitempty"`
+	FromAPI                       bool                `json:"fromApi,omitempty"`
 	MarkDatetime                  string              `json:"markDatetime,omitempty"`
 	CustomerComment               string              `json:"customerComment,omitempty"`
 	ManagerComment                string              `json:"managerComment,omitempty"`
@@ -205,7 +205,7 @@ type Order struct {
 	Height                        int                 `json:"height,omitempty"`
 	ShipmentStore                 string              `json:"shipmentStore,omitempty"`
 	ShipmentDate                  string              `json:"shipmentDate,omitempty"`
-	ClientId                      string              `json:"clientId,omitempty"`
+	ClientID                      string              `json:"clientId,omitempty"`
 	Shipped                       bool                `json:"shipped,omitempty"`
 	UploadedToExternalStoreSystem bool                `json:"uploadedToExternalStoreSystem,omitempty"`
 	Source                        *Source             `json:"source,omitempty"`
@@ -257,13 +257,13 @@ type OrderDeliveryData struct {
 // OrderMarketplace type
 type OrderMarketplace struct {
 	Code    string `json:"code,omitempty"`
-	OrderId string `json:"orderId,omitempty"`
+	OrderID string `json:"orderId,omitempty"`
 }
 
 // OrderPayment type
 type OrderPayment struct {
-	Id         int     `json:"id,omitempty"`
-	ExternalId string  `json:"externalId,omitempty"`
+	ID         int     `json:"id,omitempty"`
+	ExternalID string  `json:"externalId,omitempty"`
 	Type       string  `json:"type,omitempty"`
 	Status     string  `json:"status,omitempty"`
 	PaidAt     string  `json:"paidAt,omitempty"`
@@ -273,7 +273,7 @@ type OrderPayment struct {
 
 // OrderItem type
 type OrderItem struct {
-	Id                    int        `json:"id,omitempty"`
+	ID                    int        `json:"id,omitempty"`
 	InitialPrice          float32    `json:"initialPrice,omitempty"`
 	PurchasePrice         float32    `json:"purchasePrice,omitempty"`
 	DiscountTotal         float32    `json:"discountTotal,omitempty"`
@@ -293,20 +293,20 @@ type OrderItem struct {
 
 // OrdersHistoryRecord type
 type OrdersHistoryRecord struct {
-	Id        int     `json:"id,omitempty"`
+	ID        int     `json:"id,omitempty"`
 	CreatedAt string  `json:"createdAt,omitempty"`
 	Created   bool    `json:"created,omitempty"`
 	Deleted   bool    `json:"deleted,omitempty"`
 	Source    string  `json:"source,omitempty"`
 	Field     string  `json:"field,omitempty"`
 	User      *User   `json:"user,omitempty,brackets"`
-	ApiKey    *ApiKey `json:"apiKey,omitempty,brackets"`
+	APIKey    *APIKey `json:"apiKey,omitempty,brackets"`
 	Order     *Order  `json:"order,omitempty,brackets"`
 }
 
 // Pack type
 type Pack struct {
-	Id                 int       `json:"id,omitempty"`
+	ID                 int       `json:"id,omitempty"`
 	PurchasePrice      float32   `json:"purchasePrice,omitempty"`
 	Quantity           float32   `json:"quantity,omitempty"`
 	Store              string    `json:"store,omitempty"`
@@ -314,19 +314,19 @@ type Pack struct {
 	InvoiceNumber      string    `json:"invoiceNumber,omitempty"`
 	DeliveryNoteNumber string    `json:"deliveryNoteNumber,omitempty"`
 	Item               *PackItem `json:"item,omitempty"`
-	ItemId             int       `json:"itemId,omitempty"`
+	ItemID             int       `json:"itemId,omitempty"`
 }
 
 // PackItem type
 type PackItem struct {
-	Id    int    `json:"id,omitempty"`
+	ID    int    `json:"id,omitempty"`
 	Order *Order `json:"order,omitempty"`
 	Offer *Offer `json:"offer,omitempty"`
 }
 
 // PacksHistoryRecord type
 type PacksHistoryRecord struct {
-	Id        int    `json:"id,omitempty"`
+	ID        int    `json:"id,omitempty"`
 	CreatedAt string `json:"createdAt,omitempty"`
 	Created   bool   `json:"created,omitempty"`
 	Deleted   bool   `json:"deleted,omitempty"`
@@ -338,10 +338,10 @@ type PacksHistoryRecord struct {
 
 // Offer type
 type Offer struct {
-	Id            int               `json:"id,omitempty"`
-	ExternalId    string            `json:"externalId,omitempty"`
+	ID            int               `json:"id,omitempty"`
+	ExternalID    string            `json:"externalId,omitempty"`
 	Name          string            `json:"name,omitempty"`
-	XmlId         string            `json:"xmlId,omitempty"`
+	XMLID         string            `json:"xmlId,omitempty"`
 	Article       string            `json:"article,omitempty"`
 	VatRate       string            `json:"vatRate,omitempty"`
 	Price         float32           `json:"price,omitempty"`
@@ -366,9 +366,9 @@ type Inventory struct {
 
 // InventoryUpload type
 type InventoryUpload struct {
-	Id         int                    `json:"id,omitempty"`
-	ExternalId string                 `json:"externalId,omitempty"`
-	XmlId      string                 `json:"xmlId,omitempty"`
+	ID         int                    `json:"id,omitempty"`
+	ExternalID string                 `json:"externalId,omitempty"`
+	XMLID      string                 `json:"xmlId,omitempty"`
 	Stores     []InventoryUploadStore `json:"stores,omitempty"`
 }
 
@@ -388,9 +388,9 @@ type OfferPrice struct {
 
 // OfferPriceUpload type
 type OfferPriceUpload struct {
-	Id         int           `json:"id,omitempty"`
-	ExternalId string        `json:"externalId,omitempty"`
-	XmlId      string        `json:"xmlId,omitempty"`
+	ID         int           `json:"id,omitempty"`
+	ExternalID string        `json:"externalId,omitempty"`
+	XMLID      string        `json:"xmlId,omitempty"`
 	Site       string        `json:"site,omitempty"`
 	Prices     []PriceUpload `json:"prices,omitempty"`
 }
@@ -407,7 +407,7 @@ User related types
 
 // User type
 type User struct {
-	Id         int         `json:"id,omitempty"`
+	ID         int         `json:"id,omitempty"`
 	FirstName  string      `json:"firstName,omitempty"`
 	LastName   string      `json:"lastName,omitempty"`
 	Patronymic string      `json:"patronymic,omitempty"`
@@ -443,8 +443,8 @@ Task related types
 
 // Task type
 type Task struct {
-	Id          int       `json:"id,omitempty"`
-	PerformerId int       `json:"performerId,omitempty"`
+	ID          int       `json:"id,omitempty"`
+	PerformerID int       `json:"performerId,omitempty"`
 	Text        string    `json:"text,omitempty"`
 	Commentary  string    `json:"commentary,omitempty"`
 	Datetime    string    `json:"datetime,omitempty"`
@@ -464,8 +464,8 @@ type Task struct {
 
 // Note type
 type Note struct {
-	Id        int       `json:"id,omitempty"`
-	ManagerId int       `json:"managerId,omitempty"`
+	ID        int       `json:"id,omitempty"`
+	ManagerID int       `json:"managerId,omitempty"`
 	Text      string    `json:"text,omitempty"`
 	CreatedAt string    `json:"createdAt,omitempty"`
 	Customer  *Customer `json:"customer,omitempty"`
@@ -477,8 +477,8 @@ type Note struct {
 
 // Payment type
 type Payment struct {
-	Id         int     `json:"id,omitempty"`
-	ExternalId string  `json:"externalId,omitempty"`
+	ID         int     `json:"id,omitempty"`
+	ExternalID string  `json:"externalId,omitempty"`
 	PaidAt     string  `json:"paidAt,omitempty"`
 	Amount     float32 `json:"amount,omitempty"`
 	Comment    string  `json:"comment,omitempty"`
@@ -493,7 +493,7 @@ type Payment struct {
 
 // Segment type
 type Segment struct {
-	Id             int    `json:"id,omitempty"`
+	ID             int    `json:"id,omitempty"`
 	Code           string `json:"code,omitempty"`
 	Name           string `json:"name,omitempty"`
 	CreatedAt      string `json:"createdAt,omitempty"`
@@ -530,7 +530,7 @@ type CostItem struct {
 
 // Courier type
 type Courier struct {
-	Id          int    `json:"id,omitempty"`
+	ID          int    `json:"id,omitempty"`
 	FirstName   string `json:"firstName,omitempty"`
 	LastName    string `json:"lastName,omitempty"`
 	Patronymic  string `json:"patronymic,omitempty"`
@@ -589,8 +589,8 @@ type OrderMethod struct {
 	Name          string `json:"name,omitempty"`
 	Code          string `json:"code,omitempty"`
 	Active        bool   `json:"active,omitempty"`
-	DefaultForCrm bool   `json:"defaultForCrm,omitempty"`
-	DefaultForApi bool   `json:"defaultForApi,omitempty"`
+	DefaultForCRM bool   `json:"defaultForCrm,omitempty"`
+	DefaultForAPI bool   `json:"defaultForApi,omitempty"`
 }
 
 // OrderType type
@@ -598,8 +598,8 @@ type OrderType struct {
 	Name          string `json:"name,omitempty"`
 	Code          string `json:"code,omitempty"`
 	Active        bool   `json:"active,omitempty"`
-	DefaultForCrm bool   `json:"defaultForCrm,omitempty"`
-	DefaultForApi bool   `json:"defaultForApi,omitempty"`
+	DefaultForCRM bool   `json:"defaultForCrm,omitempty"`
+	DefaultForAPI bool   `json:"defaultForApi,omitempty"`
 }
 
 // PaymentStatus type
@@ -607,8 +607,8 @@ type PaymentStatus struct {
 	Name            string   `json:"name,omitempty"`
 	Code            string   `json:"code,omitempty"`
 	Active          bool     `json:"active,omitempty"`
-	DefaultForCrm   bool     `json:"defaultForCrm,omitempty"`
-	DefaultForApi   bool     `json:"defaultForApi,omitempty"`
+	DefaultForCRM   bool     `json:"defaultForCrm,omitempty"`
+	DefaultForAPI   bool     `json:"defaultForApi,omitempty"`
 	PaymentComplete bool     `json:"paymentComplete,omitempty"`
 	Description     string   `json:"description,omitempty"`
 	Ordering        int      `json:"ordering,omitempty"`
@@ -620,8 +620,8 @@ type PaymentType struct {
 	Name            string   `json:"name,omitempty"`
 	Code            string   `json:"code,omitempty"`
 	Active          bool     `json:"active,omitempty"`
-	DefaultForCrm   bool     `json:"defaultForCrm,omitempty"`
-	DefaultForApi   bool     `json:"defaultForApi,omitempty"`
+	DefaultForCRM   bool     `json:"defaultForCrm,omitempty"`
+	DefaultForAPI   bool     `json:"defaultForApi,omitempty"`
 	Description     string   `json:"description,omitempty"`
 	DeliveryTypes   []string `json:"deliveryTypes,omitempty,brackets"`
 	PaymentStatuses []string `json:"PaymentStatuses,omitempty,brackets"`
@@ -629,7 +629,7 @@ type PaymentType struct {
 
 // PriceType type
 type PriceType struct {
-	Id               int               `json:"id,omitempty"`
+	ID               int               `json:"id,omitempty"`
 	Code             string            `json:"code,omitempty"`
 	Name             string            `json:"name,omitempty"`
 	Active           bool              `json:"active,omitempty"`
@@ -676,13 +676,13 @@ type StatusGroup struct {
 type Site struct {
 	Name             string       `json:"name,omitempty"`
 	Code             string       `json:"code,omitempty"`
-	Url              string       `json:"url,omitempty"`
+	URL              string       `json:"url,omitempty"`
 	Description      string       `json:"description,omitempty"`
 	Phones           string       `json:"phones,omitempty"`
 	Zip              string       `json:"zip,omitempty"`
 	Address          string       `json:"address,omitempty"`
 	CountryIso       string       `json:"countryIso,omitempty"`
-	YmlUrl           string       `json:"ymlUrl,omitempty"`
+	YmlURL           string       `json:"ymlUrl,omitempty"`
 	LoadFromYml      bool         `json:"loadFromYml,omitempty"`
 	CatalogUpdatedAt string       `json:"catalogUpdatedAt,omitempty"`
 	CatalogLoadingAt string       `json:"catalogLoadingAt,omitempty"`
@@ -693,9 +693,9 @@ type Site struct {
 type Store struct {
 	Name          string   `json:"name,omitempty"`
 	Code          string   `json:"code,omitempty"`
-	ExternalId    string   `json:"externalId,omitempty"`
+	ExternalID    string   `json:"externalId,omitempty"`
 	Description   string   `json:"description,omitempty"`
-	XmlId         string   `json:"xmlId,omitempty"`
+	XMLID         string   `json:"xmlId,omitempty"`
 	Email         string   `json:"email,omitempty"`
 	Type          string   `json:"type,omitempty"`
 	InventoryType string   `json:"inventoryType,omitempty"`
@@ -706,8 +706,8 @@ type Store struct {
 
 // ProductGroup type
 type ProductGroup struct {
-	Id       int    `json:"id,omitempty"`
-	ParentId int    `json:"parentId,omitempty"`
+	ID       int    `json:"id,omitempty"`
+	ParentID int    `json:"parentId,omitempty"`
 	Name     string `json:"name,omitempty"`
 	Site     string `json:"site,omitempty"`
 	Active   bool   `json:"active,omitempty"`
@@ -715,15 +715,15 @@ type ProductGroup struct {
 
 // Product type
 type Product struct {
-	Id           int               `json:"id,omitempty"`
+	ID           int               `json:"id,omitempty"`
 	MaxPrice     float32           `json:"maxPrice,omitempty"`
 	MinPrice     float32           `json:"minPrice,omitempty"`
 	Name         string            `json:"name,omitempty"`
-	Url          string            `json:"url,omitempty"`
+	URL          string            `json:"url,omitempty"`
 	Article      string            `json:"article,omitempty"`
-	ExternalId   string            `json:"externalId,omitempty"`
+	ExternalID   string            `json:"externalId,omitempty"`
 	Manufacturer string            `json:"manufacturer,omitempty"`
-	ImageUrl     string            `json:"imageUrl,omitempty"`
+	ImageURL     string            `json:"imageUrl,omitempty"`
 	Description  string            `json:"description,omitempty"`
 	Popular      bool              `json:"popular,omitempty"`
 	Stock        bool              `json:"stock,omitempty"`
@@ -746,11 +746,11 @@ type DeliveryHistoryRecord struct {
 // DeliveryShipment type
 type DeliveryShipment struct {
 	IntegrationCode string            `json:"integrationCode,omitempty"`
-	Id              int               `json:"id,omitempty"`
-	ExternalId      string            `json:"externalId,omitempty"`
+	ID              int               `json:"id,omitempty"`
+	ExternalID      string            `json:"externalId,omitempty"`
 	DeliveryType    string            `json:"deliveryType,omitempty"`
 	Store           string            `json:"store,omitempty"`
-	ManagerId       int               `json:"managerId,omitempty"`
+	ManagerID       int               `json:"managerId,omitempty"`
 	Status          string            `json:"status,omitempty"`
 	Date            string            `json:"date,omitempty"`
 	Time            *DeliveryTime     `json:"time,omitempty"`
@@ -769,9 +769,9 @@ type IntegrationModule struct {
 	Native             bool          `json:"native,omitempty"`
 	Name               string        `json:"name,omitempty"`
 	Logo               string        `json:"logo,omitempty"`
-	ClientId           string        `json:"clientId,omitempty"`
-	BaseUrl            string        `json:"baseUrl,omitempty"`
-	AccountUrl         string        `json:"accountUrl,omitempty"`
+	ClientID           string        `json:"clientId,omitempty"`
+	BaseURL            string        `json:"baseUrl,omitempty"`
+	AccountURL         string        `json:"accountUrl,omitempty"`
 	AvailableCountries []string      `json:"availableCountries,omitempty"`
 	Actions            []string      `json:"actions,omitempty"`
 	Integrations       *Integrations `json:"integrations,omitempty"`
@@ -822,7 +822,7 @@ type DeliveryDataField struct {
 	Label           string `json:"label,omitempty"`
 	Hint            string `json:"hint,omitempty"`
 	Type            string `json:"type,omitempty"`
-	AutocompleteUrl string `json:"autocompleteUrl,omitempty"`
+	AutocompleteURL string `json:"autocompleteUrl,omitempty"`
 	Multiple        bool   `json:"multiple,omitempty"`
 	Required        bool   `json:"required,omitempty"`
 	AffectsCost     bool   `json:"affectsCost,omitempty"`
@@ -831,12 +831,12 @@ type DeliveryDataField struct {
 
 // Telephony type
 type Telephony struct {
-	MakeCallUrl          string           `json:"makeCallUrl,omitempty"`
+	MakeCallURL          string           `json:"makeCallUrl,omitempty"`
 	AllowEdit            bool             `json:"allowEdit,omitempty"`
 	InputEventSupported  bool             `json:"inputEventSupported,omitempty"`
 	OutputEventSupported bool             `json:"outputEventSupported,omitempty"`
 	HangupEventSupported bool             `json:"hangupEventSupported,omitempty"`
-	ChangeUserStatusUrl  string           `json:"changeUserStatusUrl,omitempty"`
+	ChangeUserStatusURL  string           `json:"changeUserStatusUrl,omitempty"`
 	AdditionalCodes      []AdditionalCode `json:"additionalCodes,omitempty,brackets"`
 	ExternalPhones       []ExternalPhone  `json:"externalPhones,omitempty,brackets"`
 }
@@ -844,7 +844,7 @@ type Telephony struct {
 // AdditionalCode type
 type AdditionalCode struct {
 	Code   string `json:"code,omitempty"`
-	UserId string `json:"userId,omitempty"`
+	UserID string `json:"userId,omitempty"`
 }
 
 // ExternalPhone type
@@ -861,6 +861,6 @@ type Warehouse struct {
 // Action type
 type Action struct {
 	Code       string   `json:"code,omitempty"`
-	Url        string   `json:"url,omitempty"`
+	URL        string   `json:"url,omitempty"`
 	CallPoints []string `json:"callPoints,omitempty"`
 }

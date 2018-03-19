@@ -55,7 +55,7 @@ func TestPostRequest(t *testing.T) {
 func TestClient_ApiVersionsVersions(t *testing.T) {
 	c := client()
 
-	data, status, err := c.ApiVersions()
+	data, status, err := c.APIVersions()
 	if err.ErrorMsg != "" {
 		t.Fail()
 	}
@@ -72,7 +72,7 @@ func TestClient_ApiVersionsVersions(t *testing.T) {
 func TestClient_ApiCredentialsCredentials(t *testing.T) {
 	c := client()
 
-	data, status, err := c.ApiCredentials()
+	data, status, err := c.APICredentials()
 	if err.ErrorMsg != "" {
 		t.Fail()
 	}
@@ -119,7 +119,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		FirstName:  "Понтелей",
 		LastName:   "Турбин",
 		Patronymic: "Аристархович",
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 		Address: &Address{
 			City:     "Москва",
@@ -144,7 +144,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		t.Fail()
 	}
 
-	f.Id = cr.Id
+	f.ID = cr.ID
 	f.Vip = true
 
 	ed, se, err := c.CustomerEdit(f, "id")
@@ -163,7 +163,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		t.Fail()
 	}
 
-	data, status, err := c.Customer(f.ExternalId, "externalId", "")
+	data, status, err := c.Customer(f.ExternalID, "externalId", "")
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -179,7 +179,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		t.Fail()
 	}
 
-	if data.Customer.ExternalId != f.ExternalId {
+	if data.Customer.ExternalID != f.ExternalID {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
@@ -193,7 +193,7 @@ func TestClient_CustomersUpload(t *testing.T) {
 		customers[i] = Customer{
 			FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 			LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-			ExternalId: RandomString(8),
+			ExternalID: RandomString(8),
 			Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 		}
 	}
@@ -221,7 +221,7 @@ func TestClient_CustomersCombine(t *testing.T) {
 	dataFirst, status, err := c.CustomerCreate(Customer{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -242,7 +242,7 @@ func TestClient_CustomersCombine(t *testing.T) {
 	dataSecond, status, err := c.CustomerCreate(Customer{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -263,7 +263,7 @@ func TestClient_CustomersCombine(t *testing.T) {
 	dataThird, status, err := c.CustomerCreate(Customer{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -281,7 +281,7 @@ func TestClient_CustomersCombine(t *testing.T) {
 		t.Fail()
 	}
 
-	data, status, err := c.CustomersCombine([]Customer{{Id: dataFirst.Id}, {Id: dataSecond.Id}}, Customer{Id: dataThird.Id})
+	data, status, err := c.CustomersCombine([]Customer{{ID: dataFirst.ID}, {ID: dataSecond.ID}}, Customer{ID: dataThird.ID})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -303,7 +303,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 	f := Customer{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	}
 
@@ -324,8 +324,8 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 	}
 
 	customers := []IdentifiersPair{{
-		Id:         cr.Id,
-		ExternalId: RandomString(8),
+		ID:         cr.ID,
+		ExternalID: RandomString(8),
 	}}
 
 	fx, fe, err := c.CustomersFixExternalIds(customers)
@@ -349,7 +349,7 @@ func TestClient_CustomersHistory(t *testing.T) {
 	c := client()
 	f := CustomersHistoryRequest{
 		Filter: CustomersHistoryFilter{
-			SinceId: 20,
+			SinceID: 20,
 		},
 	}
 
@@ -402,7 +402,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		FirstName:  "Понтелей",
 		LastName:   "Турбин",
 		Patronymic: "Аристархович",
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -422,9 +422,9 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 
 	noteCreateResponse, noteCreateStatus, err := c.NoteCreate(Note{
 		Text:      "some text",
-		ManagerId: user,
+		ManagerID: user,
 		Customer: &Customer{
-			Id: createCustomerResponse.Id,
+			ID: createCustomerResponse.ID,
 		},
 	})
 	if err.ErrorMsg != "" {
@@ -442,7 +442,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	noteDeleteResponse, noteDeleteStatus, err := c.NoteDelete(noteCreateResponse.Id)
+	noteDeleteResponse, noteDeleteStatus, err := c.NoteDelete(noteCreateResponse.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -488,7 +488,7 @@ func TestClient_OrderChange(t *testing.T) {
 		FirstName:  "Понтелей",
 		LastName:   "Турбин",
 		Patronymic: "Аристархович",
-		ExternalId: random,
+		ExternalID: random,
 		Email:      fmt.Sprintf("%s@example.com", random),
 	}
 
@@ -508,7 +508,7 @@ func TestClient_OrderChange(t *testing.T) {
 		t.Fail()
 	}
 
-	f.Id = cr.Id
+	f.ID = cr.ID
 	f.CustomerComment = "test comment"
 
 	ed, se, err := c.OrderEdit(f, "id")
@@ -527,7 +527,7 @@ func TestClient_OrderChange(t *testing.T) {
 		t.Fail()
 	}
 
-	data, status, err := c.Order(f.ExternalId, "externalId", "")
+	data, status, err := c.Order(f.ExternalID, "externalId", "")
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -543,7 +543,7 @@ func TestClient_OrderChange(t *testing.T) {
 		t.Fail()
 	}
 
-	if data.Order.ExternalId != f.ExternalId {
+	if data.Order.ExternalID != f.ExternalID {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
@@ -557,7 +557,7 @@ func TestClient_OrdersUpload(t *testing.T) {
 		orders[i] = Order{
 			FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 			LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-			ExternalId: RandomString(8),
+			ExternalID: RandomString(8),
 			Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 		}
 	}
@@ -585,7 +585,7 @@ func TestClient_OrdersCombine(t *testing.T) {
 	dataFirst, status, err := c.OrderCreate(Order{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -606,7 +606,7 @@ func TestClient_OrdersCombine(t *testing.T) {
 	dataSecond, status, err := c.OrderCreate(Order{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	})
 	if err.ErrorMsg != "" {
@@ -624,7 +624,7 @@ func TestClient_OrdersCombine(t *testing.T) {
 		t.Fail()
 	}
 
-	data, status, err := c.OrdersCombine("ours", Order{Id: dataFirst.Id}, Order{Id: dataSecond.Id})
+	data, status, err := c.OrdersCombine("ours", Order{ID: dataFirst.ID}, Order{ID: dataSecond.ID})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -646,7 +646,7 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 	f := Order{
 		FirstName:  fmt.Sprintf("Name_%s", RandomString(8)),
 		LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	}
 
@@ -667,8 +667,8 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 	}
 
 	orders := []IdentifiersPair{{
-		Id:         cr.Id,
-		ExternalId: RandomString(8),
+		ID:         cr.ID,
+		ExternalID: RandomString(8),
 	}}
 
 	fx, fe, err := c.OrdersFixExternalIds(orders)
@@ -691,7 +691,7 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 func TestClient_OrdersHistory(t *testing.T) {
 	c := client()
 
-	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{SinceId: 20}})
+	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{SinceID: 20}})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -720,7 +720,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		FirstName:  "Понтелей",
 		LastName:   "Турбин",
 		Patronymic: "Аристархович",
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
 	}
 
@@ -742,7 +742,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 
 	f := Payment{
 		Order: &Order{
-			Id: createOrderResponse.Id,
+			ID: createOrderResponse.ID,
 		},
 		Amount: 300,
 		Type:   "cash",
@@ -765,7 +765,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	k := Payment{
-		Id:     paymentCreateResponse.Id,
+		ID:     paymentCreateResponse.ID,
 		Amount: 500,
 	}
 
@@ -785,7 +785,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	paymentDeleteResponse, status, err := c.PaymentDelete(paymentCreateResponse.Id)
+	paymentDeleteResponse, status, err := c.PaymentDelete(paymentCreateResponse.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -834,7 +834,7 @@ func TestClient_TaskChange(t *testing.T) {
 
 	f := Task{
 		Text:        RandomString(15),
-		PerformerId: user,
+		PerformerID: user,
 	}
 
 	cr, sc, err := c.TaskCreate(f)
@@ -853,10 +853,10 @@ func TestClient_TaskChange(t *testing.T) {
 		t.Fail()
 	}
 
-	f.Id = cr.Id
+	f.ID = cr.ID
 	f.Commentary = RandomString(20)
 
-	gt, sg, err := c.Task(f.Id)
+	gt, sg, err := c.Task(f.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1405,7 +1405,7 @@ func TestClient_Courier(t *testing.T) {
 		t.Fail()
 	}
 
-	cur.Id = data.Id
+	cur.ID = data.ID
 	cur.Patronymic = fmt.Sprintf("%s", RandomString(5))
 
 	idata, st, err := c.CourierEdit(cur)
@@ -1485,7 +1485,7 @@ func TestClient_OrderMethodEdit(t *testing.T) {
 		Code:          RandomString(5),
 		Name:          RandomString(5),
 		Active:        false,
-		DefaultForCrm: false,
+		DefaultForCRM: false,
 	})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
@@ -1510,7 +1510,7 @@ func TestClient_OrderTypeEdit(t *testing.T) {
 		Code:          RandomString(5),
 		Name:          RandomString(5),
 		Active:        false,
-		DefaultForCrm: false,
+		DefaultForCRM: false,
 	})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
@@ -1535,7 +1535,7 @@ func TestClient_PaymentStatusEdit(t *testing.T) {
 		Code:            RandomString(5),
 		Name:            RandomString(5),
 		Active:          false,
-		DefaultForCrm:   false,
+		DefaultForCRM:   false,
 		PaymentTypes:    []string{"cash"},
 		PaymentComplete: false,
 	})
@@ -1562,7 +1562,7 @@ func TestClient_PaymentTypeEdit(t *testing.T) {
 		Code:          RandomString(5),
 		Name:          RandomString(5),
 		Active:        false,
-		DefaultForCrm: false,
+		DefaultForCRM: false,
 	})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
@@ -1660,7 +1660,7 @@ func TestClient_SiteEdit(t *testing.T) {
 	data, _, err := c.SiteEdit(Site{
 		Code:        RandomString(5),
 		Name:        RandomString(5),
-		Url:         fmt.Sprintf("https://%s.example.com", RandomString(4)),
+		URL:         fmt.Sprintf("https://%s.example.com", RandomString(4)),
 		LoadFromYml: false,
 	})
 	if err.ErrorMsg == "" {
@@ -1707,9 +1707,9 @@ func TestClient_PackChange(t *testing.T) {
 		FirstName:  "Понтелей",
 		LastName:   "Турбин",
 		Patronymic: "Аристархович",
-		ExternalId: RandomString(8),
+		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
-		Items:      []OrderItem{{Offer: Offer{Id: 1609}, Quantity: 5}},
+		Items:      []OrderItem{{Offer: Offer{ID: 1609}, Quantity: 5}},
 	})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
@@ -1726,7 +1726,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Fail()
 	}
 
-	g, status, err := c.Order(strconv.Itoa(o.Id), "id", "")
+	g, status, err := c.Order(strconv.Itoa(o.ID), "id", "")
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1744,7 +1744,7 @@ func TestClient_PackChange(t *testing.T) {
 
 	p, status, err := c.PackCreate(Pack{
 		Store:    "test-store",
-		ItemId:   g.Order.Items[0].Id,
+		ItemID:   g.Order.Items[0].ID,
 		Quantity: 1,
 	})
 	if err.ErrorMsg != "" {
@@ -1762,7 +1762,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Fail()
 	}
 
-	s, status, err := c.Pack(p.Id)
+	s, status, err := c.Pack(p.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1778,7 +1778,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Fail()
 	}
 
-	e, status, err := c.PackEdit(Pack{Id: p.Id, Quantity: 2})
+	e, status, err := c.PackEdit(Pack{ID: p.ID, Quantity: 2})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1794,7 +1794,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Fail()
 	}
 
-	d, status, err := c.PackDelete(p.Id)
+	d, status, err := c.PackDelete(p.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1814,7 +1814,7 @@ func TestClient_PackChange(t *testing.T) {
 func TestClient_PacksHistory(t *testing.T) {
 	c := client()
 
-	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{SinceId: 5}})
+	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{SinceID: 5}})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -1907,9 +1907,9 @@ func TestClient_IntegrationModule(t *testing.T) {
 		IntegrationCode: code,
 		Active:          false,
 		Name:            fmt.Sprintf("Integration module %s", name),
-		AccountUrl:      fmt.Sprintf("http://example.com/%s/account", name),
-		BaseUrl:         fmt.Sprintf("http://example.com/%s", name),
-		ClientId:        RandomString(10),
+		AccountURL:      fmt.Sprintf("http://example.com/%s/account", name),
+		BaseURL:         fmt.Sprintf("http://example.com/%s", name),
+		ClientID:        RandomString(10),
 		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
 	})
 	if err.ErrorMsg != "" {
