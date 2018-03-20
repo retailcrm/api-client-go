@@ -57,14 +57,17 @@ func TestClient_ApiVersionsVersions(t *testing.T) {
 
 	data, status, err := c.APIVersions()
 	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
 
 	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
 
 	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
 	}
 }
@@ -378,7 +381,7 @@ func TestClient_CustomersHistory(t *testing.T) {
 func TestClient_NotesNotes(t *testing.T) {
 	c := client()
 
-	data, status, err := c.Notes(NotesRequest{Page: 1})
+	data, status, err := c.CustomerNotes(NotesRequest{Page: 1})
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -420,7 +423,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	noteCreateResponse, noteCreateStatus, err := c.NoteCreate(Note{
+	noteCreateResponse, noteCreateStatus, err := c.CustomerNoteCreate(Note{
 		Text:      "some text",
 		ManagerID: user,
 		Customer: &Customer{
@@ -442,7 +445,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	noteDeleteResponse, noteDeleteStatus, err := c.NoteDelete(noteCreateResponse.ID)
+	noteDeleteResponse, noteDeleteStatus, err := c.CustomerNoteDelete(noteCreateResponse.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -748,7 +751,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		Type:   "cash",
 	}
 
-	paymentCreateResponse, status, err := c.PaymentCreate(f)
+	paymentCreateResponse, status, err := c.OrderPaymentCreate(f)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -769,7 +772,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		Amount: 500,
 	}
 
-	paymentEditResponse, status, err := c.PaymentEdit(k, "id")
+	paymentEditResponse, status, err := c.OrderPaymentEdit(k, "id")
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -785,7 +788,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		t.Fail()
 	}
 
-	paymentDeleteResponse, status, err := c.PaymentDelete(paymentCreateResponse.ID)
+	paymentDeleteResponse, status, err := c.OrderPaymentDelete(paymentCreateResponse.ID)
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()
@@ -969,10 +972,10 @@ func TestClient_UsersUpdate(t *testing.T) {
 	}
 }
 
-func TestClient_StaticticUpdate(t *testing.T) {
+func TestClient_StaticticsUpdate(t *testing.T) {
 	c := client()
 
-	data, st, err := c.StaticticUpdate()
+	data, st, err := c.StaticticsUpdate()
 	if err.ErrorMsg != "" {
 		t.Errorf("%v", err.ErrorMsg)
 		t.Fail()

@@ -16,8 +16,8 @@ func (c *Client) ErrorResponse(data []byte) (ErrorResponse, error) {
 	return resp, err
 }
 
-// SucessfulResponse type
-type SucessfulResponse struct {
+// SuccessfulResponse type
+type SuccessfulResponse struct {
 	Success bool `json:"success,omitempty"`
 }
 

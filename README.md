@@ -1,10 +1,13 @@
 [![Build Status](https://img.shields.io/travis/retailcrm/api-client-go/master.svg?style=flat-square)](https://travis-ci.org/retailcrm/api-client-go)
+[![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg?style=flat-square)](https://github.com/retailcrm/api-client-go/releases)
+[![GoLang version](https://img.shields.io/badge/GoLang-1.8%2C%201.9%2C%201.10-blue.svg?style=flat-square)](https://golang.org/dl/)
+
 
 # retailCRM API Go client
 
-Go client for [retailCRM API](http://www.retailcrm.pro/docs/Developers/ApiVersion5).
+This is golang retailCRM API client.
 
-## Installation
+## Install
 
 ```bash
 go get -x github.com/retailcrm/api-client-go
@@ -76,15 +79,8 @@ func main() {
 }
 ```
 
-## Testing
+## Documentation
 
-```bash
-export RETAILCRM_URL="https://demo.retailcrm.pro"
-export RETAILCRM_KEY="09jIJ09j0JKhgyfvyuUIKhiugF"
-export RETAILCRM_USER="1"
-
-cd $GOPATH/src/github.com/retailcrm/api-client-go
-
-go test -v ./...
-
-```
+* [English](http://www.retailcrm.pro/docs/Developers/Index)
+* [Russian](http://www.retailcrm.ru/docs/Developers/Index)
+* [GoDoc](https://godoc.org/github.com/retailcrm/api-client-go)
