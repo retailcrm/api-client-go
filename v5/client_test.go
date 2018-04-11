@@ -14,6 +14,8 @@ import (
 var r *rand.Rand // Rand for this package.
 var user, _ = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
 var statuses = map[int]bool{http.StatusOK: true, http.StatusCreated: true}
+var id int
+var ids []int
 
 func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -1848,5 +1850,393 @@ func TestClient_DeliveryShipments(t *testing.T) {
 
 	if g.Success != true {
 		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CostCreate(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CostCreate(CostRecord{
+		DateFrom: "2018-04-02",
+		DateTo:   "2018-04-02",
+		Summ:     124,
+		CostItem: "seo",
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	id = data.ID
+}
+
+func TestClient_Costs(t *testing.T) {
+	c := client()
+
+	data, status, err := c.Costs(CostsRequest{
+		Filter: CostsFilter{
+			Ids: []string{strconv.Itoa(id)},
+		},
+		Limit: 20,
+		Page:  1,
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_Cost(t *testing.T) {
+	c := client()
+
+	data, status, err := c.Cost(id)
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CostEdit(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CostEdit(id, CostRecord{
+		DateFrom: "2018-04-09",
+		DateTo:   "2018-04-09",
+		Summ:     421,
+		CostItem: "seo",
+		Order:    nil,
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CostDelete(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CostDelete(id)
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CostsUpload(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CostsUpload([]CostRecord{
+		{
+			Source:   nil,
+			DateFrom: "2018-04-02",
+			DateTo:   "2018-04-02",
+			Summ:     124,
+			CostItem: "seo",
+			Order:    nil,
+		},
+		{
+			Source:   nil,
+			DateFrom: "2018-04-03",
+			DateTo:   "2018-04-03",
+			Summ:     125,
+			CostItem: "seo",
+			Order:    nil,
+			Sites:    []string{"catalog-test"},
+		},
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	ids = data.UploadedCosts
+}
+
+func TestClient_CostsDelete(t *testing.T) {
+	c := client()
+	data, status, err := c.CostsDelete(ids)
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomFields(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomFields(CustomFieldsRequest{})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+func TestClient_CustomDictionaries(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomDictionaries(CustomDictionariesRequest{
+		Filter: CustomDictionariesFilter{
+			Name: "test",
+		},
+		Limit: 10,
+		Page:  1,
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomDictionary(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomDictionary("test2")
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomDictionariesCreate(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomDictionariesCreate(CustomDictionary{
+		Name: "test2",
+		Code: "test2",
+		Elements: []Element{
+			{
+				Name: "test",
+				Code: "test",
+			},
+		},
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomDictionaryEdit(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomDictionaryEdit(CustomDictionary{
+		Name: "test223",
+		Code: "test2",
+		Elements: []Element{
+			{
+				Name: "test3",
+				Code: "test3",
+			},
+		},
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomFieldsCreate(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomFieldsCreate(CustomFieldsEditRequest{
+		CustomField: CustomFields{
+			Name:        "test4",
+			Code:        "test4",
+			Type:        "text",
+			Entity:      "order",
+			DisplayArea: "customer",
+		},
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomField(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomField("customer", "testtest")
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+}
+
+func TestClient_CustomFieldEdit(t *testing.T) {
+	c := client()
+
+	data, status, err := c.CustomFieldEdit("customer",  CustomFieldsEditRequest{
+		CustomField: CustomFields{
+			Name: "testtesttest",
+		},
+	})
+
+	if err.ErrorMsg != "" {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ErrorMsg)
+		t.Fail()
 	}
 }

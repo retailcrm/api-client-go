@@ -142,3 +142,30 @@ type DeliveryShipmentsRequest struct {
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
 }
+
+// CostsRequest type
+type CostsRequest struct {
+	Filter CostsFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}
+
+// CustomFieldsRequest type
+type CustomFieldsRequest struct {
+	Filter CustomFieldsFilter `url:"filter,omitempty"`
+	Limit  int                `url:"limit,omitempty"`
+	Page   int                `url:"page,omitempty"`
+}
+
+// CustomeDictionariesRequest type
+type CustomDictionariesRequest struct {
+	Filter CustomDictionariesFilter `url:"filter,omitempty"`
+	Limit  int                      `url:"limit,omitempty"`
+	Page   int                      `url:"page,omitempty"`
+}
+
+// CustomFieldsEditRequest type
+type CustomFieldsEditRequest struct {
+	CustomField CustomFields `url:"customField,omitempty"`
+	Entity       string       `url:"entity,omitempty"`
+}

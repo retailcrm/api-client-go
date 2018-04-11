@@ -864,3 +864,71 @@ type Action struct {
 	URL        string   `json:"url,omitempty"`
 	CallPoints []string `json:"callPoints,omitempty"`
 }
+
+/**
+Cost related types
+*/
+
+// CostRecord type
+type CostRecord struct {
+	Source   *Source  `json:"source,omitempty"`
+	Comment  string   `json:"comment,omitempty"`
+	DateFrom string   `json:"dateFrom,omitempty"`
+	DateTo   string   `json:"dateTo,omitempty"`
+	Summ     float32  `json:"summ,omitempty"`
+	CostItem string   `json:"costItem,omitempty"`
+	UserId   int      `json:"userId,omitempty"`
+	Order    *Order   `json:"order,omitempty"`
+	Sites    []string `json:"sites,omitempty,brackets"`
+}
+
+// Cost type
+type Cost struct {
+	Source    *Source  `json:"source,omitempty"`
+	ID        int      `json:"id,omitempty"`
+	DateFrom  string   `json:"dateFrom,omitempty"`
+	DateTo    string   `json:"dateTo,omitempty"`
+	Summ      float32  `json:"summ,omitempty"`
+	CostItem  string   `json:"costItem,omitempty"`
+	Comment   string   `json:"comment,omitempty"`
+	CreatedAt string   `json:"createdAt,omitempty"`
+	CreatedBy string   `json:"createdBy,omitempty"`
+	Order     *Order   `json:"order,omitempty"`
+	UserId    int      `json:"userId,omitempty"`
+	Sites     []string `json:"sites,omitempty,brackets"`
+}
+
+// CustomFields type
+type CustomFields struct {
+	Name           string `json:"name,omitempty"`
+	Code           string `json:"code,omitempty"`
+	Required       bool   `json:"required,omitempty"`
+	InFilter       bool   `json:"inFilter,omitempty"`
+	InList         bool   `json:"inList,omitempty"`
+	InGroupActions bool   `json:"inGroupActions,omitempty"`
+	Type           string `json:"type,omitempty"`
+	Entity         string `json:"entity,omitempty"`
+	Default        string `json:"default,omitempty"`
+	Ordering       int    `json:"ordering,omitempty"`
+	DisplayArea    string `json:"displayArea,omitempty"`
+	ViewMode       string `json:"viewMode,omitempty"`
+	Dictionary     string `json:"dictionary,omitempty"`
+}
+
+/**
+CustomeDictionaries related types
+*/
+
+// customDictionary type
+type CustomDictionary struct {
+	Name     string    `json:"name,omitempty"`
+	Code     string    `json:"code,omitempty"`
+	Elements []Element `json:"elements,omitempty,brackets"`
+}
+
+// Dictionary Element type
+type Element struct {
+	Name     string `json:"name,omitempty"`
+	Code     string `json:"code,omitempty"`
+	Ordering int    `json:"ordering,omitempty"`
+}

@@ -328,3 +328,61 @@ type IntegrationModuleEditResponse struct {
 	Success bool              `json:"success"`
 	Info    map[string]string `json:"info,omitempty,brackets"`
 }
+
+// CostsResponse type
+type CostsResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Costs      []Cost      `json:"costs,omitempty,brackets"`
+}
+
+// CostsUploadResponse type
+type CostsUploadResponse struct {
+	Success bool  `json:"success"`
+	UploadedCosts     []int `json:"uploadedCosts,omitempty,brackets"`
+}
+
+// CostsDeleteResponse type
+type CostsDeleteResponse struct {
+	Success bool  `json:"success"`
+	Count int `json:"count,omitempty,brackets"`
+	NotRemovedIds     []int `json:"notRemovedIds,omitempty,brackets"`
+}
+
+// CostResponse type
+type CostResponse struct {
+	Success bool  `json:"success"`
+	Cost    *Cost `json:"cost,omitempty,brackets"`
+}
+
+// CustomFieldsResponse type
+type CustomFieldsResponse struct {
+	Success      bool           `json:"success"`
+	Pagination   *Pagination    `json:"pagination,omitempty"`
+	CustomFields []CustomFields `json:"customFields,omitempty,brackets"`
+}
+
+// CustomDictionariesResponse type
+type CustomDictionariesResponse struct {
+	Success            bool                `json:"success"`
+	Pagination         *Pagination         `json:"pagination,omitempty"`
+	CustomDictionaries *[]CustomDictionary `json:"customDictionaries,omitempty,brackets"`
+}
+
+// CustomDictionariesResponse type
+type CustomResponse struct {
+	Success bool   `json:"success"`
+	Code    string `json:"code,omitempty"`
+}
+
+// CustomDictionaryResponse type
+type CustomDictionaryResponse struct {
+	Success          bool              `json:"success"`
+	CustomDictionary *CustomDictionary `json:"CustomDictionary,omitempty,brackets"`
+}
+
+// CustomFieldResponse type
+type CustomFieldResponse struct {
+	Success     bool         `json:"success"`
+	CustomField CustomFields `json:"customField,omitempty,brackets"`
+}

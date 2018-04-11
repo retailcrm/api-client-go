@@ -296,3 +296,39 @@ type ShipmentFilter struct {
 	DeliveryTypes []string `url:"deliveryTypes,omitempty,brackets"`
 	Statuses      []string `url:"statuses,omitempty,brackets"`
 }
+
+// CostsFilter type
+type CostsFilter struct {
+	MinSumm          string   `url:"minSumm,omitempty"`
+	MaxSumm          string   `url:"maxSumm,omitempty"`
+	OrderNumber      string   `url:"orderNumber,omitempty"`
+	Comment          string   `url:"orderNumber,omitempty"`
+	Ids              []string `url:"ids,omitempty,brackets"`
+	Sites            []string `url:"sites,omitempty,brackets"`
+	CreatedBy        []string `url:"createdBy,omitempty,brackets"`
+	CostGroups       []string `url:"costGroups,omitempty,brackets"`
+	CostItems        []string `url:"costItems,omitempty,brackets"`
+	Users            []string `url:"users,omitempty,brackets"`
+	DateFrom         string   `url:"dateFrom,omitempty"`
+	DateTo           string   `url:"dateTo,omitempty"`
+	CreatedAtFrom    string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo      string   `url:"createdAtTo,omitempty"`
+	OrderIds         []string `url:"orderIds,omitempty,brackets"`
+	OrderExternalIds []string `url:"orderIds,omitempty,brackets"`
+}
+
+// CustomFieldsFilter type
+type CustomFieldsFilter struct {
+	Name        string `url:"name,omitempty"`
+	Code        string `url:"code,omitempty"`
+	Type        string `url:"type,omitempty"`
+	Entity      string `url:"entity,omitempty"`
+	ViewMode    string `url:"viewMode,omitempty"`
+	DisplayArea string `url:"displayArea,omitempty"`
+}
+
+// CustomDictionariesFilter type
+type CustomDictionariesFilter struct {
+	Name string `url:"name,omitempty"`
+	Code string `url:"code,omitempty"`
+}

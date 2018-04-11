@@ -2062,3 +2062,638 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, errs.Failure) {
 
 	return resp, status, err
 }
+
+// Getting of the cost list, adequate for the given filter
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Costs(CostsRequest{
+//		Filter: CostsFilter{
+//			Ids: []string{"1","2","3"},
+//			MinSumm: "1000"
+//		},
+//	})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	for _, value := range data.Costs {
+// 		fmt.Printf("%v\n", value.Summ)
+// 	}
+func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, ErrorResponse) {
+	var resp CostsResponse
+
+	params, _ := query.Values(costs)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/costs?%s", params.Encode()))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Creation of the cost
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostCreate(
+// 		v5.CostRecord{
+//			DateFrom:  "2012-12-12",
+//			DateTo:    "2012-12-12",
+//			Summ:      12,
+//			CostItem:  "calculation-of-costs",
+//			Order: Order{
+// 				Number: "1"
+// 			},
+// 			Sites:    []string{"store"},
+//		},
+//		"store"
+// 	)
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.ID)
+// 	}
+func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, ErrorResponse) {
+	var resp CreateResponse
+
+	costJSON, _ := json.Marshal(&cost)
+
+	p := url.Values{
+		"cost": {string(costJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest("/costs/create", p)
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Method allows to remove batch up to 50 costs.
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.client.CostsDelete([]int{1, 2, 3, 48, 49, 50})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("Not removed costs: %v", data.NotRemovedIds)
+// 	}
+func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, ErrorResponse) {
+	var resp CostsDeleteResponse
+
+	costJSON, _ := json.Marshal(&ids)
+
+	p := url.Values{
+		"ids": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest("/costs/delete", p)
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Method allows to upload as packet up to 50 costs.
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostCreate([]v5.CostRecord{
+//		{
+//			DateFrom:  "2012-12-12",
+//			DateTo:    "2012-12-12",
+//			Summ:      12,
+//			CostItem:  "calculation-of-costs",
+//			Order: Order{
+// 				Number: "1"
+// 			},
+// 			Sites:    []string{"store"},
+//		},
+//		{
+//			DateFrom:  "2012-12-13",
+//			DateTo:    "2012-12-13",
+//			Summ:      13,
+//			CostItem:  "seo",
+//		}
+// 	})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("Uploaded costs: %v", data.UploadedCosts)
+// 	}
+func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, ErrorResponse) {
+	var resp CostsUploadResponse
+
+	costJSON, _ := json.Marshal(&cost)
+
+	p := url.Values{
+		"costs": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest("/costs/upload", p)
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Getting of cost information
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Cost(1)
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.Cost)
+// 	}
+func (c *Client) Cost(id int) (CostResponse, int, ErrorResponse) {
+	var resp CostResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/costs/%d", id))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Cost removing
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostDelete(1)
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+func (c *Client) CostDelete(id int) (SuccessfulResponse, int, ErrorResponse) {
+	var resp SuccessfulResponse
+
+	costJSON, _ := json.Marshal(&id)
+
+	p := url.Values{
+		"costs": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", id), p)
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Cost editing
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostEdit(1, v5.Cost{
+//		DateFrom:  "2012-12-12",
+//		DateTo:    "2018-12-13",
+//		Summ:      321,
+//		CostItem:  "seo",
+//	})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.Id)
+// 	}
+func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, ErrorResponse) {
+	var resp CreateResponse
+
+	costJSON, _ := json.Marshal(&cost)
+
+	p := url.Values{
+		"cost": {string(costJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", id), p)
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Getting the list of custom fields
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomFields(v5.CustomFieldsRequest{
+//		Type: "string",
+// 		Entity: "customer",
+//	})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	for _, value := range data.CustomFields {
+//		fmt.Printf("%v\n", value)
+//	}
+func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsResponse, int, ErrorResponse) {
+	var resp CustomFieldsResponse
+
+	params, _ := query.Values(customFields)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields?%s", params.Encode()))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Getting the list of custom directory
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomDictionaries(v5.CustomDictionariesRequest{
+//		Filter: v5.CustomDictionariesFilter{
+//			Name: "Dictionary-1",
+//		},
+//	})
+//
+//	if err.ErrorMsg != "" {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	if status >= http.StatusBadRequest {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	for _, value := range data.CustomDictionaries {
+//		fmt.Printf("%v\n", value.Elements)
+//	}
+func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (CustomDictionariesResponse, int, ErrorResponse) {
+	var resp CustomDictionariesResponse
+
+	params, _ := query.Values(customDictionaries)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries?%s", params.Encode()))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Directory fields creation
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomDictionariesCreate(v5.CustomDictionary{
+//		Name: "Courier profiles",
+//		Code: "courier-profiles",
+//		Elements: []Element{
+//			{
+//				Name: "Name",
+//				Code: "name",
+//			},
+//			{
+//				Name: "Lastname",
+//				Code: "lastname",
+//			}
+//		},
+//	})
+//
+//	if err.ErrorMsg != "" {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	if status >= http.StatusBadRequest {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	If data.Success == true {
+//		fmt.Printf("%v", data.Code)
+//	}
+func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, ErrorResponse) {
+	var resp CustomResponse
+
+	costJSON, _ := json.Marshal(&customDictionary)
+
+	p := url.Values{
+		"customDictionary": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest("/custom-fields/dictionaries/create", p)
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Getting information on directory
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomDictionary("courier-profiles")
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.CustomDictionary.Name)
+// 	}
+func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, ErrorResponse) {
+	var resp CustomDictionaryResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries/%s", code))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Directory fields editing
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomDictionaryEdit(v5.CustomDictionary{
+//	Name: "Courier profiles",
+//		Code: "courier-profiles",
+//		Elements: []Element{
+//			{
+//				Name: "Name",
+//				Code: "name",
+//			},
+//			{
+//				Name: "Lastname",
+//				Code: "lastname",
+//			}
+//		},
+//	})
+//
+//	if err.ErrorMsg != "" {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	if status >= http.StatusBadRequest {
+//		fmt.Printf("%v", err.ErrorMsg)
+//	}
+//
+//	If data.Success == true {
+//		fmt.Printf("%v", data.Code)
+//	}
+func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, ErrorResponse) {
+	var resp CustomResponse
+
+	costJSON, _ := json.Marshal(&customDictionary)
+
+	p := url.Values{
+		"customDictionary": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code), p)
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Custom fields creation
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomFieldsCreate(v5.CustomFieldsEditRequest{
+//		CustomField: v5.CustomFields{
+//			Name:        "First order",
+//			Code:        "first-order",
+//			Type:        "bool",
+//			Entity:      "order",
+//			DisplayArea: "customer",
+//		},
+//	})
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.Code)
+// 	}
+func (c *Client) CustomFieldsCreate(customFields CustomFieldsEditRequest) (CustomResponse, int, ErrorResponse) {
+	var resp CustomResponse
+
+	costJSON, _ := json.Marshal(&customFields)
+
+	p := url.Values{
+		"customField": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/create", customFields.CustomField.Entity), p)
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// Getting information on custom fields
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomField("order", "first-order")
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.CustomField)
+// 	}
+func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, ErrorResponse) {
+	var resp CustomFieldResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/%s/%s", entity, code))
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
+
+// CustomFieldEdit list method
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CustomFieldEdit("order", v5.CustomFieldsEditRequest{
+// 		CustomField: v5.CustomFields{
+//			Name: "First customer order",
+//			Code: "first-order",
+//		},
+// })
+//
+// 	if err.ErrorMsg != "" {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ErrorMsg)
+// 	}
+//
+// 	If data.Success == true {
+// 		fmt.Printf("%v", data.Code)
+// 	}
+func (c *Client) CustomFieldEdit(entity string, customFields CustomFieldsEditRequest) (CustomResponse, int, ErrorResponse) {
+	var resp CustomResponse
+
+	costJSON, _ := json.Marshal(&customFields)
+
+	p := url.Values{
+		"customField": {string(costJSON[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/%s/edit", entity, customFields.CustomField.Code), p)
+
+	if err.ErrorMsg != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	return resp, status, err
+}
