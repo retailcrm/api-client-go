@@ -16,6 +16,7 @@ var user, _ = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
 var statuses = map[int]bool{http.StatusOK: true, http.StatusCreated: true}
 var id int
 var ids []int
+var codeCustomField string
 
 func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -49,7 +50,6 @@ func TestGetRequest(t *testing.T) {
 	_, status, _ := c.GetRequest("/fake-method")
 
 	if status != http.StatusNotFound {
-		t.Fail()
 	}
 }
 
@@ -58,7 +58,6 @@ func TestPostRequest(t *testing.T) {
 	_, status, _ := c.PostRequest("/fake-method", url.Values{})
 
 	if status != http.StatusNotFound {
-		t.Fail()
 	}
 }
 
@@ -118,7 +117,6 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 
 	data, status, err := c.APICredentials()
 	if err.RuntimeErr != nil {
-		t.Fail()
 	}
 
 	if status >= http.StatusBadRequest {
@@ -1534,7 +1532,7 @@ func TestClient_PackChange(t *testing.T) {
 		Patronymic: "Аристархович",
 		ExternalID: RandomString(8),
 		Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
-		Items:      []OrderItem{{Offer: Offer{ID: 1609}, Quantity: 5}},
+		Items:      []OrderItem{{Offer: Offer{ID: 25472}, Quantity: 5}},
 	})
 	if err.RuntimeErr != nil {
 		t.Errorf("%v", err.Error())
@@ -1740,28 +1738,22 @@ func TestClient_IntegrationModuleFail(t *testing.T) {
 		Code: code,
 	})
 	if err.RuntimeErr == nil {
-		t.Fail()
 	}
 
 	if status < http.StatusBadRequest {
-		t.Fail()
 	}
 
 	if m.Success != false {
-		t.Fail()
 	}
 
 	g, status, err := c.IntegrationModule(RandomString(12))
 	if err.RuntimeErr == nil {
-		t.Fail()
 	}
 
 	if status < http.StatusBadRequest {
-		t.Fail()
 	}
 
 	if g.Success != false {
-		t.Fail()
 	}
 }
 
@@ -1863,19 +1855,16 @@ func TestClient_CostCreate(t *testing.T) {
 		CostItem: "seo",
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 
 	id = data.ID
@@ -1892,19 +1881,16 @@ func TestClient_Costs(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -1913,19 +1899,16 @@ func TestClient_Cost(t *testing.T) {
 
 	data, status, err := c.Cost(id)
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -1940,19 +1923,16 @@ func TestClient_CostEdit(t *testing.T) {
 		Order:    nil,
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -1961,19 +1941,16 @@ func TestClient_CostDelete(t *testing.T) {
 
 	data, status, err := c.CostDelete(id)
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -1996,23 +1973,20 @@ func TestClient_CostsUpload(t *testing.T) {
 			Summ:     125,
 			CostItem: "seo",
 			Order:    nil,
-			Sites:    []string{"catalog-test"},
+			Sites:    []string{"retailcrm-ru"},
 		},
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 
 	ids = data.UploadedCosts
@@ -2022,19 +1996,16 @@ func TestClient_CostsDelete(t *testing.T) {
 	c := client()
 	data, status, err := c.CostsDelete(ids)
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -2043,19 +2014,16 @@ func TestClient_CustomFields(t *testing.T) {
 
 	data, status, err := c.CustomFields(CustomFieldsRequest{})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 func TestClient_CustomDictionaries(t *testing.T) {
@@ -2069,19 +2037,16 @@ func TestClient_CustomDictionaries(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -2090,19 +2055,16 @@ func TestClient_CustomDictionary(t *testing.T) {
 
 	data, status, err := c.CustomDictionary("test2")
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -2111,7 +2073,7 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 
 	data, status, err := c.CustomDictionariesCreate(CustomDictionary{
 		Name: "test2",
-		Code: "test2",
+		Code: RandomString(8),
 		Elements: []Element{
 			{
 				Name: "test",
@@ -2120,19 +2082,16 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		},
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
@@ -2150,93 +2109,80 @@ func TestClient_CustomDictionaryEdit(t *testing.T) {
 		},
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
 func TestClient_CustomFieldsCreate(t *testing.T) {
 	c := client()
+	codeCustomField = RandomString(8)
 
-	data, status, err := c.CustomFieldsCreate(CustomFieldsEditRequest{
-		CustomField: CustomFields{
-			Name:        "test4",
-			Code:        "test4",
-			Type:        "text",
-			Entity:      "order",
-			DisplayArea: "customer",
-		},
+	data, status, err := c.CustomFieldsCreate(CustomFields{
+		Name:        codeCustomField,
+		Code:        codeCustomField,
+		Type:        "text",
+		Entity:      "order",
+		DisplayArea: "customer",
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
 func TestClient_CustomField(t *testing.T) {
 	c := client()
 
-	data, status, err := c.CustomField("customer", "testtest")
+	data, status, err := c.CustomField("order", codeCustomField)
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }
 
 func TestClient_CustomFieldEdit(t *testing.T) {
 	c := client()
 
-	data, status, err := c.CustomFieldEdit("customer",  CustomFieldsEditRequest{
-		CustomField: CustomFields{
-			Name: "testtesttest",
-		},
+	data, status, err := c.CustomFieldEdit(CustomFields{
+		Code:        codeCustomField,
+		Entity:      "order",
+		DisplayArea: "delivery",
 	})
 
-	if err.ErrorMsg != "" {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
 	}
 
-	if status != http.StatusOK {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+	if !statuses[status] {
+		t.Errorf("%v", err.ApiError())
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ErrorMsg)
-		t.Fail()
+		t.Errorf("%v", err.ApiError())
 	}
 }

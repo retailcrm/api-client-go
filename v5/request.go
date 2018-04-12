@@ -88,7 +88,7 @@ type TasksRequest struct {
 
 // NotesRequest type
 type NotesRequest struct {
-	Filter TasksFilter `url:"filter,omitempty"`
+	Filter NotesFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
@@ -164,8 +164,3 @@ type CustomDictionariesRequest struct {
 	Page   int                      `url:"page,omitempty"`
 }
 
-// CustomFieldsEditRequest type
-type CustomFieldsEditRequest struct {
-	CustomField CustomFields `url:"customField,omitempty"`
-	Entity       string       `url:"entity,omitempty"`
-}
