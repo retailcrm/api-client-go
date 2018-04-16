@@ -163,4 +163,3 @@ type CustomDictionariesRequest struct {
 	Limit  int                      `url:"limit,omitempty"`
 	Page   int                      `url:"page,omitempty"`
 }
-

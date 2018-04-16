@@ -338,15 +338,15 @@ type CostsResponse struct {
 
 // CostsUploadResponse type
 type CostsUploadResponse struct {
-	Success bool  `json:"success"`
-	UploadedCosts     []int `json:"uploadedCosts,omitempty,brackets"`
+	Success       bool  `json:"success"`
+	UploadedCosts []int `json:"uploadedCosts,omitempty,brackets"`
 }
 
 // CostsDeleteResponse type
 type CostsDeleteResponse struct {
-	Success bool  `json:"success"`
-	Count int `json:"count,omitempty,brackets"`
-	NotRemovedIds     []int `json:"notRemovedIds,omitempty,brackets"`
+	Success       bool  `json:"success"`
+	Count         int   `json:"count,omitempty,brackets"`
+	NotRemovedIds []int `json:"notRemovedIds,omitempty,brackets"`
 }
 
 // CostResponse type
