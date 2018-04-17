@@ -32,7 +32,7 @@ func main() {
 		Filter: v5.OrdersFilter{},
 		Limit: 20,
 		Page: 1,
-	})
+	},)
 	if err.ErrorMsg != "" {
 		fmt.Printf("%v", err.ErrorMsg)
 	}
