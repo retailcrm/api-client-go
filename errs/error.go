@@ -19,8 +19,8 @@ func (f *Failure) ApiError() string {
 func (f *Failure) ApiErrors() []string {
 	var errors []string
 
-	for i := 0; i < len(f.ApiErrs); i++ {
-		errors = append(errors, fmt.Sprintf("%v", f.ApiErrs[i]))
+	for k, i :=  range f.ApiErrs {
+		errors = append(errors, fmt.Sprintf("%v: %v", k, i))
 	}
 
 	return errors
