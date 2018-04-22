@@ -34,7 +34,7 @@ func main() {
 		Page: 1,
 	},)
 	if err.RuntimeErr != nil {
-		fmt.Printf("%v", err.ErrorMsg)
+		fmt.Printf("%v", err.Error())
 	}
 
 	if status >= http.StatusBadRequest {
@@ -68,7 +68,7 @@ func main() {
         },
     )
     if err.RuntimeErr != nil {
-        fmt.Printf("%v", err.ErrorMsg)
+        fmt.Printf("%v", err.Error())
     }
 
     if status >= http.StatusBadRequest {
