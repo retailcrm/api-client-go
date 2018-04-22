@@ -1,21 +1,5 @@
 package v5
 
-import "encoding/json"
-
-// ErrorResponse type
-type ErrorResponse struct {
-	ErrorMsg string            `json:"errorMsg,omitempty"`
-	Errors   map[string]string `json:"errors,omitempty"`
-}
-
-// ErrorResponse method
-func (c *Client) ErrorResponse(data []byte) (ErrorResponse, error) {
-	var resp ErrorResponse
-	err := json.Unmarshal(data, &resp)
-
-	return resp, err
-}
-
 // SuccessfulResponse type
 type SuccessfulResponse struct {
 	Success bool `json:"success,omitempty"`
