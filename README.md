@@ -33,12 +33,12 @@ func main() {
 		Limit: 20,
 		Page: 1,
 	},)
-	if err.ErrorMsg != "" {
+	if err.RuntimeErr != nil {
 		fmt.Printf("%v", err.ErrorMsg)
 	}
 
 	if status >= http.StatusBadRequest {
-		fmt.Printf("%v", err.ErrorMsg)
+		fmt.Printf("%v", err.ApiError())
 	}
 
 	for _, value := range data.Orders {
@@ -67,12 +67,12 @@ func main() {
             },
         },
     )
-    if err.ErrorMsg != "" {
+    if err.RuntimeErr != nil {
         fmt.Printf("%v", err.ErrorMsg)
     }
 
     if status >= http.StatusBadRequest {
-        fmt.Printf("%v", err.ErrorMsg)
+        fmt.Printf("%v", err.ApiError())
     }
 
     fmt.Println(idata.processedOffersCount)
