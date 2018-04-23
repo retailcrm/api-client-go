@@ -16,14 +16,8 @@ func (f *Failure) ApiError() string {
 }
 
 // ApiErrors returns array of formatted strings that represents API errors
-func (f *Failure) ApiErrors() []string {
-	var errors []string
-
-	for i := 0; i < len(f.ApiErrs); i++ {
-		errors = append(errors, fmt.Sprintf("%v", f.ApiErrs[i]))
-	}
-
-	return errors
+func (f *Failure) ApiErrors() map[string]string {
+	return f.ApiErrs
 }
 
 // ErrorResponse method

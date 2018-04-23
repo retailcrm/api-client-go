@@ -88,7 +88,7 @@ type TasksRequest struct {
 
 // NotesRequest type
 type NotesRequest struct {
-	Filter TasksFilter `url:"filter,omitempty"`
+	Filter NotesFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
@@ -141,4 +141,25 @@ type DeliveryShipmentsRequest struct {
 	Filter ShipmentFilter `url:"filter,omitempty"`
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
+}
+
+// CostsRequest type
+type CostsRequest struct {
+	Filter CostsFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}
+
+// CustomFieldsRequest type
+type CustomFieldsRequest struct {
+	Filter CustomFieldsFilter `url:"filter,omitempty"`
+	Limit  int                `url:"limit,omitempty"`
+	Page   int                `url:"page,omitempty"`
+}
+
+// CustomeDictionariesRequest type
+type CustomDictionariesRequest struct {
+	Filter CustomDictionariesFilter `url:"filter,omitempty"`
+	Limit  int                      `url:"limit,omitempty"`
+	Page   int                      `url:"page,omitempty"`
 }

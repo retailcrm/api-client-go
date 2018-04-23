@@ -4,11 +4,11 @@ package errs
 type Failure struct {
 	RuntimeErr error
 	ApiErr     string
-	ApiErrs    []string
+	ApiErrs    map[string]string
 }
 
 // FailureResponse convert json error response into object
 type FailureResponse struct {
-	ErrorMsg string   `json:"errorMsg,omitempty"`
-	Errors   []string `json:"errors,omitempty"`
+	ErrorMsg string            `json:"errorMsg,omitempty"`
+	Errors   map[string]string `json:"errors,omitempty"`
 }
