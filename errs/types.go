@@ -9,6 +9,6 @@ type Failure struct {
 
 // FailureResponse convert json error response into object
 type FailureResponse struct {
-	ErrorMsg string   `json:"errorMsg,omitempty"`
+	ErrorMsg string            `json:"errorMsg,omitempty"`
 	Errors   map[string]string `json:"errors,omitempty"`
 }

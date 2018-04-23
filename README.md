@@ -48,34 +48,58 @@ func main() {
 	fmt.Println(data.Orders[1].FirstName)
 
 	idata, status, err := c.InventoriesUpload(
-        []InventoryUpload{
-            {
-                XMLID: "pTKIKAeghYzX21HTdzFCe1",
-                Stores: []InventoryUploadStore{
-                    {Code: "test-store-v5", Available: 10, PurchasePrice: 1500},
-                    {Code: "test-store-v4", Available: 20, PurchasePrice: 1530},
-                    {Code: "test-store", Available: 30, PurchasePrice: 1510},
-                },
-            },
-            {
-                XMLID: "JQIvcrCtiSpOV3AAfMiQB3",
-                Stores: []InventoryUploadStore{
-                    {Code: "test-store-v5", Available: 45, PurchasePrice: 1500},
-                    {Code: "test-store-v4", Available: 32, PurchasePrice: 1530},
-                    {Code: "test-store", Available: 46, PurchasePrice: 1510},
-                },
-            },
-        },
-    )
-    if err.RuntimeErr != nil {
-        fmt.Printf("%v", err.Error())
-    }
+		[]InventoryUpload{
+			{
+				XMLID: "pTKIKAeghYzX21HTdzFCe1",
+				Stores: []InventoryUploadStore{
+					{
+						Code: "test-store-v5",
+						Available: 10,
+						PurchasePrice: 1500,
+					},
+					{
+						Code: "test-store-v4",
+						Available: 20,
+						PurchasePrice: 1530,
+					},
+					{
+						Code: "test-store",
+						Available: 30,
+						PurchasePrice: 1510,
+					},
+				},
+			},
+			{
+				XMLID: "JQIvcrCtiSpOV3AAfMiQB3",
+				Stores: []InventoryUploadStore{
+					{
+						Code: "test-store-v5",
+						Available: 45,
+						PurchasePrice: 1500,
+					},
+					{
+						Code: "test-store-v4",
+						Available: 32,
+						PurchasePrice: 1530,
+					},
+					{
+						Code: "test-store",
+						Available: 46,
+						PurchasePrice: 1510,
+					},
+				},
+			},
+		},
+	)
+	if err.RuntimeErr != nil {
+		fmt.Printf("%v", err.Error())
+	}
 
-    if status >= http.StatusBadRequest {
-        fmt.Printf("%v", err.ApiError())
-    }
+	if status >= http.StatusBadRequest {
+		fmt.Printf("%v", err.ApiError())
+	}
 
-    fmt.Println(idata.processedOffersCount)
+	fmt.Println(idata.processedOffersCount)
 }
 ```
 

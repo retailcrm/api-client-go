@@ -5,4 +5,5 @@ go:
   - '1.10'
 before_install:
   - go get -v github.com/google/go-querystring/query
+  - go get -v github.com/h2non/gock
 script: go test -v ./...

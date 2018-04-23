@@ -4868,7 +4868,7 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		t.Errorf("%v", err.Error())
 	}
 
-	if status < http.StatusBadRequest{
+	if status < http.StatusBadRequest {
 		t.Errorf("%v", err.ApiError())
 	}
 
