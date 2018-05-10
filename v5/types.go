@@ -762,32 +762,33 @@ type DeliveryShipment struct {
 
 // IntegrationModule type
 type IntegrationModule struct {
-	Code               string        `json:"code,omitempty"`
-	IntegrationCode    string        `json:"integrationCode,omitempty"`
-	Active             bool          `json:"active,omitempty"`
-	Freeze             bool          `json:"freeze,omitempty"`
-	Native             bool          `json:"native,omitempty"`
-	Name               string        `json:"name,omitempty"`
-	Logo               string        `json:"logo,omitempty"`
-	ClientID           string        `json:"clientId,omitempty"`
-	BaseURL            string        `json:"baseUrl,omitempty"`
-	AccountURL         string        `json:"accountUrl,omitempty"`
-	AvailableCountries []string      `json:"availableCountries,omitempty"`
-	Actions            []string      `json:"actions,omitempty"`
-	Integrations       *Integrations `json:"integrations,omitempty"`
+	Code               string            `json:"code,omitempty"`
+	IntegrationCode    string            `json:"integrationCode,omitempty"`
+	Active             bool              `json:"active,omitempty"`
+	Freeze             bool              `json:"freeze,omitempty"`
+	Native             bool              `json:"native,omitempty"`
+	Name               string            `json:"name,omitempty"`
+	Logo               string            `json:"logo,omitempty"`
+	ClientID           string            `json:"clientId,omitempty"`
+	BaseURL            string            `json:"baseUrl,omitempty"`
+	AccountURL         string            `json:"accountUrl,omitempty"`
+	AvailableCountries []string          `json:"availableCountries,omitempty"`
+	Actions            map[string]string `json:"actions,omitempty"`
+	Integrations       *Integrations     `json:"integrations,omitempty"`
 }
 
 // Integrations type
 type Integrations struct {
-	Telephony *Telephony `json:"telephony,omitempty"`
-	Delivery  *Delivery  `json:"delivery,omitempty"`
-	Store     *Warehouse `json:"store,omitempty"`
+	Telephony   *Telephony   `json:"telephony,omitempty"`
+	Delivery    *Delivery    `json:"delivery,omitempty"`
+	Store       *Warehouse   `json:"store,omitempty"`
+	MgTransport *MgTransport `json:"mgTransport,omitempty"`
 }
 
 // Delivery type
 type Delivery struct {
 	Description           string              `json:"description,omitempty"`
-	Actions               []Action            `json:"actions,omitempty,brackets"`
+	Actions               map[string]string   `json:"actions,omitempty,brackets"`
 	PayerType             []string            `json:"payerType,omitempty,brackets"`
 	PlatePrintLimit       int                 `json:"platePrintLimit,omitempty"`
 	RateDeliveryCost      bool                `json:"rateDeliveryCost,omitempty"`
@@ -863,6 +864,11 @@ type Action struct {
 	Code       string   `json:"code,omitempty"`
 	URL        string   `json:"url,omitempty"`
 	CallPoints []string `json:"callPoints,omitempty"`
+}
+
+// MgTransport type
+type MgTransport struct {
+	WebhookUrl string `json:"webhookUrl,omitempty"`
 }
 
 /**
