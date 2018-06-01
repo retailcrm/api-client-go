@@ -938,3 +938,16 @@ type Element struct {
 	Code     string `json:"code,omitempty"`
 	Ordering int    `json:"ordering,omitempty"`
 }
+
+// ActivityCallback activation callback
+type ActivityCallback struct {
+	ClientId  string   `json:"clientId"`
+	Activity  Activity `json:"activity"`
+	SystemUrl string   `json:"systemUrl,omitempty"`
+}
+
+// Activity struct
+type Activity struct {
+	Active bool `json:"active"`
+	Freeze bool `json:"freeze"`
+}
