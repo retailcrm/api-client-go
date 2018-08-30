@@ -783,6 +783,7 @@ type Integrations struct {
 	Delivery    *Delivery    `json:"delivery,omitempty"`
 	Store       *Warehouse   `json:"store,omitempty"`
 	MgTransport *MgTransport `json:"mgTransport,omitempty"`
+	MgBot       *MgBot       `json:"mgBot,omitempty"`
 }
 
 // Delivery type
@@ -870,6 +871,8 @@ type Action struct {
 type MgTransport struct {
 	WebhookUrl string `json:"webhookUrl,omitempty"`
 }
+
+type MgBot struct{}
 
 /**
 Cost related types
