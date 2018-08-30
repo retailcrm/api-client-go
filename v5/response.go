@@ -325,8 +325,18 @@ type IntegrationModuleResponse struct {
 
 // IntegrationModuleEditResponse type
 type IntegrationModuleEditResponse struct {
-	Success bool              `json:"success"`
-	Info    map[string]string `json:"info,omitempty,brackets"`
+	Success bool         `json:"success"`
+	Info    ResponseInfo `json:"info,omitempty,brackets"`
+}
+
+type ResponseInfo struct {
+	MgTransportInfo MgInfo `json:"mgTransport,omitempty,brackets"`
+	MgBotInfo       MgInfo `json:"mgBot,omitempty,brackets"`
+}
+
+type MgInfo struct {
+	EndpointUrl string `json:"endpointUrl"`
+	Token       string `json:"token"`
 }
 
 // CostsResponse type
