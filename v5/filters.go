@@ -53,6 +53,7 @@ type CustomersFilter struct {
 	CampaignName               string            `url:"campaignName,omitempty"`
 	KeywordName                string            `url:"keywordName,omitempty"`
 	AdContentName              string            `url:"adContentName,omitempty"`
+	MgCustomerID               string            `url:"mgCustomerId,omitempty"`
 	CustomFields               map[string]string `url:"customFields,omitempty,brackets"`
 }
 
