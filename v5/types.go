@@ -141,6 +141,7 @@ type Customer struct {
 	LastClientID                 string              `json:"lastClientId,omitempty"`
 	BrowserID                    string              `json:"browserId,omitempty"`
 	MgCustomerID                 string              `json:"mgCustomerId,omitempty"`
+	PhotoURL                     string              `json:"photoUrl,omitempty"`
 	CustomFields                 []map[string]string `json:"customFields,omitempty,brackets"`
 }
 
