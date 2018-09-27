@@ -3,6 +3,7 @@ package v5
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -12,14 +13,30 @@ import (
 	"time"
 
 	"github.com/h2non/gock"
+	"github.com/joho/godotenv"
 )
+
+func TestMain(m *testing.M) {
+	if os.Getenv("DEVELOPER_NODE") == "1" {
+		err := godotenv.Load("../.env")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+
+		os.Exit(m.Run())
+	}
+}
+
+func init() {
+	r = rand.New(rand.NewSource(time.Now().UnixNano()))
+}
 
 var (
 	r        *rand.Rand // Rand for this package.
 	user, _  = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
 	statuses = map[int]bool{http.StatusOK: true, http.StatusCreated: true}
-	crmUrl   = os.Getenv("RETAILCRM_URL")
-	badUrl   = "https://qwertypoiu.retailcrm.ru"
+	crmURL   = os.Getenv("RETAILCRM_URL")
+	badURL   = "https://qwertypoiu.retailcrm.ru"
 
 	errFail     = "FailTest: error empty"
 	statusFail  = "FailTest: status < 400"
@@ -27,10 +44,6 @@ var (
 	codeFail    = "test-12345"
 	iCodeFail   = 123123
 )
-
-func init() {
-	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
 
 func RandomString(strlen int) string {
 	const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -44,11 +57,11 @@ func RandomString(strlen int) string {
 }
 
 func client() *Client {
-	return New(crmUrl, os.Getenv("RETAILCRM_KEY"))
+	return New(crmURL, os.Getenv("RETAILCRM_KEY"))
 }
 
 func badurlclient() *Client {
-	return New(badUrl, os.Getenv("RETAILCRM_KEY"))
+	return New(badURL, os.Getenv("RETAILCRM_KEY"))
 }
 
 func badkeyclient() *Client {
@@ -75,6 +88,7 @@ func TestPostRequest(t *testing.T) {
 
 func TestClient_ApiVersionsVersions(t *testing.T) {
 	c := client()
+	c.Debug = true
 
 	data, status, err := c.APIVersions()
 	if err.RuntimeErr != nil {
@@ -95,7 +109,7 @@ func TestClient_ApiVersionsVersionsBadUrl(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(badUrl).
+	gock.New(badURL).
 		Get("/api/api-versions").
 		Reply(200).
 		BodyString(`{"success": false, "errorMsg" : "Account does not exist"}`)
@@ -117,7 +131,7 @@ func TestClient_ApiVersionsVersionsBadUrl(t *testing.T) {
 func TestClient_ApiCredentialsCredentialsBadKey(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/credentials").
 		Reply(403).
 		BodyString(`{"success": false, "errorMsg": "Wrong \"apiKey\" value"}`)
@@ -141,7 +155,7 @@ func TestClient_ApiCredentialsCredentialsBadKey(t *testing.T) {
 func TestClient_ApiCredentialsCredentials(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/credentials").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -165,7 +179,7 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 func TestClient_CustomersCustomers(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/v5/customers").
 		MatchParam("filter[city]", "Москва").
 		MatchParam("page", "3").
@@ -197,7 +211,7 @@ func TestClient_CustomersCustomers(t *testing.T) {
 func TestClient_CustomersCustomers_Fail(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/v5/customers").
 		MatchParam("filter[ids][]", codeFail).
 		Reply(400).
@@ -248,7 +262,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		"customer": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/customers/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -278,7 +292,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		"customer": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/customers/%v/edit", cr.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -298,7 +312,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/api/v5/customers/%v", f.ExternalID)).
 		MatchParam("by", "externalId").
 		Reply(200).
@@ -333,7 +347,7 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		"customer": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/customers/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -363,7 +377,7 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		"customer": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/customers/%v/edit", cr.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -383,7 +397,7 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/api/v5/customers/%v", codeFail)).
 		MatchParam("by", "externalId").
 		Reply(404).
@@ -424,7 +438,7 @@ func TestClient_CustomersUpload(t *testing.T) {
 		"customers": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/customers/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -457,7 +471,7 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 		"customers": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/customers/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -494,7 +508,7 @@ func TestClient_CustomersCombine(t *testing.T) {
 		"resultCustomer": {string(combineJSONOut[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/combine").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -531,7 +545,7 @@ func TestClient_CustomersCombine_Fail(t *testing.T) {
 		"resultCustomer": {string(combineJSONOut[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/combine").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -568,7 +582,7 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 		"customers": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/fix-external-ids").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -602,7 +616,7 @@ func TestClient_CustomersFixExternalIds_Fail(t *testing.T) {
 		"customers": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/fix-external-ids").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -632,7 +646,7 @@ func TestClient_CustomersHistory(t *testing.T) {
 	}
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/customers/history").
 		MatchParam("filter[sinceId]", "20").
 		Reply(200).
@@ -666,7 +680,7 @@ func TestClient_CustomersHistory_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/customers/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
@@ -691,7 +705,7 @@ func TestClient_NotesNotes(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/customers/notes").
 		MatchParam("page", "1").
 		Reply(200).
@@ -720,7 +734,7 @@ func TestClient_NotesNotes_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/customers/notes").
 		MatchParam("filter[createdAtFrom]", "2020-13-12").
 		Reply(400).
@@ -761,7 +775,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		"note": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/notes/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -785,7 +799,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		"id": {string(1)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/api/v5/customers/notes/%d/delete", 1)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -823,7 +837,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		"note": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/customers/notes/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -847,7 +861,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		"id": {string(iCodeFail)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/customers/notes/%d/delete", iCodeFail)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -873,7 +887,7 @@ func TestClient_OrdersOrders(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders").
 		MatchParam("filter[city]", "Москва").
 		MatchParam("page", "1").
@@ -900,7 +914,7 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders").
 		MatchParam("filter[attachments]", "7").
 		Reply(400).
@@ -941,7 +955,7 @@ func TestClient_OrderChange(t *testing.T) {
 		"order": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -971,7 +985,7 @@ func TestClient_OrderChange(t *testing.T) {
 		"order": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/%d/edit", f.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -991,7 +1005,7 @@ func TestClient_OrderChange(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/orders/%s", f.ExternalID)).
 		MatchParam("by", "externalId").
 		Reply(200).
@@ -1034,7 +1048,7 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 		"order": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/%d/edit", f.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1076,7 +1090,7 @@ func TestClient_OrdersUpload(t *testing.T) {
 		"orders": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1118,7 +1132,7 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		"orders": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1152,7 +1166,7 @@ func TestClient_OrdersCombine(t *testing.T) {
 		"resultOrder": {string(jr2)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/combine").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1186,7 +1200,7 @@ func TestClient_OrdersCombine_Fail(t *testing.T) {
 		"resultOrder": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/combine").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1222,7 +1236,7 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 		"orders": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/fix-external-ids").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1255,7 +1269,7 @@ func TestClient_OrdersFixExternalIds_Fail(t *testing.T) {
 		"orders": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/fix-external-ids").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1281,7 +1295,7 @@ func TestClient_OrdersHistory(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/history").
 		MatchParam("filter[sinceId]", "20").
 		Reply(200).
@@ -1311,7 +1325,7 @@ func TestClient_OrdersHistory_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
@@ -1349,7 +1363,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		"payment": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/payments/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1379,7 +1393,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		"payment": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/payments/%d/edit", paymentCreateResponse.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1403,7 +1417,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		"id": {string(paymentCreateResponse.ID)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/payments/%d/delete", paymentCreateResponse.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1440,7 +1454,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		"payment": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/payments/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1470,7 +1484,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		"payment": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/payments/%d/edit", iCodeFail)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1494,7 +1508,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		"id": {string(iCodeFail)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/payments/%d/delete", iCodeFail)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1526,7 +1540,7 @@ func TestClient_TasksTasks(t *testing.T) {
 	}
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/v5/tasks").
 		MatchParam("filter[creators][]", "123").
 		MatchParam("page", "1").
@@ -1557,7 +1571,7 @@ func TestClient_TasksTasks_Fail(t *testing.T) {
 	}
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/api/v5/tasks").
 		MatchParam("filter[creators][]", "123123").
 		Reply(400).
@@ -1591,7 +1605,7 @@ func TestClient_TaskChange(t *testing.T) {
 		"task": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/tasks/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1614,7 +1628,7 @@ func TestClient_TaskChange(t *testing.T) {
 	f.ID = cr.ID
 	f.Commentary = RandomString(20)
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/tasks/%d", f.ID)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1637,7 +1651,7 @@ func TestClient_TaskChange(t *testing.T) {
 		"task": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/tasks/%d/edit", f.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1674,7 +1688,7 @@ func TestClient_TaskChange_Fail(t *testing.T) {
 		"task": {string(jr)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/tasks/%d/edit", f.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1700,7 +1714,7 @@ func TestClient_UsersUsers(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/users").
 		MatchParam("filter[active]", "1").
 		MatchParam("page", "1").
@@ -1727,7 +1741,7 @@ func TestClient_UsersUsers_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/users").
 		MatchParam("filter[active]", "3").
 		MatchParam("page", "1").
@@ -1753,7 +1767,7 @@ func TestClient_UsersUser(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/users/%d", user)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1778,7 +1792,7 @@ func TestClient_UsersUser_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/users/%d", iCodeFail)).
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
@@ -1802,7 +1816,7 @@ func TestClient_UsersGroups(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/user-groups").
 		MatchParam("page", "1").
 		Reply(200).
@@ -1831,7 +1845,7 @@ func TestClient_UsersUpdate(t *testing.T) {
 		"status": {string("busy")},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/users/%d/status", user)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1862,7 +1876,7 @@ func TestClient_UsersUpdate_Fail(t *testing.T) {
 		"status": {string("busy")},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/users/%d/status", iCodeFail)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -1888,7 +1902,7 @@ func TestClient_StaticticsUpdate(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/statistic/update").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1912,7 +1926,7 @@ func TestClient_Countries(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/couriers").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1936,7 +1950,7 @@ func TestClient_CostGroups(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/cost-groups").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1960,7 +1974,7 @@ func TestClient_CostItems(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/cost-items").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -1984,7 +1998,7 @@ func TestClient_Couriers(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/couriers").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2008,7 +2022,7 @@ func TestClient_DeliveryService(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/delivery-services").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2032,7 +2046,7 @@ func TestClient_DeliveryTypes(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/delivery-types").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2056,7 +2070,7 @@ func TestClient_LegalEntities(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/legal-entities").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2080,7 +2094,7 @@ func TestClient_OrderMethods(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/order-methods").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2104,7 +2118,7 @@ func TestClient_OrderTypes(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/order-types").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2128,7 +2142,7 @@ func TestClient_PaymentStatuses(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/payment-statuses").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2152,7 +2166,7 @@ func TestClient_PaymentTypes(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/payment-types").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2176,7 +2190,7 @@ func TestClient_PriceTypes(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/price-types").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2200,7 +2214,7 @@ func TestClient_ProductStatuses(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/product-statuses").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2224,7 +2238,7 @@ func TestClient_Statuses(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/statuses").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2248,7 +2262,7 @@ func TestClient_StatusGroups(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/status-groups").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2272,7 +2286,7 @@ func TestClient_Sites(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/sites").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2296,7 +2310,7 @@ func TestClient_Stores(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/reference/stores").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -2335,7 +2349,7 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 		"costGroup": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/api/v5/reference/cost-groups/%s/edit", costGroup.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2370,7 +2384,7 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 		"costItem": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/api/v5/reference/cost-items/%s/edit", costItem.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2410,7 +2424,7 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 		"costGroup": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/cost-groups/%s/edit", costGroup.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2445,7 +2459,7 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 		"costItem": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/cost-items/%s/edit", costItem.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2484,7 +2498,7 @@ func TestClient_Courier(t *testing.T) {
 		"courier": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/reference/couriers/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2513,7 +2527,7 @@ func TestClient_Courier(t *testing.T) {
 		"courier": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/couriers/%d/edit", cur.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2546,7 +2560,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 		"courier": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/api/v5/reference/couriers/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2573,7 +2587,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 		"courier": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/couriers/%d/edit", cur.ID)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2611,7 +2625,7 @@ func TestClient_DeliveryServiceEdit(t *testing.T) {
 		"deliveryService": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2648,7 +2662,7 @@ func TestClient_DeliveryServiceEdit_Fail(t *testing.T) {
 		"deliveryService": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2691,7 +2705,7 @@ func TestClient_DeliveryTypeEdit(t *testing.T) {
 		"deliveryType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2732,7 +2746,7 @@ func TestClient_DeliveryTypeEdit_Fail(t *testing.T) {
 		"deliveryType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2770,7 +2784,7 @@ func TestClient_OrderMethodEdit(t *testing.T) {
 		"orderMethod": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2808,7 +2822,7 @@ func TestClient_OrderMethodEdit_Fail(t *testing.T) {
 		"orderMethod": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2847,7 +2861,7 @@ func TestClient_OrderTypeEdit(t *testing.T) {
 		"orderType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2884,7 +2898,7 @@ func TestClient_OrderTypeEdit_Fail(t *testing.T) {
 		"orderType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2925,7 +2939,7 @@ func TestClient_PaymentStatusEdit(t *testing.T) {
 		"paymentStatus": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -2965,7 +2979,7 @@ func TestClient_PaymentStatusEdit_Fail(t *testing.T) {
 		"paymentStatus": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3003,7 +3017,7 @@ func TestClient_PaymentTypeEdit(t *testing.T) {
 		"paymentType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3041,7 +3055,7 @@ func TestClient_PaymentTypeEdit_Fail(t *testing.T) {
 		"paymentType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3078,7 +3092,7 @@ func TestClient_PriceTypeEdit(t *testing.T) {
 		"priceType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3114,7 +3128,7 @@ func TestClient_PriceTypeEdit_Fail(t *testing.T) {
 		"priceType": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3152,7 +3166,7 @@ func TestClient_ProductStatusEdit(t *testing.T) {
 		"productStatus": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3189,7 +3203,7 @@ func TestClient_ProductStatusEdit_Fail(t *testing.T) {
 		"productStatus": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3227,7 +3241,7 @@ func TestClient_StatusEdit(t *testing.T) {
 		"status": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/statuses/%s/edit", status.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3266,7 +3280,7 @@ func TestClient_StatusEdit_Fail(t *testing.T) {
 		"status": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/statuses/%s/edit", status.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3304,7 +3318,7 @@ func TestClient_SiteEdit(t *testing.T) {
 		"site": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/sites/%s/edit", site.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3338,7 +3352,7 @@ func TestClient_SiteEdit_Fail(t *testing.T) {
 		"site": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/sites/%s/edit", site.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3374,7 +3388,7 @@ func TestClient_StoreEdit(t *testing.T) {
 		"store": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/stores/%s/edit", store.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3413,7 +3427,7 @@ func TestClient_StoreEdit_Fail(t *testing.T) {
 		"store": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/reference/stores/%s/edit", store.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -3450,7 +3464,7 @@ func TestClient_PackChange(t *testing.T) {
 		"pack": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/packs/create").
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3470,7 +3484,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/orders/packs/%d", p.ID)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -3494,7 +3508,7 @@ func TestClient_PackChange(t *testing.T) {
 		"pack": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/packs/%d/edit", p.ID)).
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3514,7 +3528,7 @@ func TestClient_PackChange(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/packs/%d/delete", p.ID)).
 		MatchType("url").
 		Reply(200).
@@ -3551,7 +3565,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		"pack": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/orders/packs/create").
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3571,7 +3585,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/orders/packs/%d", iCodeFail)).
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format"}`)
@@ -3595,7 +3609,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		"pack": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/packs/%d/edit", iCodeFail)).
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3615,7 +3629,7 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/orders/packs/%d/delete", iCodeFail)).
 		MatchType("url").
 		Reply(400).
@@ -3640,7 +3654,7 @@ func TestClient_PacksHistory(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/packs/history").
 		MatchParam("filter[sinceId]", "5").
 		Reply(200).
@@ -3670,7 +3684,7 @@ func TestClient_PacksHistory_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/packs/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
@@ -3695,7 +3709,7 @@ func TestClient_Packs(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/packs").
 		MatchParam("page", "1").
 		Reply(200).
@@ -3721,7 +3735,7 @@ func TestClient_Packs_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/orders/packs").
 		MatchParam("filter[shipmentDateFrom]", "2020-13-12").
 		Reply(400).
@@ -3746,7 +3760,7 @@ func TestClient_Inventories(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/inventories").
 		MatchParam("filter[details]", "1").
 		MatchParam("page", "1").
@@ -3773,7 +3787,7 @@ func TestClient_Inventories_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/inventories").
 		MatchParam("filter[sites][]", codeFail).
 		Reply(400).
@@ -3798,7 +3812,7 @@ func TestClient_Segments(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/segments").
 		Reply(200).
 		BodyString(`{"success": true, "id": 1}`)
@@ -3823,7 +3837,7 @@ func TestClient_Segments_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/segments").
 		MatchParam("filter[active]", "3").
 		Reply(400).
@@ -3868,7 +3882,7 @@ func TestClient_IntegrationModule(t *testing.T) {
 		"integrationModule": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code)).
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3888,7 +3902,7 @@ func TestClient_IntegrationModule(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/integration-modules/%s", code)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -3931,7 +3945,7 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 		"integrationModule": {string(jr[:])},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code)).
 		MatchType("url").
 		BodyString(pr.Encode()).
@@ -3951,7 +3965,7 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/integration-modules/%s", code)).
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
@@ -3975,7 +3989,7 @@ func TestClient_ProductsGroup(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/product-groups").
 		MatchParam("filter[active]", "1").
 		Reply(200).
@@ -4005,7 +4019,7 @@ func TestClient_ProductsGroup_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/product-groups").
 		MatchParam("filter[active]", "3").
 		Reply(400).
@@ -4034,7 +4048,7 @@ func TestClient_Products(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/products").
 		MatchParam("filter[active]", "1").
 		MatchParam("filter[minPrice]", "1").
@@ -4066,7 +4080,7 @@ func TestClient_Products_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/products").
 		MatchParam("filter[active]", "3").
 		Reply(400).
@@ -4096,7 +4110,7 @@ func TestClient_ProductsProperties(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/store/products").
 		MatchParam("filter[sites][]", sites[0]).
 		Reply(200).
@@ -4125,7 +4139,7 @@ func TestClient_DeliveryShipments(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/delivery/shipments").
 		MatchParam("filter[dateFrom]", "2017-10-10").
 		Reply(200).
@@ -4154,7 +4168,7 @@ func TestClient_DeliveryShipments_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/delivery/shipments").
 		MatchParam("filter[stores][]", codeFail).
 		Reply(400).
@@ -4196,7 +4210,7 @@ func TestClient_Cost(t *testing.T) {
 		"cost": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4219,7 +4233,7 @@ func TestClient_Cost(t *testing.T) {
 
 	id := data.ID
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/costs").
 		MatchParam("filter[ids][]", strconv.Itoa(id)).
 		MatchParam("limit", "20").
@@ -4247,7 +4261,7 @@ func TestClient_Cost(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/costs/%d", id)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -4276,7 +4290,7 @@ func TestClient_Cost(t *testing.T) {
 		"cost": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/costs/%d/edit", id)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4303,7 +4317,7 @@ func TestClient_Cost(t *testing.T) {
 		"costs": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/costs/%d/delete", id)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4343,7 +4357,7 @@ func TestClient_Cost_Fail(t *testing.T) {
 		"cost": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4365,7 +4379,7 @@ func TestClient_Cost_Fail(t *testing.T) {
 
 	id := data.ID
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/costs").
 		MatchParam("filter[sites][]", codeFail).
 		Reply(400).
@@ -4386,7 +4400,7 @@ func TestClient_Cost_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/costs/%d", id)).
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
@@ -4415,7 +4429,7 @@ func TestClient_Cost_Fail(t *testing.T) {
 		"cost": {string(str)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/costs/%d/edit", id)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4440,7 +4454,7 @@ func TestClient_Cost_Fail(t *testing.T) {
 	p = url.Values{
 		"costs": {string(j)},
 	}
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/costs/%d/delete", id)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4492,7 +4506,7 @@ func TestClient_CostsUpload(t *testing.T) {
 		"costs": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4522,7 +4536,7 @@ func TestClient_CostsUpload(t *testing.T) {
 		"ids": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/delete").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4567,7 +4581,7 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		"costs": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/upload").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4595,7 +4609,7 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		"ids": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/costs/delete").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4621,7 +4635,7 @@ func TestClient_CustomFields(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/custom-fields").
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -4646,7 +4660,7 @@ func TestClient_CustomFields_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/custom-fields").
 		MatchParam("filter[type]", codeFail).
 		Reply(400).
@@ -4690,7 +4704,7 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		"customDictionary": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/custom-fields/dictionaries/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4711,7 +4725,7 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get("/custom-fields/dictionaries").
 		MatchParam("filter[name]", "test").
 		MatchParam("limit", "10").
@@ -4740,7 +4754,7 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/custom-fields/dictionaries/%s", code)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -4769,7 +4783,7 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		"customDictionary": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4813,7 +4827,7 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		"customDictionary": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post("/custom-fields/dictionaries/create").
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4829,7 +4843,7 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/custom-fields/dictionaries/%s", codeFail)).
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
@@ -4856,7 +4870,7 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		"customDictionary": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4897,7 +4911,7 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 		"customField": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4919,7 +4933,7 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 		t.Errorf("%v", err.ApiError())
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/custom-fields/%s/%s", "order", codeCustomField)).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -4946,7 +4960,7 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 		"customField": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -4988,7 +5002,7 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		"customField": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity)).
 		MatchType("url").
 		BodyString(p.Encode()).
@@ -5008,7 +5022,7 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Get(fmt.Sprintf("/custom-fields/%s/%s", "order", codeCustomField)).
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
@@ -5034,7 +5048,7 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		"customField": {string(j)},
 	}
 
-	gock.New(crmUrl).
+	gock.New(crmURL).
 		Post(fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code)).
 		MatchType("url").
 		BodyString(p.Encode()).

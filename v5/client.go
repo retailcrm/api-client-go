@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -17,9 +18,9 @@ import (
 // New initalize client
 func New(url string, key string) *Client {
 	return &Client{
-		url,
-		key,
-		&http.Client{Timeout: 20 * time.Second},
+		URL:        url,
+		Key:        key,
+		httpClient: &http.Client{Timeout: 20 * time.Second},
 	}
 }
 
@@ -45,6 +46,10 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	req.Header.Set("X-API-KEY", c.Key)
 
+	if c.Debug {
+		log.Printf("API Request: %s %s", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), c.Key)
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		cerr.RuntimeErr = err
@@ -59,6 +64,10 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	res, err = buildRawResponse(resp)
 	if err != nil {
 		cerr.RuntimeErr = err
+	}
+
+	if c.Debug {
+		log.Printf("API Response: %s", res)
 	}
 
 	return res, resp.StatusCode, cerr
@@ -79,6 +88,10 @@ func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("X-API-KEY", c.Key)
 
+	if c.Debug {
+		log.Printf("API Request: %s %s %s", url, c.Key, postParams.Encode())
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		cerr.RuntimeErr = err
@@ -94,6 +107,10 @@ func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 	if err != nil {
 		cerr.RuntimeErr = err
 		return res, 0, cerr
+	}
+
+	if c.Debug {
+		log.Printf("API Response: %s", res)
 	}
 
 	return res, resp.StatusCode, cerr
@@ -222,7 +239,7 @@ func (c *Client) APICredentials() (CredentialResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the list of customers matched the specified filter
+// Customers returns list of customers matched the specified filter
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers
 //
@@ -267,7 +284,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 	return resp, status, err
 }
 
-// Combining of customers
+// CustomersCombine combine given customers
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-combine
 //
@@ -309,7 +326,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	return resp, status, err
 }
 
-// Customer creation
+// CustomerCreate creates customer
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-create
 //
@@ -365,7 +382,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	return resp, status, err
 }
 
-// The mass recording of customers external ID
+// CustomersFixExternalIds customers external ID
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-fix-external-ids
 //
@@ -408,7 +425,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	return resp, status, err
 }
 
-// Getting the customer change history
+// CustomersHistory returns customer's history
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-history
 //
@@ -452,7 +469,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 	return resp, status, err
 }
 
-// Getting the notes
+// CustomerNotes returns cutomer related notes
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-notes
 //
@@ -497,7 +514,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 	return resp, status, err
 }
 
-// Note creation
+// CustomerNoteCreate note creation
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-notes-create
 //
@@ -549,7 +566,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	return resp, status, err
 }
 
-// Note removing
+// CustomerNoteDelete remove cusomer related note
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-notes-id-delete
 //
@@ -558,7 +575,6 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 // 	var client = v5.New("https://demo.url", "09jIJ")
 //
 // 	data, status, err := client.CustomerNoteDelete(12)
-
 // 	if err.RuntimeErr != nil {
 // 		fmt.Printf("%v", err.RuntimeErr)
 // 	}
@@ -587,7 +603,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, errs.Failu
 	return resp, status, err
 }
 
-// Packet customers uploading
+// CustomersUpload customers batch upload
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-upload
 //
@@ -648,7 +664,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	return resp, status, err
 }
 
-// Getting information on customer
+// Customer returns information about customer
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-externalId
 //
@@ -690,7 +706,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, errs.Fail
 	return resp, status, err
 }
 
-// Customer editing
+// CustomerEdit edit exact customer
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-externalId-edit
 //
@@ -752,7 +768,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	return resp, status, err
 }
 
-// Updating of delivery statuses
+// DeliveryTracking updates tracking data
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-generic-subcode-tracking
 //
@@ -805,7 +821,7 @@ func (c *Client) DeliveryTracking(parameters DeliveryTrackingRequest, subcode st
 	return resp, status, err
 }
 
-// Getting the list of shipments to delivery services
+// DeliveryShipments returns list of shipments
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-delivery-shipments
 //
@@ -850,7 +866,7 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 	return resp, status, err
 }
 
-// Shipment creation
+// DeliveryShipmentCreate creates shipment
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-shipments-create
 //
@@ -1355,7 +1371,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	return resp, status, err
 }
 
-// Payment removing
+// OrderPaymentDelete payment removing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-id-delete
 //
@@ -3928,7 +3944,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 	return resp, status, err
 }
 
-// Directory fields editing
+// CustomDictionaryEdit edit custom dictionary
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-dictionaries-code-edit
 //
@@ -3981,7 +3997,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	return resp, status, err
 }
 
-// Custom fields creation
+// CustomFieldsCreate creates custom field
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-entity-create
 //
@@ -4028,7 +4044,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 	return resp, status, err
 }
 
-// Getting information on custom fields
+// CustomField returns information about custom fields
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-entity-code
 //
