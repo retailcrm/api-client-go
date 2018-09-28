@@ -27,7 +27,7 @@ func New(url string, key string) *Client {
 // GetRequest implements GET Request
 func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, errs.Failure) {
 	var res []byte
-	var cerr errs.Failure
+	var failure errs.Failure
 	var prefix = "/api/v5"
 
 	if len(versioned) > 0 {
@@ -40,8 +40,8 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
 	if err != nil {
-		cerr.RuntimeErr = err
-		return res, 0, cerr
+		failure.RuntimeErr = err
+		return res, 0, failure
 	}
 
 	req.Header.Set("X-API-KEY", c.Key)
@@ -52,37 +52,37 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		cerr.RuntimeErr = err
-		return res, 0, cerr
+		failure.RuntimeErr = err
+		return res, 0, failure
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		cerr.ApiErr = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
-		return res, resp.StatusCode, cerr
+		failure.ApiErr = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, failure
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		cerr.RuntimeErr = err
+		failure.RuntimeErr = err
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, cerr
+	return res, resp.StatusCode, failure
 }
 
 // PostRequest implements POST Request
 func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, errs.Failure) {
 	var res []byte
-	var cerr errs.Failure
+	var failure errs.Failure
 	var prefix = "/api/v5"
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, url), strings.NewReader(postParams.Encode()))
 	if err != nil {
-		cerr.RuntimeErr = err
-		return res, 0, cerr
+		failure.RuntimeErr = err
+		return res, 0, failure
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -94,26 +94,26 @@ func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, er
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		cerr.RuntimeErr = err
-		return res, 0, cerr
+		failure.RuntimeErr = err
+		return res, 0, failure
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		cerr.ApiErr = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
-		return res, resp.StatusCode, cerr
+		failure.ApiErr = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, failure
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		cerr.RuntimeErr = err
-		return res, 0, cerr
+		failure.RuntimeErr = err
+		return res, 0, failure
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, cerr
+	return res, resp.StatusCode, failure
 }
 
 func buildRawResponse(resp *http.Response) ([]byte, error) {
@@ -130,12 +130,12 @@ func buildRawResponse(resp *http.Response) ([]byte, error) {
 func buildErr(data []byte) errs.Failure {
 	var err = errs.Failure{}
 
-	eresp, errr := errs.ErrorResponse(data)
-	err.RuntimeErr = errr
-	err.ApiErr = eresp.ErrorMsg
+	resp, e := errs.ErrorResponse(data)
+	err.RuntimeErr = e
+	err.ApiErr = resp.ErrorMsg
 
-	if eresp.Errors != nil {
-		err.ApiErrs = eresp.Errors
+	if resp.Errors != nil {
+		err.ApiErrs = resp.Errors
 	}
 
 	return err
@@ -469,7 +469,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 	return resp, status, err
 }
 
-// CustomerNotes returns cutomer related notes
+// CustomerNotes returns customer related notes
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-notes
 //
@@ -566,7 +566,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	return resp, status, err
 }
 
-// CustomerNoteDelete remove cusomer related note
+// CustomerNoteDelete remove customer related note
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-notes-id-delete
 //
@@ -922,7 +922,7 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 	return resp, status, err
 }
 
-// Getting information on shipment
+// DeliveryShipment get information about shipment
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-delivery-shipments-id
 //
@@ -960,7 +960,7 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, errs.F
 	return resp, status, err
 }
 
-// Shipment editing
+// DeliveryShipmentEdit shipment editing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-shipments-id-edit
 //
@@ -1007,7 +1007,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	return resp, status, err
 }
 
-// Getting the integration module
+// IntegrationModule returns integration module
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-integration-modules-code
 //
@@ -1045,7 +1045,7 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 	return resp, status, err
 }
 
-// Integration module creation/editing
+// IntegrationModuleEdit integration module create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-integration-modules-code
 //
@@ -1098,7 +1098,7 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 	return resp, status, err
 }
 
-// Getting the list of orders matched the specified filter
+// Orders returns list of orders matched the specified filters
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders
 //
@@ -1138,7 +1138,7 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, errs.Fai
 	return resp, status, err
 }
 
-// Combining of orders
+// OrdersCombine combines given orders
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-combine
 //
@@ -1181,7 +1181,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 	return resp, status, err
 }
 
-// Order creation
+// OrderCreate creates an order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-create
 //
@@ -1232,7 +1232,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (CreateResponse, int, 
 	return resp, status, err
 }
 
-// The mass recording of orders external ID
+// OrdersFixExternalIds set order external ID
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-fix-external-ids
 //
@@ -1279,7 +1279,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	return resp, status, err
 }
 
-// Getting the order change history
+// OrdersHistory returns orders history
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-history
 //
@@ -1319,7 +1319,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (CustomersHistor
 	return resp, status, err
 }
 
-// Payment creation
+// OrderPaymentCreate creates payment
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-create
 //
@@ -1409,7 +1409,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, errs.Failu
 	return resp, status, err
 }
 
-// Payment editing
+// OrderPaymentEdit edit payment
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-id-edit
 //
@@ -1463,7 +1463,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	return resp, status, err
 }
 
-// Packet orders uploading
+// OrdersUpload batch orders uploading
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-upload
 //
@@ -1524,7 +1524,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	return resp, status, err
 }
 
-// Getting information on order
+// Order returns information about order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-externalId
 //
@@ -1566,7 +1566,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Order editing
+// OrderEdit edit an order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-externalId-edit
 //
@@ -1621,7 +1621,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	return resp, status, err
 }
 
-// Getting the list of packs matched the specified filter
+// Packs returns list of packs matched the specified filters
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs
 //
@@ -1661,7 +1661,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, errs.Failur
 	return resp, status, err
 }
 
-// Pack creation
+// PackCreate creates a pack
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-create
 //
@@ -1708,7 +1708,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the history of order packing
+// PacksHistory returns a history of order packing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs-history
 //
@@ -1748,6 +1748,7 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 	return resp, status, err
 }
 
+// Pack returns a pack info
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs-id
 //
@@ -1785,7 +1786,7 @@ func (c *Client) Pack(id int) (PackResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Pack removing
+// PackDelete removes a pack
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-id-delete
 //
@@ -1819,7 +1820,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Pack editing
+// PackEdit edit a pack
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-id-edit
 //
@@ -1859,7 +1860,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the list of available country codes
+// Countries returns list of available country codes
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-countries
 func (c *Client) Countries() (CountriesResponse, int, errs.Failure) {
@@ -1879,7 +1880,7 @@ func (c *Client) Countries() (CountriesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting of the costs groups list
+// CostGroups returns costs groups list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-groups
 func (c *Client) CostGroups() (CostGroupsResponse, int, errs.Failure) {
@@ -1899,7 +1900,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Editing costs groups
+// CostGroupEdit edit costs groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-cost-groups-code-edit
 //
@@ -1942,7 +1943,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 	return resp, status, err
 }
 
-// Getting of the costs items list
+// CostItems returns costs items list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-items
 func (c *Client) CostItems() (CostItemsResponse, int, errs.Failure) {
@@ -1962,7 +1963,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Editing costs items
+// CostItemEdit edit costs items
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-cost-items-code-edit
 //
@@ -2005,7 +2006,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, errs.
 	return resp, status, err
 }
 
-// Getting the list of couriers
+// Couriers returns list of couriers
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
 func (c *Client) Couriers() (CouriersResponse, int, errs.Failure) {
@@ -2025,7 +2026,7 @@ func (c *Client) Couriers() (CouriersResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Courier creation
+// CourierCreate creates a courier
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
 //
@@ -2074,7 +2075,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, errs.Failu
 	return resp, status, err
 }
 
-// Courier editing
+// CourierEdit edit a courier
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-couriers-id-edit
 //
@@ -2117,7 +2118,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, errs.Fai
 	return resp, status, err
 }
 
-// Getting the list of delivery services
+// DeliveryServices returns list of delivery services
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-services
 func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, errs.Failure) {
@@ -2137,7 +2138,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, errs.Failure)
 	return resp, status, err
 }
 
-// Delivery service creation/editing
+// DeliveryServiceEdit delivery service create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-delivery-services-code-edit
 //
@@ -2180,7 +2181,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	return resp, status, err
 }
 
-// Getting the list of delivery types
+// DeliveryTypes returns list of delivery types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-types
 func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, errs.Failure) {
@@ -2200,7 +2201,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Delivery type creation/editing
+// DeliveryTypeEdit delivery type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-delivery-types-code-edit
 //
@@ -2245,7 +2246,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	return resp, status, err
 }
 
-// Getting the list of legal entities
+// LegalEntities returns list of legal entities
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-legal-entities
 func (c *Client) LegalEntities() (LegalEntitiesResponse, int, errs.Failure) {
@@ -2265,7 +2266,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Editing of information on legal entity
+// LegalEntityEdit change information about legal entity
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-legal-entities-code-edit
 //
@@ -2308,7 +2309,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	return resp, status, err
 }
 
-// Getting the list of order methods
+// OrderMethods returns list of order methods
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-methods
 func (c *Client) OrderMethods() (OrderMethodsResponse, int, errs.Failure) {
@@ -2328,7 +2329,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Order method creation/editing
+// OrderMethodEdit order method create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-order-methods-code-edit
 //
@@ -2372,7 +2373,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	return resp, status, err
 }
 
-// Getting the list of order types
+// OrderTypes return list of order types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-types
 func (c *Client) OrderTypes() (OrderTypesResponse, int, errs.Failure) {
@@ -2392,6 +2393,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
+// OrderTypeEdit create/edit order type
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-order-methods-code-edit
 //
@@ -2435,7 +2437,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 	return resp, status, err
 }
 
-// Getting the list of payment statuses
+// PaymentStatuses returns list of payment statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-statuses
 func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, errs.Failure) {
@@ -2455,7 +2457,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, errs.Failure) 
 	return resp, status, err
 }
 
-// Payment status creation/editing
+// PaymentStatusEdit payment status creation/editing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-statuses-code-edit
 func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, errs.Failure) {
@@ -2481,7 +2483,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	return resp, status, err
 }
 
-// Getting the list of payment types
+// PaymentTypes returns list of payment types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-types
 func (c *Client) PaymentTypes() (PaymentTypesResponse, int, errs.Failure) {
@@ -2501,7 +2503,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Payment type creation/editing
+// PaymentTypeEdit payment type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-types-code-edit
 func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, errs.Failure) {
@@ -2527,7 +2529,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	return resp, status, err
 }
 
-// Getting the list of price types
+// PriceTypes returns list of price types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-price-types
 func (c *Client) PriceTypes() (PriceTypesResponse, int, errs.Failure) {
@@ -2547,7 +2549,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Price type creation/editing
+// PriceTypeEdit price type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-price-types-code-edit
 func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, errs.Failure) {
@@ -2573,7 +2575,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 	return resp, status, err
 }
 
-// Getting the list of item statuses in order
+// ProductStatuses returns list of item statuses in order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-product-statuses
 func (c *Client) ProductStatuses() (ProductStatusesResponse, int, errs.Failure) {
@@ -2593,7 +2595,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, errs.Failure) 
 	return resp, status, err
 }
 
-// Item status creation/editing
+// ProductStatusEdit order item status create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-product-statuses-code-edit
 func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, errs.Failure) {
@@ -2619,7 +2621,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	return resp, status, err
 }
 
-// Getting the stores list
+// Sites returns the sites list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-sites
 func (c *Client) Sites() (SitesResponse, int, errs.Failure) {
@@ -2639,7 +2641,7 @@ func (c *Client) Sites() (SitesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Store creation/editing
+// SiteEdit site create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
 func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, errs.Failure) {
@@ -2665,7 +2667,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the list of order status groups
+// StatusGroups returns list of order status groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-status-groups
 func (c *Client) StatusGroups() (StatusGroupsResponse, int, errs.Failure) {
@@ -2685,7 +2687,7 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the list of order statuses
+// Statuses returns list of order statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-statuses
 func (c *Client) Statuses() (StatusesResponse, int, errs.Failure) {
@@ -2705,7 +2707,7 @@ func (c *Client) Statuses() (StatusesResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Order status creation/editing
+// StatusEdit order status create/edit
 //
 // For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
 func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, errs.Failure) {
@@ -2731,7 +2733,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting the list of warehouses
+// Stores returns list of warehouses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-stores
 func (c *Client) Stores() (StoresResponse, int, errs.Failure) {
@@ -2751,7 +2753,7 @@ func (c *Client) Stores() (StoresResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Editing of information on warehouse
+// StoreEdit warehouse create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-stores-code-edit
 func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, errs.Failure) {
@@ -2777,7 +2779,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, errs.Failure) 
 	return resp, status, err
 }
 
-// Get segments
+// Segments returns segments
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-segments
 //
@@ -2821,7 +2823,7 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, er
 	return resp, status, err
 }
 
-// Getting the leftover stocks and purchasing prices
+// Inventories returns leftover stocks and purchasing prices
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-inventories
 //
@@ -2861,7 +2863,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 	return resp, status, err
 }
 
-// Updating the leftover stocks and purchasing prices
+// InventoriesUpload updates the leftover stocks and purchasing prices
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-store-inventories-upload
 //
@@ -2869,10 +2871,10 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 //
 //	var client = v5.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := clientc.InventoriesUpload(
+//	data, status, err := client.InventoriesUpload(
 //	   []v5.InventoryUpload{
 //		   {
-//			   XMLID: "pTKIKAeghYzX21HTdzFCe1",
+//			   XMLID: "pT22K9YzX21HTdzFCe1",
 //			   Stores: []InventoryUploadStore{
 //				   {Code: "test-store-v5", Available: 10, PurchasePrice: 1500},
 //				   {Code: "test-store-v4", Available: 20, PurchasePrice: 1530},
@@ -2880,7 +2882,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 //			   },
 //		   },
 //		   {
-//			   XMLID: "JQIvcrCtiSpOV3AAfMiQB3",
+//			   XMLID: "JQICtiSpOV3AAfMiQB3",
 //			   Stores: []InventoryUploadStore{
 //				   {Code: "test-store-v5", Available: 45, PurchasePrice: 1500},
 //				   {Code: "test-store-v4", Available: 32, PurchasePrice: 1530},
@@ -2924,7 +2926,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	return resp, status, err
 }
 
-// Offers prices updating
+// PricesUpload updates prices
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-store-prices-upload
 //
@@ -2977,7 +2979,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	return resp, status, err
 }
 
-// Getting the list of product groups
+// ProductsGroup returns list of product groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-product-groups
 //
@@ -3021,7 +3023,7 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 	return resp, status, err
 }
 
-// Getting the list of products and SKU
+// Products returns list of products and SKU
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-products
 //
@@ -3066,7 +3068,7 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 	return resp, status, err
 }
 
-// Getting the list of item properties, matching the specified filter
+// ProductsProperties returns list of item properties, matching the specified filters
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-products-properties
 //
@@ -3110,7 +3112,7 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 	return resp, status, err
 }
 
-// Getting the task list
+// Tasks returns task list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-tasks
 //
@@ -3154,7 +3156,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, errs.Failur
 	return resp, status, err
 }
 
-// Task creation
+// TaskCreate create a task
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-tasks-create
 //
@@ -3202,7 +3204,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 	return resp, status, err
 }
 
-// Getting information on task
+// Task returns task
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-tasks-id
 //
@@ -3240,7 +3242,7 @@ func (c *Client) Task(id int) (TaskResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Task editing
+// TaskEdit edit a task
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-tasks-id-edit
 //
@@ -3286,7 +3288,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	return resp, status, err
 }
 
-// Getting the list of user groups
+// UserGroups returns list of user groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-user-groups
 //
@@ -3326,7 +3328,7 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 	return resp, status, err
 }
 
-// Getting the list of users matched the specified filter
+// Users returns list of users matched the specified filters
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users
 //
@@ -3366,7 +3368,7 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, errs.Failur
 	return resp, status, err
 }
 
-// Getting information on user
+// User returns information about user
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users-id
 //
@@ -3404,7 +3406,7 @@ func (c *Client) User(id int) (UserResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Change user status
+// UserStatus change user status
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users
 //
@@ -3442,7 +3444,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 	return resp, st, err
 }
 
-// Statistics updating
+// StaticticsUpdate updates statistics
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-statistic-update
 func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, errs.Failure) {
@@ -3462,7 +3464,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Getting of the cost list, adequate for the given filter
+// Costs returns costs list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-costs
 //
@@ -3504,7 +3506,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Creation of the cost
+// CostCreate create an cost
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-create
 //
@@ -3558,7 +3560,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	return resp, status, err
 }
 
-// Cost removing
+// CostsDelete removes a cost
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-delete
 //
@@ -3598,7 +3600,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, errs.Failure)
 	return resp, status, err
 }
 
-// Batch loading of costs
+// CostsUpload batch costs upload
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-upload
 //
@@ -3655,7 +3657,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, errs.
 	return resp, status, err
 }
 
-// Getting of cost information
+// Cost returns information about specified cost
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-costs-id
 //
@@ -3690,7 +3692,7 @@ func (c *Client) Cost(id int) (CostResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Cost removing
+// CostDelete removes cost
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-id-delete
 //
@@ -3727,7 +3729,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, errs.Failure) {
 	return resp, status, err
 }
 
-// Cost editing
+// CostEdit edit a cost
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-id-edit
 //
@@ -3774,7 +3776,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	return resp, status, err
 }
 
-// Getting the list of custom fields
+// CustomFields returns list of custom fields
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields
 //
@@ -3814,7 +3816,7 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 	return resp, status, err
 }
 
-// Getting the list of custom directory
+// CustomDictionaries returns list of custom directory
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-dictionaries
 //
@@ -3855,7 +3857,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 	return resp, status, err
 }
 
-// Directory fields creation
+// CustomDictionariesCreate creates a custom dictionary
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-dictionaries-create
 //
@@ -3909,7 +3911,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 	return resp, status, err
 }
 
-// Getting information on directory
+// CustomDictionary returns information about dictionary
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-entity-code
 //

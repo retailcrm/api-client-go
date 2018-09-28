@@ -38,7 +38,6 @@ var (
 	crmURL   = os.Getenv("RETAILCRM_URL")
 	badURL   = "https://qwertypoiu.retailcrm.ru"
 
-	errFail     = "FailTest: error empty"
 	statusFail  = "FailTest: status < 400"
 	successFail = "FailTest: Success == true"
 	codeFail    = "test-12345"
@@ -57,7 +56,9 @@ func RandomString(strlen int) string {
 }
 
 func client() *Client {
-	return New(crmURL, os.Getenv("RETAILCRM_KEY"))
+	c := New(crmURL, os.Getenv("RETAILCRM_KEY"))
+	c.Debug = true
+	return c
 }
 
 func badurlclient() *Client {
@@ -88,7 +89,6 @@ func TestPostRequest(t *testing.T) {
 
 func TestClient_ApiVersionsVersions(t *testing.T) {
 	c := client()
-	c.Debug = true
 
 	data, status, err := c.APIVersions()
 	if err.RuntimeErr != nil {
@@ -918,7 +918,7 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 		Get("/orders").
 		MatchParam("filter[attachments]", "7").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameterst", "errors": {"children[attachments]": "SThis value is not valid."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[attachments]": "SThis value is not valid."}}`)
 
 	data, status, err := c.Orders(OrdersRequest{Filter: OrdersFilter{Attachments: 7}})
 	if err.RuntimeErr != nil {
@@ -1693,7 +1693,7 @@ func TestClient_TaskChange_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Task is not loade", "errors": {"performerId": "This value should not be blank."}}`)
+		BodyString(`{"success": false, "errorMsg": "Task is not loaded", "errors": {"performerId": "This value should not be blank."}}`)
 
 	data, status, err := c.TaskEdit(f)
 	if err.RuntimeErr != nil {

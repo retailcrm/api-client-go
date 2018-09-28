@@ -875,7 +875,7 @@ type MgTransport struct {
 	WebhookUrl string `json:"webhookUrl,omitempty"`
 }
 
-//MgBot type
+// MgBot type
 type MgBot struct{}
 
 /**
@@ -929,7 +929,7 @@ type CustomFields struct {
 }
 
 /**
-CustomeDictionaries related types
+CustomDictionaries related types
 */
 
 // CustomDictionary type

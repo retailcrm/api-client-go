@@ -329,11 +329,13 @@ type IntegrationModuleEditResponse struct {
 	Info    ResponseInfo `json:"info,omitempty,brackets"`
 }
 
+// ResponseInfo type
 type ResponseInfo struct {
 	MgTransportInfo MgInfo `json:"mgTransport,omitempty,brackets"`
 	MgBotInfo       MgInfo `json:"mgBot,omitempty,brackets"`
 }
 
+// MgInfo type
 type MgInfo struct {
 	EndpointUrl string `json:"endpointUrl"`
 	Token       string `json:"token"`
@@ -379,7 +381,7 @@ type CustomDictionariesResponse struct {
 	CustomDictionaries *[]CustomDictionary `json:"customDictionaries,omitempty,brackets"`
 }
 
-// CustomDictionariesResponse type
+// CustomResponse type
 type CustomResponse struct {
 	Success bool   `json:"success"`
 	Code    string `json:"code,omitempty"`

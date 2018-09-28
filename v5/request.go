@@ -157,7 +157,7 @@ type CustomFieldsRequest struct {
 	Page   int                `url:"page,omitempty"`
 }
 
-// CustomeDictionariesRequest type
+// CustomDictionariesRequest type
 type CustomDictionariesRequest struct {
 	Filter CustomDictionariesFilter `url:"filter,omitempty"`
 	Limit  int                      `url:"limit,omitempty"`
