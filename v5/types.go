@@ -6,6 +6,7 @@ import "net/http"
 type Client struct {
 	URL        string
 	Key        string
+	Debug      bool
 	httpClient *http.Client
 }
 
@@ -874,6 +875,7 @@ type MgTransport struct {
 	WebhookUrl string `json:"webhookUrl,omitempty"`
 }
 
+// MgBot type
 type MgBot struct{}
 
 /**
@@ -927,17 +929,17 @@ type CustomFields struct {
 }
 
 /**
-CustomeDictionaries related types
+CustomDictionaries related types
 */
 
-// customDictionary type
+// CustomDictionary type
 type CustomDictionary struct {
 	Name     string    `json:"name,omitempty"`
 	Code     string    `json:"code,omitempty"`
 	Elements []Element `json:"elements,omitempty,brackets"`
 }
 
-// Dictionary Element type
+// Element type
 type Element struct {
 	Name     string `json:"name,omitempty"`
 	Code     string `json:"code,omitempty"`
