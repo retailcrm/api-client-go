@@ -12,11 +12,11 @@ func (f *Failure) Error() string {
 
 // ApiError returns formatted string representation of the API error
 func (f *Failure) ApiError() string {
-	return fmt.Sprintf("%v", f.ApiErr)
+	return fmt.Sprintf("%+v", f.ApiErr)
 }
 
 // ApiErrors returns array of formatted strings that represents API errors
-func (f *Failure) ApiErrors() map[string]string {
+func (f *Failure) ApiErrors() interface{} {
 	return f.ApiErrs
 }
 
