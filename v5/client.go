@@ -20,7 +20,7 @@ func New(url string, key string) *Client {
 	return &Client{
 		URL:        url,
 		Key:        key,
-		httpClient: &http.Client{Timeout: 20 * time.Second},
+		httpClient: &http.Client{Timeout: time.Minute},
 	}
 }
 
