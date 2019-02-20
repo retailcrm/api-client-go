@@ -318,6 +318,7 @@ type Pack struct {
 	DeliveryNoteNumber string    `json:"deliveryNoteNumber,omitempty"`
 	Item               *PackItem `json:"item,omitempty"`
 	ItemID             int       `json:"itemId,omitempty"`
+	Unit               *Unit     `json:"unit,omitempty"`
 }
 
 // PackItem type
@@ -358,6 +359,7 @@ type Offer struct {
 	Properties    map[string]string `json:"properties,omitempty,brackets"`
 	Prices        []OfferPrice      `json:"prices,omitempty,brackets"`
 	Images        []string          `json:"images,omitempty,brackets"`
+	Unit          *Unit             `json:"unit,omitempty,brackets"`
 }
 
 // Inventory type
@@ -402,6 +404,15 @@ type OfferPriceUpload struct {
 type PriceUpload struct {
 	Code  string  `json:"code,omitempty"`
 	Price float32 `json:"price,omitempty"`
+}
+
+// Unit type
+type Unit struct {
+	Code    string `json:"code"`
+	Name    string `json:"name"`
+	Sym     string `json:"sym"`
+	Default bool   `json:"default,omitempty"`
+	Active  bool   `json:"active,omitempty"`
 }
 
 /**

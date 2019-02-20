@@ -3448,6 +3448,107 @@ func TestClient_StoreEdit_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_Units(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/reference/units").
+		Reply(200).
+		BodyString(`{"success": true, "units": []}`)
+
+	data, st, err := c.Units()
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
+	}
+
+	if st != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_UnitsEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	unit := Unit{
+		Code:          RandomString(5),
+		Name:          RandomString(5),
+		Sym:           RandomString(2),
+		Default:       false,
+		Active:        true,
+	}
+
+	jr, _ := json.Marshal(&unit)
+
+	p := url.Values{
+		"unit": {string(jr[:])},
+	}
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/api/v5/reference/units/%s/edit", unit.Code)).
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(201).
+		BodyString(`{"success": true}`)
+
+	data, st, err := c.UnitEdit(unit)
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
+	}
+
+	if !statuses[st] {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_UnitEdit_Fail(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	unit := Unit{
+		Name:          RandomString(5),
+		Active:        false,
+	}
+
+	jr, _ := json.Marshal(&unit)
+
+	p := url.Values{
+		"store": {string(jr[:])},
+	}
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/api/v5/reference/units/%s/edit", unit.Code)).
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(404).
+		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
+
+	data, st, err := c.UnitEdit(unit)
+	if err.RuntimeErr != nil {
+		t.Errorf("%v", err.Error())
+	}
+
+	if st < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
 func TestClient_PackChange(t *testing.T) {
 	c := client()
 	defer gock.Off()

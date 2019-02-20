@@ -398,3 +398,9 @@ type CustomFieldResponse struct {
 	Success     bool         `json:"success"`
 	CustomField CustomFields `json:"customField,omitempty,brackets"`
 }
+
+// UnitsResponse type
+type UnitsResponse struct {
+	Success bool `json:"success"`
+	Units *[]Unit `json:"units,omitempty,brackets"`
+}

@@ -2779,6 +2779,52 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, errs.Failure) 
 	return resp, status, err
 }
 
+// Units returns units list
+//
+// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-units
+func (c *Client) Units() (UnitsResponse, int, errs.Failure) {
+	var resp UnitsResponse
+
+	data, status, err := c.GetRequest("/reference/units")
+	if err.RuntimeErr != nil {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		return resp, status, buildErr(data)
+	}
+
+	return resp, status, err
+}
+
+// UnitEdit unit create/edit
+//
+// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-units-code-edit
+func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, errs.Failure) {
+	var resp SuccessfulResponse
+
+	objJSON, _ := json.Marshal(&unit)
+
+	p := url.Values{
+		"unit": {string(objJSON[:])},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/reference/units/%s/edit", unit.Code), p)
+	if err.RuntimeErr != nil {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		return resp, status, buildErr(data)
+	}
+
+	return resp, status, err
+}
+
 // Segments returns segments
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-segments
