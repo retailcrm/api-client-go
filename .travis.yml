@@ -7,4 +7,5 @@ go:
 before_install:
   - go get -v github.com/google/go-querystring/query
   - go get -v github.com/h2non/gock
+  - cp .env.dist .env
 script: go test -v ./...
