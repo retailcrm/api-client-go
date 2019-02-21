@@ -4,5 +4,5 @@ package errs
 type Error interface {
 	error
 	ApiError() string
-	ApiErrors() interface{}
+	ApiErrors() map[string]string
 }
