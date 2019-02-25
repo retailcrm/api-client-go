@@ -34,7 +34,7 @@ func main() {
 		Limit: 20,
 		Page: 1,
 	},)
-	if err.RuntimeErr != nil {
+	if err != nil {
 		fmt.Printf("%v", err.Error())
 	}
 
@@ -92,7 +92,7 @@ func main() {
 			},
 		},
 	)
-	if err.RuntimeErr != nil {
+	if err != nil {
 		fmt.Printf("%v", err.Error())
 	}
 
