@@ -2,9 +2,9 @@ package errs
 
 // Failure struct implode runtime & api errors
 type Failure struct {
-	RuntimeErr error
-	ApiErr     string
-	ApiErrs    interface{}
+	runtimeErr error
+	apiErr     string
+	apiErrs    map[string]string
 }
 
 // FailureResponse convert json error response into object
