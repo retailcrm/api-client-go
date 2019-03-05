@@ -434,6 +434,7 @@ type User struct {
 	Phone      string      `json:"phone,omitempty"`
 	Status     string      `json:"status,omitempty"`
 	Groups     []UserGroup `json:"groups,omitempty,brackets"`
+	MgUserId   uint64      `json:"mgUserId,omitempty"`
 }
 
 // UserGroup type
