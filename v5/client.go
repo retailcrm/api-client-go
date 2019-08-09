@@ -1320,8 +1320,8 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (CustomersHistoryResponse, int, *errs.Failure) {
-	var resp CustomersHistoryResponse
+func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryResponse, int, *errs.Failure) {
+	var resp OrdersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
