@@ -1,8 +1,10 @@
 package v5
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
+	"github.com/pkg/errors"
 	"github.com/retailcrm/api-client-go/errs"
 )
 
@@ -73,23 +76,46 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	return res, resp.StatusCode, failure
 }
 
-// PostRequest implements POST Request
-func (c *Client) PostRequest(url string, postParams url.Values) ([]byte, int, *errs.Failure) {
-	var res []byte
-	var prefix = "/api/v5"
+// PostRequest implements POST Request with generic body data
+func (c *Client) PostRequest(uri string, postData interface{}, contType ...string) ([]byte, int, *errs.Failure) {
+	var (
+		res         []byte
+		contentType string
+		reader      io.Reader
+	)
+
+	prefix := "/api/v5"
 	failure := &errs.Failure{}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, url), strings.NewReader(postParams.Encode()))
+	if len(contType) > 0 {
+		contentType = contType[0]
+	} else {
+		contentType = "application/x-www-form-urlencoded"
+	}
+
+	switch postData.(type) {
+	case url.Values:
+		reader = strings.NewReader(postData.(url.Values).Encode())
+	default:
+		if i, ok := postData.(io.Reader); ok {
+			reader = i
+		} else {
+			failure.SetRuntimeError(errors.New("postData should be url.Values or implement io.Reader"))
+			return []byte{}, 0, failure
+		}
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
 	if err != nil {
 		failure.SetRuntimeError(err)
 		return res, 0, failure
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("X-API-KEY", c.Key)
 
 	if c.Debug {
-		log.Printf("API Request: %s %s %s", url, c.Key, postParams.Encode())
+		log.Printf("API Request: %s %s", uri, c.Key)
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -3928,6 +3954,228 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", id), p)
 	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// Files returns files list
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Files(FilesRequest{
+//		Filter: FilesFilter{
+//			Filename: "image.jpeg",
+//		},
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
+	var resp FilesResponse
+
+	params, _ := query.Values(files)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/files?%s", params.Encode()))
+
+	if err != nil && err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// FileUpload uploads file to retailCRM
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//  file, err := os.Open("file.jpg")
+//  if err != nil {
+// 	    fmt.Print(err)
+//  }
+//
+//  data, status, err := client.FileUpload(file)
+//
+//  if err.Error() != "" {
+// 	    fmt.Printf("%v", err.RuntimeErr)
+//  }
+//
+//  if status >= http.StatusBadRequest {
+// 	    fmt.Printf("%v", err.ApiErr())
+//  }
+func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Failure) {
+	var resp FileUploadResponse
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/files/upload?apiKey=%s", c.Key), reader, "application/octet-stream")
+
+	if err != nil && err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// File returns a file info
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.File(112)
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+// 		fmt.Printf("%v\n", data.File)
+// 	}
+func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
+	var resp FileResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d", id))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// FileDelete removes file from retailCRM
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//  data, status, err := client.FileDelete(123)
+//
+//  if err.Error() != "" {
+// 	    fmt.Printf("%v", err.RuntimeErr)
+//  }
+//
+//  if status >= http.StatusBadRequest {
+// 	    fmt.Printf("%v", err.ApiErr())
+//  }
+func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+	var resp SuccessfulResponse
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/delete", id), strings.NewReader(""))
+
+	if err != nil && err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// FileDownload downloads file from retailCRM
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//  fileData, status, err := client.FileDownload(123)
+//
+//  if err.Error() != "" {
+// 	    fmt.Printf("%v", err.RuntimeErr)
+//  }
+//
+//  if status >= http.StatusBadRequest {
+// 	    fmt.Printf("%v", err.ApiErr())
+//  }
+func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
+	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d/download", id))
+	if status != http.StatusOK {
+		return nil, status, err
+	}
+
+	closer := ioutil.NopCloser(bytes.NewReader(data))
+	return closer, status, nil
+}
+
+// FileEdit edits file name and relations with orders and customers in retailCRM
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+//  data, status, err := client.FileEdit(123, File{Filename: "image2.jpg"})
+//
+//  if err.Error() != "" {
+// 	    fmt.Printf("%v", err.RuntimeErr)
+//  }
+//
+//  if status >= http.StatusBadRequest {
+// 	    fmt.Printf("%v", err.ApiErr())
+//  }
+func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) {
+	var resp FileResponse
+
+	req, _ := json.Marshal(file)
+	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/edit", id), bytes.NewReader(req))
+
+	if err != nil && err.Error() != "" {
 		return resp, status, err
 	}
 

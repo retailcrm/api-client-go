@@ -3,12 +3,14 @@ package v5
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -4747,6 +4749,297 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 
 	if costsDelete.Success != false {
 		t.Error(successFail)
+	}
+}
+
+func TestClient_Files(t *testing.T) {
+	c := client()
+	fileID := 14925
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/files").
+		MatchParam("filter[ids][]", strconv.Itoa(fileID)).
+		MatchParam("limit", "20").
+		MatchParam("page", "1").
+		Reply(200).
+		BodyString(`{
+		  "success": true,
+		  "pagination": {
+		    "limit": 20,
+		    "totalCount": 0,
+		    "currentPage": 1,
+		    "totalPageCount": 0
+		  },
+		  "files": []
+		}`)
+
+	_, status, err := c.Files(FilesRequest{
+		Limit: 20,
+		Page:  1,
+		Filter: FilesFilter{
+			Ids: []int{fileID},
+		},
+	})
+
+	if status != 200 {
+		t.Errorf("%v %v", err.Error(), err.ApiError())
+	}
+}
+
+func TestClient_FileUpload(t *testing.T) {
+	c := client()
+	file := strings.NewReader(`test file contents`)
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/files/upload").
+		Reply(200).
+		BodyString(`{"success": true, "file": {"id": 1}}`)
+
+	data, status, err := c.FileUpload(file)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.File.ID != 1 {
+		t.Error("invalid file id")
+	}
+}
+
+func TestClient_FileUploadFail(t *testing.T) {
+	c := client()
+	file := strings.NewReader(`test file contents`)
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/files/upload").
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "error"}`)
+
+	_, status, err := c.FileUpload(file)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusBadRequest {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusBadRequest, status)
+	}
+}
+
+func TestClient_File(t *testing.T) {
+	c := client()
+	invalidFile := 20
+	fileResponse := &FileResponse{
+		Success: true,
+		File: &File{
+			ID:         19,
+			Filename:   "image.jpg",
+			Type:       "image/jpeg",
+			CreatedAt:  time.Now().String(),
+			Size:       10000,
+			Attachment: nil,
+		},
+	}
+	respData, errr := json.Marshal(fileResponse)
+	if errr != nil {
+		t.Errorf("%v", errr.Error())
+	}
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/files/%d", fileResponse.File.ID)).
+		Reply(200).
+		BodyString(string(respData))
+
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/files/%d", invalidFile)).
+		Reply(404).
+		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
+
+	s, status, err := c.File(fileResponse.File.ID)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if s.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if s.File.ID != fileResponse.File.ID {
+		t.Error("invalid response data")
+	}
+
+	s, status, err = c.File(invalidFile)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusNotFound {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusNotFound, status)
+	}
+}
+
+func TestClient_FileDelete(t *testing.T) {
+	c := client()
+	successful := 19
+	badRequest := 20
+	notFound := 21
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/files/%d/delete", successful)).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/files/%d/delete", badRequest)).
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Error"}`)
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/files/%d/delete", notFound)).
+		Reply(404).
+		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
+
+	data, status, err := c.FileDelete(successful)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	data, status, err = c.FileDelete(badRequest)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusBadRequest {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusBadRequest, status)
+	}
+
+	data, status, err = c.FileDelete(notFound)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusNotFound {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusNotFound, status)
+	}
+}
+
+func TestClient_FileDownload(t *testing.T) {
+	c := client()
+	successful := 19
+	fail := 20
+	fileData := "file data"
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/files/%d/download", successful)).
+		Reply(200).
+		BodyString(fileData)
+
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/files/%d/download", fail)).
+		Reply(400).
+		BodyString("")
+
+	data, status, err := c.FileDownload(successful)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	fetchedByte, errr := ioutil.ReadAll(data)
+	if errr != nil {
+		t.Error(errr)
+	}
+
+	fetched := string(fetchedByte)
+	if fetched != fileData {
+		t.Error("file data mismatch")
+	}
+
+	data, status, err = c.FileDownload(fail)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusBadRequest {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusBadRequest, status)
+	}
+}
+
+func TestClient_FileEdit(t *testing.T) {
+	c := client()
+	successful := 19
+	fail := 20
+	resp := FileResponse{
+		Success: true,
+		File:    &File{Filename: "image.jpg"},
+	}
+	respData, _ := json.Marshal(resp)
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/files/%d/edit", successful)).
+		Reply(200).
+		BodyString(string(respData))
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/files/%d/edit", fail)).
+		Reply(404).
+		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
+
+	data, status, err := c.FileEdit(successful, *resp.File)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.File.Filename != resp.File.Filename {
+		t.Errorf("filename should be `%s`, got `%s` instead", resp.File.Filename, data.File.Filename)
+	}
+
+	data, status, err = c.FileEdit(fail, *resp.File)
+	if status != http.StatusNotFound {
+		t.Errorf("status should be `%d`, got `%d` instead", http.StatusNotFound, status)
 	}
 }
 

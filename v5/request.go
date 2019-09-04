@@ -150,6 +150,13 @@ type CostsRequest struct {
 	Page   int         `url:"page,omitempty"`
 }
 
+// FilesRequest type
+type FilesRequest struct {
+	Filter FilesFilter `url:"filter,omitempty"`
+	Limit  int         `url:"limit,omitempty"`
+	Page   int         `url:"page,omitempty"`
+}
+
 // CustomFieldsRequest type
 type CustomFieldsRequest struct {
 	Filter CustomFieldsFilter `url:"filter,omitempty"`

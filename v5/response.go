@@ -367,6 +367,25 @@ type CostResponse struct {
 	Cost    *Cost `json:"cost,omitempty,brackets"`
 }
 
+// FilesResponse type
+type FilesResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Files      []File      `json:"files,omitempty,brackets"`
+}
+
+// FileUpload response
+type FileUploadResponse struct {
+	Success bool  `json:"success"`
+	File    *File `json:"file,omitempty"`
+}
+
+// FileResponse type
+type FileResponse struct {
+	Success bool  `json:"success"`
+	File    *File `json:"file,omitempty"`
+}
+
 // CustomFieldsResponse type
 type CustomFieldsResponse struct {
 	Success      bool           `json:"success"`
@@ -401,6 +420,6 @@ type CustomFieldResponse struct {
 
 // UnitsResponse type
 type UnitsResponse struct {
-	Success bool `json:"success"`
-	Units *[]Unit `json:"units,omitempty,brackets"`
+	Success bool    `json:"success"`
+	Units   *[]Unit `json:"units,omitempty,brackets"`
 }

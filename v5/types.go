@@ -923,6 +923,22 @@ type Cost struct {
 	Sites     []string `json:"sites,omitempty,brackets"`
 }
 
+// File type
+type File struct {
+	ID         int          `json:"id,omitempty"`
+	Filename   string       `json:"filename,omitempty"`
+	Type       string       `json:"type,omitempty"`
+	CreatedAt  string       `json:"createdAt,omitempty"`
+	Size       int          `json:"size,omitempty"`
+	Attachment []Attachment `json:"attachment,omitempty"`
+}
+
+// Attachment type
+type Attachment struct {
+	Customer *Customer `json:"customer,omitempty"`
+	Order    *Order    `json:"order,omitempty"`
+}
+
 // CustomFields type
 type CustomFields struct {
 	Name           string `json:"name,omitempty"`
