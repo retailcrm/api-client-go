@@ -3,6 +3,7 @@ package v5
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/pkg/errors"
 	"github.com/retailcrm/api-client-go/errs"
 )
 
