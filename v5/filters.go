@@ -318,6 +318,23 @@ type CostsFilter struct {
 	OrderExternalIds []string `url:"orderIds,omitempty,brackets"`
 }
 
+// FilesFilter type
+type FilesFilter struct {
+	Ids                 []int    `url:"ids,omitempty,brackets"`
+	OrderIds            []int    `url:"orderIds,omitempty,brackets"`
+	OrderExternalIds    []string `url:"orderExternalIds,omitempty,brackets"`
+	CustomerIds         []int    `url:"customerIds,omitempty,brackets"`
+	CustomerExternalIds []string `url:"customerExternalIds,omitempty,brackets"`
+	CreatedAtFrom       string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
+	SizeFrom            int      `url:"sizeFrom,omitempty"`
+	SizeTo              int      `url:"sizeTo,omitempty"`
+	Type                []string `url:"type,omitempty,brackets"`
+	Filename            string   `url:"filename,omitempty"`
+	IsAttached          string   `url:"isAttached,omitempty"`
+	Sites               []string `url:"sites,omitempty,brackets"`
+}
+
 // CustomFieldsFilter type
 type CustomFieldsFilter struct {
 	Name        string `url:"name,omitempty"`
