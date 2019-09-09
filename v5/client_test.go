@@ -4764,16 +4764,7 @@ func TestClient_Files(t *testing.T) {
 		MatchParam("limit", "20").
 		MatchParam("page", "1").
 		Reply(200).
-		BodyString(`{
-		  "success": true,
-		  "pagination": {
-		    "limit": 20,
-		    "totalCount": 0,
-		    "currentPage": 1,
-		    "totalPageCount": 0
-		  },
-		  "files": []
-		}`)
+		BodyString(`{"success": true,"pagination": {"limit": 20,"totalCount": 0,"currentPage": 1,"totalPageCount": 0},"files": []}`)
 
 	_, status, err := c.Files(FilesRequest{
 		Limit: 20,
@@ -4826,7 +4817,7 @@ func TestClient_FileUploadFail(t *testing.T) {
 	gock.New(crmURL).
 		Post("/files/upload").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "error"}`)
+		BodyString(`{"success":false,"errorMsg":"Your account doesn't have enough money to upload files."}`)
 
 	_, status, err := c.FileUpload(file)
 	if err.Error() != "" {

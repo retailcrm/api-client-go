@@ -4173,7 +4173,9 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) 
 	var resp FileResponse
 
 	req, _ := json.Marshal(file)
-	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/edit", id), bytes.NewReader(req))
+	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/edit", id), url.Values{
+		"file": {string(req)},
+	})
 
 	if err != nil && err.Error() != "" {
 		return resp, status, err

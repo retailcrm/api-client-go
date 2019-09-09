@@ -371,7 +371,7 @@ type CostResponse struct {
 type FilesResponse struct {
 	Success    bool        `json:"success"`
 	Pagination *Pagination `json:"pagination,omitempty"`
-	Files      []File      `json:"files,omitempty,brackets"`
+	Files      []File      `json:"files,omitempty"`
 }
 
 // FileUpload response
