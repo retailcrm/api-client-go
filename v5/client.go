@@ -4034,7 +4034,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Failure) {
 	var resp FileUploadResponse
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/files/upload?apiKey=%s", c.Key), reader, "application/octet-stream")
+	data, status, err := c.PostRequest("/files/upload", reader, "application/octet-stream")
 
 	if err != nil && err.Error() != "" {
 		return resp, status, err
