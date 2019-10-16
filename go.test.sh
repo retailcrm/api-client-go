@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 set -e
+export DEVELOPER_NODE=1
+export RETAILCRM_URL=https://test.retailcrm.pro
+export RETAILCRM_KEY=key
 echo "" > coverage.txt
 
 for d in $(go list ./... | grep -v vendor); do
