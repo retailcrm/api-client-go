@@ -10,6 +10,6 @@ before_install:
   - go get -v github.com/google/go-querystring/query
   - go get -v github.com/h2non/gock
   - cp .env.dist .env
-script: go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
+script: ./go.test.sh
 after_success:
   - bash <(curl -s https://codecov.io/bash)
