@@ -37,11 +37,49 @@ type CustomerResponse struct {
 	Customer *Customer `json:"customer,omitempty,brackets"`
 }
 
+// CorporateCustomerResponse type
+type CorporateCustomerResponse struct {
+	Success           bool               `json:"success"`
+	CorporateCustomer *CorporateCustomer `json:"customerCorporate,omitempty,brackets"`
+}
+
 // CustomersResponse type
 type CustomersResponse struct {
 	Success    bool        `json:"success"`
 	Pagination *Pagination `json:"pagination,omitempty"`
 	Customers  []Customer  `json:"customers,omitempty,brackets"`
+}
+
+// CorporateCustomersResponse type
+type CorporateCustomersResponse struct {
+	Success            bool                `json:"success"`
+	Pagination         *Pagination         `json:"pagination,omitempty"`
+	CustomersCorporate []CorporateCustomer `json:"customersCorporate,omitempty,brackets"`
+}
+
+// CorporateCustomersNotesResponse type
+type CorporateCustomersNotesResponse struct {
+	Success    bool        `json:"success"`
+	Pagination *Pagination `json:"pagination,omitempty"`
+	Notes      []Note      `json:"notes,omitempty,brackets"`
+}
+
+// CorporateCustomersAddressesResponse type
+type CorporateCustomersAddressesResponse struct {
+	Success   bool                       `json:"success"`
+	Addresses []CorporateCustomerAddress `json:"addresses"`
+}
+
+// CorporateCustomerCompaniesResponse type
+type CorporateCustomerCompaniesResponse struct {
+	Success   bool      `json:"success"`
+	Companies []Company `json:"companies"`
+}
+
+// CorporateCustomerContactsResponse type
+type CorporateCustomerContactsResponse struct {
+	Success  bool                       `json:"success"`
+	Contacts []CorporateCustomerContact `json:"contacts"`
 }
 
 // CustomerChangeResponse type
@@ -51,11 +89,17 @@ type CustomerChangeResponse struct {
 	State   string `json:"state,omitempty"`
 }
 
+// CorporateCustomerChangeResponse type
+type CorporateCustomerChangeResponse CustomerChangeResponse
+
 // CustomersUploadResponse type
 type CustomersUploadResponse struct {
 	Success           bool              `json:"success"`
 	UploadedCustomers []IdentifiersPair `json:"uploadedCustomers,omitempty,brackets"`
 }
+
+// CorporateCustomersUploadResponse type
+type CorporateCustomersUploadResponse CustomersUploadResponse
 
 // CustomersHistoryResponse type
 type CustomersHistoryResponse struct {
@@ -63,6 +107,15 @@ type CustomersHistoryResponse struct {
 	GeneratedAt string                  `json:"generatedAt,omitempty"`
 	History     []CustomerHistoryRecord `json:"history,omitempty,brackets"`
 	Pagination  *Pagination             `json:"pagination,omitempty"`
+}
+
+// CorporateCustomersHistoryResponse type
+// TODO: Update history format in case of changes
+type CorporateCustomersHistoryResponse struct {
+	Success     bool                             `json:"success,omitempty"`
+	GeneratedAt string                           `json:"generatedAt,omitempty"`
+	History     []CorporateCustomerHistoryRecord `json:"history,omitempty,brackets"`
+	Pagination  *Pagination                      `json:"pagination,omitempty"`
 }
 
 // OrderResponse type

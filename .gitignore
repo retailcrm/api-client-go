@@ -26,5 +26,6 @@ _testmain.go
 .idea
 *.iml
 .env
+.swp
 
 # Project ignores

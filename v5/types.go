@@ -2,6 +2,12 @@ package v5
 
 import "net/http"
 
+// ByID is "id" constant to use as `by` property in methods
+const ByID = "id"
+
+// ByExternalId is "externalId" constant to use as `by` property in methods
+const ByExternalID = "externalId"
+
 // Client type
 type Client struct {
 	URL        string
@@ -145,6 +151,85 @@ type Customer struct {
 	CustomFields                 map[string]string `json:"customFields,omitempty,brackets"`
 }
 
+// CorporateCustomer type
+type CorporateCustomer struct {
+	ID                 int                        `json:"id,omitempty"`
+	ExternalID         string                     `json:"externalId,omitempty"`
+	Nickname           string                     `json:"nickName,omitempty"`
+	CreatedAt          string                     `json:"createdAt,omitempty"`
+	Vip                bool                       `json:"vip,omitempty"`
+	Bad                bool                       `json:"bad,omitempty"`
+	CustomFields       map[string]string          `json:"customFields,omitempty,brackets"`
+	PersonalDiscount   float32                    `json:"personalDiscount,omitempty"`
+	DiscountCardNumber string                     `json:"discountCardNumber,omitempty"`
+	ManagerID          int                        `json:"managerId,omitempty"`
+	Source             *Source                    `json:"source,omitempty"`
+	CustomerContacts   []CorporateCustomerContact `json:"customerContacts,omitempty"`
+	Companies          []Company                  `json:"companies,omitempty"`
+	Addresses          []CorporateCustomerAddress `json:"addresses,omitempty"`
+}
+
+type CorporateCustomerContact struct {
+	IsMain    bool                             `json:"isMain,omitempty"`
+	Customer  CorporateCustomerContactCustomer `json:"customer,omitempty"`
+	Companies []IdentifiersPair                `json:"companies,omitempty"`
+}
+
+// CorporateCustomerAddress type. Address didn't inherited in order to simplify declaration.
+type CorporateCustomerAddress struct {
+	ID           int    `json:"id,omitempty"`
+	Index        string `json:"index,omitempty"`
+	CountryISO   string `json:"countryIso,omitempty"`
+	Region       string `json:"region,omitempty"`
+	RegionID     int    `json:"regionId,omitempty"`
+	City         string `json:"city,omitempty"`
+	CityID       int    `json:"cityId,omitempty"`
+	CityType     string `json:"cityType,omitempty"`
+	Street       string `json:"street,omitempty"`
+	StreetID     int    `json:"streetId,omitempty"`
+	StreetType   string `json:"streetType,omitempty"`
+	Building     string `json:"building,omitempty"`
+	Flat         string `json:"flat,omitempty"`
+	IntercomCode string `json:"intercomCode,omitempty"`
+	Floor        int    `json:"floor,omitempty"`
+	Block        int    `json:"block,omitempty"`
+	House        string `json:"house,omitempty"`
+	Housing      string `json:"housing,omitempty"`
+	Metro        string `json:"metro,omitempty"`
+	Notes        string `json:"notes,omitempty"`
+	Text         string `json:"text,omitempty"`
+	ExternalID   string `json:"externalId,omitempty"`
+	Name         string `json:"name,omitempty"`
+}
+
+type CorporateCustomerContactCustomer struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	BrowserID  string `json:"browserId,omitempty"`
+	Site       string `json:"site,omitempty"`
+}
+
+type Company struct {
+	ID           int               `json:"id,omitempty"`
+	IsMain       bool              `json:"isMain,omitempty"`
+	ExternalID   string            `json:"externalId,omitempty"`
+	Active       bool              `json:"active,omitempty"`
+	Name         string            `json:"name,omitempty"`
+	Brand        string            `json:"brand,omitempty"`
+	Site         string            `json:"site,omitempty"`
+	CreatedAt    string            `json:"createdAt,omitempty"`
+	Contragent   *Contragent       `json:"contragent,omitempty"`
+	Address      *IdentifiersPair  `json:"address,omitempty"`
+	CustomFields map[string]string `json:"customFields,omitempty,brackets"`
+}
+
+// CorporateCustomerNote type
+type CorporateCustomerNote struct {
+	ManagerID int              `json:"managerId,omitempty"`
+	Text      string           `json:"text,omitempty"`
+	Customer  *IdentifiersPair `json:"customer,omitempty"`
+}
+
 // Phone type
 type Phone struct {
 	Number string `json:"number,omitempty"`
@@ -161,6 +246,19 @@ type CustomerHistoryRecord struct {
 	User      *User     `json:"user,omitempty,brackets"`
 	APIKey    *APIKey   `json:"apiKey,omitempty,brackets"`
 	Customer  *Customer `json:"customer,omitempty,brackets"`
+}
+
+// CorporateCustomerHistoryRecord type
+type CorporateCustomerHistoryRecord struct {
+	ID                int                `json:"id,omitempty"`
+	CreatedAt         string             `json:"createdAt,omitempty"`
+	Created           bool               `json:"created,omitempty"`
+	Deleted           bool               `json:"deleted,omitempty"`
+	Source            string             `json:"source,omitempty"`
+	Field             string             `json:"field,omitempty"`
+	User              *User              `json:"user,omitempty,brackets"`
+	APIKey            *APIKey            `json:"apiKey,omitempty,brackets"`
+	CorporateCustomer *CorporateCustomer `json:"corporateCustomer,omitempty,brackets"`
 }
 
 /**

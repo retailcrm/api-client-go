@@ -13,6 +13,38 @@ type CustomersRequest struct {
 	Page   int             `url:"page,omitempty"`
 }
 
+// CorporateCustomersRequest type
+type CorporateCustomersRequest struct {
+	Filter CorporateCustomersFilter `url:"filter,omitempty"`
+	Limit  int                      `url:"limit,omitempty"`
+	Page   int                      `url:"page,omitempty"`
+}
+
+// CorporateCustomersNotesRequest type
+type CorporateCustomersNotesRequest struct {
+	Filter CorporateCustomersNotesFilter `url:"filter,omitempty"`
+	Limit  int                           `url:"limit,omitempty"`
+	Page   int                           `url:"page,omitempty"`
+}
+
+// CorporateCustomerAddressesRequest type
+type CorporateCustomerAddressesRequest struct {
+	Filter CorporateCustomerAddressesFilter `url:"filter,omitempty"`
+	By     string                           `url:"by,omitempty"`
+	Site   string                           `url:"site,omitempty"`
+	Limit  int                              `url:"limit,omitempty"`
+	Page   int                              `url:"page,omitempty"`
+}
+
+// IdentifiersPairRequest type
+type IdentifiersPairRequest struct {
+	Filter IdentifiersPairFilter `url:"filter,omitempty"`
+	By     string                `url:"by,omitempty"`
+	Site   string                `url:"site,omitempty"`
+	Limit  int                   `url:"limit,omitempty"`
+	Page   int                   `url:"page,omitempty"`
+}
+
 // CustomersUploadRequest type
 type CustomersUploadRequest struct {
 	Customers []Customer `url:"customers,omitempty,brackets"`
