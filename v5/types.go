@@ -32,7 +32,6 @@ type Address struct {
 	StreetType   string `json:"streetType,omitempty"`
 	Building     string `json:"building,omitempty"`
 	Flat         string `json:"flat,omitempty"`
-	IntercomCode string `json:"intercomCode,omitempty"`
 	Floor        int    `json:"floor,omitempty"`
 	Block        int    `json:"block,omitempty"`
 	House        string `json:"house,omitempty"`
