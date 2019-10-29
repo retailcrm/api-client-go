@@ -18,7 +18,7 @@ import (
 	"github.com/retailcrm/api-client-go/errs"
 )
 
-// New initalize client
+// New initialize client
 func New(url string, key string) *Client {
 	return &Client{
 		URL:        url,
