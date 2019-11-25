@@ -133,6 +133,16 @@ type CustomersHistoryFilter struct {
 	EndDate            string `url:"endDate,omitempty"`
 }
 
+// CorporateCustomersHistoryFilter type
+type CorporateCustomersHistoryFilter struct {
+	CustomerID         int      `url:"customerId,omitempty"`
+	SinceID            int      `url:"sinceId,omitempty"`
+	CustomerExternalID string   `url:"customerExternalId,omitempty"`
+	ContactIds         []string `url:"contactIds,omitempty,brackets"`
+	StartDate          string   `url:"startDate,omitempty"`
+	EndDate            string   `url:"endDate,omitempty"`
+}
+
 // OrdersFilter type
 type OrdersFilter struct {
 	Ids                            []int             `url:"ids,omitempty,brackets"`

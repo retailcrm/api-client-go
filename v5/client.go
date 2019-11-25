@@ -943,7 +943,6 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 }
 
 // CorporateCustomersHistory returns corporate customer's history
-// TODO: Check implementation when history becomes available
 //
 // For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-fix-external-ids
 //
@@ -951,8 +950,8 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 //
 // 	var client = v5.New("https://demo.url", "09jIJ")
 //
-// 	data, status, err := client.CorporateCustomersHistory(v5.CustomersHistoryRequest{
-//		Filter: v5.CustomersHistoryFilter{
+// 	data, status, err := client.CorporateCustomersHistory(v5.CorporateCustomersHistoryRequest{
+//		Filter: v5.CorporateCustomersHistoryFilter{
 //			SinceID: 20,
 //		},
 //	})
@@ -968,7 +967,7 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersHistory(parameters CustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, *errs.Failure) {
 	var resp CorporateCustomersHistoryResponse
 
 	params, _ := query.Values(parameters)

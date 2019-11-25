@@ -110,7 +110,6 @@ type CustomersHistoryResponse struct {
 }
 
 // CorporateCustomersHistoryResponse type
-// TODO: Update history format in case of changes
 type CorporateCustomersHistoryResponse struct {
 	Success     bool                             `json:"success,omitempty"`
 	GeneratedAt string                           `json:"generatedAt,omitempty"`

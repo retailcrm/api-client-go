@@ -58,6 +58,13 @@ type CustomersHistoryRequest struct {
 	Page   int                    `url:"page,omitempty"`
 }
 
+// CorporateCustomersHistoryRequest type
+type CorporateCustomersHistoryRequest struct {
+	Filter CorporateCustomersHistoryFilter `url:"filter,omitempty"`
+	Limit  int                             `url:"limit,omitempty"`
+	Page   int                             `url:"page,omitempty"`
+}
+
 // OrderRequest type
 type OrderRequest struct {
 	By   string `url:"by,omitempty"`

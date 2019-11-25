@@ -920,6 +920,69 @@ func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_CorporateCustomersHistory(t *testing.T) {
+	c := client()
+	f := CorporateCustomersHistoryRequest{
+		Filter: CorporateCustomersHistoryFilter{
+			SinceID: 20,
+		},
+	}
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/history").
+		MatchParam("filter[sinceId]", "20").
+		Reply(200).
+		BodyString(`{"success": true, "history": [{"id": 1}]}`)
+
+	data, status, err := c.CorporateCustomersHistory(f)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.History) == 0 {
+		t.Errorf("%v", "Empty history")
+	}
+}
+
+func TestClient_CorporateCustomersHistory_Fail(t *testing.T) {
+	c := client()
+	f := CorporateCustomersHistoryRequest{
+		Filter: CorporateCustomersHistoryFilter{
+			StartDate: "2020-13-12",
+		},
+	}
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/history").
+		MatchParam("filter[startDate]", "2020-13-12").
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
+
+	data, status, err := c.CorporateCustomersHistory(f)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
 func TestClient_CorporateCustomersNotes(t *testing.T) {
 	defer gock.Off()
 
