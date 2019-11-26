@@ -309,7 +309,7 @@ func TestClient_CustomerChange(t *testing.T) {
 	str, _ = json.Marshal(f)
 
 	p = url.Values{
-		"by":       {string("id")},
+		"by":       {string(ByID)},
 		"customer": {string(str)},
 	}
 
@@ -320,7 +320,7 @@ func TestClient_CustomerChange(t *testing.T) {
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	ed, se, err := c.CustomerEdit(f, "id")
+	ed, se, err := c.CustomerEdit(f, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -335,11 +335,11 @@ func TestClient_CustomerChange(t *testing.T) {
 
 	gock.New(crmURL).
 		Get(fmt.Sprintf("/api/v5/customers/%v", f.ExternalID)).
-		MatchParam("by", "externalId").
+		MatchParam("by", ByExternalID).
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	data, status, err := c.Customer(f.ExternalID, "externalId", "")
+	data, status, err := c.Customer(f.ExternalID, ByExternalID, "")
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -394,7 +394,7 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 	str, _ = json.Marshal(f)
 
 	p = url.Values{
-		"by":       {string("id")},
+		"by":       {string(ByID)},
 		"customer": {string(str)},
 	}
 
@@ -405,7 +405,7 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
-	ed, se, err := c.CustomerEdit(f, "id")
+	ed, se, err := c.CustomerEdit(f, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -420,11 +420,11 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 
 	gock.New(crmURL).
 		Get(fmt.Sprintf("/api/v5/customers/%v", codeFail)).
-		MatchParam("by", "externalId").
+		MatchParam("by", ByExternalID).
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
-	data, status, err := c.Customer(codeFail, "externalId", "")
+	data, status, err := c.Customer(codeFail, ByExternalID, "")
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -721,6 +721,981 @@ func TestClient_CustomersHistory_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_CorporateCustomersList(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/customers-corporate").
+		MatchParam("filter[city]", "Москва").
+		MatchParam("page", "3").
+		Reply(200).
+		BodyString(`{"success":true,"pagination":{"limit":20,"totalCount":1,"currentPage":3,"totalPageCount":1}}`)
+
+	c := client()
+
+	data, status, err := c.CorporateCustomers(CorporateCustomersRequest{
+		Filter: CorporateCustomersFilter{
+			City: "Москва",
+		},
+		Page: 3,
+	})
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Logf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Logf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomersCreate(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/api/v5/customers-corporate/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":2344}`)
+
+	c := client()
+	customer := CorporateCustomer{
+		ExternalID:         "ext-id",
+		Nickname:           "Test Customer",
+		Vip:                true,
+		Bad:                false,
+		CustomFields:       nil,
+		PersonalDiscount:   10,
+		DiscountCardNumber: "1234567890",
+		Source: &Source{
+			Source:   "source",
+			Medium:   "medium",
+			Campaign: "campaign",
+			Keyword:  "keyword",
+			Content:  "content",
+		},
+		Companies: []Company{
+			{
+				IsMain:     true,
+				ExternalID: "company-ext-id",
+				Active:     true,
+				Name:       "name",
+				Brand:      "brand",
+				Site:       "https://retailcrm.pro",
+				Contragent: &Contragent{
+					ContragentType: "legal-entity",
+					LegalName:      "Legal Name",
+					LegalAddress:   "Legal Address",
+					INN:            "000000000",
+					OKPO:           "000000000",
+					KPP:            "000000000",
+					OGRN:           "000000000",
+					BIK:            "000000000",
+					Bank:           "bank",
+					BankAddress:    "bankAddress",
+					CorrAccount:    "corrAccount",
+					BankAccount:    "bankAccount",
+				},
+				Address: &IdentifiersPair{
+					ID:         0,
+					ExternalID: "ext-addr-id",
+				},
+				CustomFields: nil,
+			},
+		},
+		Addresses: []CorporateCustomerAddress{
+			{
+				Index:        "123456",
+				CountryISO:   "RU",
+				Region:       "Russia",
+				RegionID:     0,
+				City:         "Moscow",
+				CityID:       0,
+				CityType:     "city",
+				Street:       "Pushkinskaya",
+				StreetID:     0,
+				StreetType:   "street",
+				Building:     "",
+				Flat:         "",
+				IntercomCode: "",
+				Floor:        0,
+				Block:        0,
+				House:        "",
+				Housing:      "",
+				Metro:        "",
+				Notes:        "",
+				Text:         "",
+				ExternalID:   "ext-addr-id",
+				Name:         "Main Address",
+			},
+		},
+	}
+
+	data, status, err := c.CorporateCustomerCreate(customer, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusCreated {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomersFixExternalIds(t *testing.T) {
+	c := client()
+
+	customers := []IdentifiersPair{{
+		ID:         123,
+		ExternalID: RandomString(8),
+	}}
+
+	defer gock.Off()
+
+	jr, _ := json.Marshal(&customers)
+
+	p := url.Values{
+		"customersCorporate": {string(jr[:])},
+	}
+
+	gock.New(crmURL).
+		Post("/customers-corporate/fix-external-ids").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	fx, fe, err := c.CorporateCustomersFixExternalIds(customers)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if fe != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if fx.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
+	c := client()
+
+	customers := []IdentifiersPair{{ExternalID: RandomString(8)}}
+
+	defer gock.Off()
+
+	jr, _ := json.Marshal(&customers)
+
+	p := url.Values{
+		"customersCorporate": {string(jr[:])},
+	}
+
+	gock.New(crmURL).
+		Post("/customers-corporate/fix-external-ids").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
+
+	data, status, err := c.CorporateCustomersFixExternalIds(customers)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_CorporateCustomersHistory(t *testing.T) {
+	c := client()
+	f := CorporateCustomersHistoryRequest{
+		Filter: CorporateCustomersHistoryFilter{
+			SinceID: 20,
+		},
+	}
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/history").
+		MatchParam("filter[sinceId]", "20").
+		Reply(200).
+		BodyString(`{"success": true, "history": [{"id": 1}]}`)
+
+	data, status, err := c.CorporateCustomersHistory(f)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.History) == 0 {
+		t.Errorf("%v", "Empty history")
+	}
+}
+
+func TestClient_CorporateCustomersHistory_Fail(t *testing.T) {
+	c := client()
+	f := CorporateCustomersHistoryRequest{
+		Filter: CorporateCustomersHistoryFilter{
+			StartDate: "2020-13-12",
+		},
+	}
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/history").
+		MatchParam("filter[startDate]", "2020-13-12").
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
+
+	data, status, err := c.CorporateCustomersHistory(f)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_CorporateCustomersNotes(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/customers-corporate/notes").
+		MatchParam("filter[text]", "sample").
+		Reply(200).
+		BodyString(`
+		{
+		  "success": true,
+		  "pagination": {
+		    "limit": 20,
+		    "totalCount": 1,
+		    "currentPage": 1,
+		    "totalPageCount": 1
+		  },
+		  "notes": [
+		    {
+		      "customer": {
+		        "site": "site",
+		        "id": 2346,
+		        "externalId": "ext-id",
+		        "type": "customer_corporate"
+		      },
+		      "managerId": 24,
+		      "id": 106,
+		      "text": "<p>sample text</p>",
+		      "createdAt": "2019-10-15 17:08:59"
+		    }
+		  ]
+		}
+		`)
+
+	c := client()
+
+	data, status, err := c.CorporateCustomersNotes(CorporateCustomersNotesRequest{
+		Filter: CorporateCustomersNotesFilter{
+			Text: "sample",
+		},
+	})
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Notes[0].Text != "<p>sample text</p>" {
+		t.Errorf("invalid note text")
+	}
+}
+
+func TestClient_CorporateCustomerNoteCreate(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/notes/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":1}`)
+
+	data, status, err := c.CorporateCustomerNoteCreate(CorporateCustomerNote{
+		Text: "another note",
+		Customer: &IdentifiersPair{
+			ID: 1,
+		},
+	}, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.ID != 1 {
+		t.Error("invalid note id")
+	}
+}
+
+func TestClient_CorporateCustomerNoteDelete(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/notes/1/delete").
+		Reply(200).
+		BodyString(`{"success":true}`)
+
+	data, status, err := c.CorporateCustomerNoteDelete(1)
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomersUpload(t *testing.T) {
+	c := client()
+	customers := make([]CorporateCustomer, 3)
+
+	for i := range customers {
+		customers[i] = CorporateCustomer{
+			Nickname:   fmt.Sprintf("Name_%s", RandomString(8)),
+			ExternalID: RandomString(8),
+		}
+	}
+
+	defer gock.Off()
+
+	str, _ := json.Marshal(customers)
+
+	p := url.Values{
+		"customersCorporate": {string(str)},
+	}
+
+	gock.New(crmURL).
+		Post("/api/v5/customers-corporate/upload").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.CorporateCustomersUpload(customers)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
+	c := client()
+
+	customers := []CorporateCustomer{{ExternalID: strconv.Itoa(iCodeFail)}}
+
+	defer gock.Off()
+
+	str, _ := json.Marshal(customers)
+	p := url.Values{
+		"customersCorporate": {string(str)},
+	}
+
+	gock.New(crmURL).
+		Post("/api/v5/customers-corporate/upload").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(460).
+		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
+
+	data, status, err := c.CorporateCustomersUpload(customers)
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_CorporateCustomer(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/ext-id").
+		MatchParam("by", ByExternalID).
+		MatchParam("site", "site").
+		Reply(200).
+		BodyString(`
+		{
+		  "success": true,
+		  "customerCorporate": {
+		    "type": "customer_corporate",
+		    "id": 2346,
+		    "externalId": "ext-id",
+		    "nickName": "Test Customer 2",
+		    "mainAddress": {
+		      "id": 2034,
+		      "externalId": "ext-addr-id223",
+		      "name": "Main Address"
+		    },
+		    "createdAt": "2019-10-15 16:16:56",
+		    "vip": false,
+		    "bad": false,
+		    "site": "site",
+		    "marginSumm": 0,
+		    "totalSumm": 0,
+		    "averageSumm": 0,
+		    "ordersCount": 0,
+		    "costSumm": 0,
+		    "customFields": [],
+		    "personalDiscount": 10,
+		    "mainCompany": {
+		      "id": 26,
+		      "externalId": "company-ext-id",
+		      "name": "name"
+		    }
+		  }
+		}
+		`)
+
+	data, status, err := c.CorporateCustomer("ext-id", ByExternalID, "site")
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomerAddresses(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/ext-id/addresses").
+		MatchParams(map[string]string{
+			"by":           ByExternalID,
+			"filter[name]": "Main Address",
+			"limit":        "20",
+			"page":         "1",
+			"site":         "site",
+		}).
+		Reply(200).
+		BodyString(`
+		{
+		  "success": true,
+		  "addresses": [
+		    {
+		      "id": 2034,
+		      "index": "123456",
+		      "countryIso": "RU",
+		      "region": "Russia",
+		      "city": "Moscow",
+		      "cityType": "city",
+		      "street": "Pushkinskaya",
+		      "streetType": "street",
+		      "text": "street Pushkinskaya",
+		      "externalId": "ext-addr-id223",
+		      "name": "Main Address"
+		    }
+		  ]
+		}
+		`)
+
+	data, status, err := c.CorporateCustomerAddresses("ext-id", CorporateCustomerAddressesRequest{
+		Filter: CorporateCustomerAddressesFilter{
+			Name: "Main Address",
+		},
+		By:    ByExternalID,
+		Site:  "site",
+		Limit: 20,
+		Page:  1,
+	})
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.Addresses) == 0 {
+		t.Error("data.Addresses must not be empty")
+	}
+}
+
+func TestClient_CorporateCustomerAddressesCreate(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/ext-id/addresses/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":1}`)
+
+	data, status, err := c.CorporateCustomerAddressesCreate("ext-id", ByExternalID, CorporateCustomerAddress{
+		Text: "this is new address",
+		Name: "New Address",
+	}, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomerAddressesEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/customer-ext-id/addresses/addr-ext-id/edit").
+		Reply(200).
+		BodyString(`{"success":true,"id":1}`)
+
+	data, status, err := c.CorporateCustomerAddressesEdit(
+		"customer-ext-id",
+		ByExternalID,
+		ByExternalID,
+		CorporateCustomerAddress{
+			ExternalID: "addr-ext-id",
+			Name:       "Main Address 2",
+		},
+		"site",
+	)
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomerCompanies(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/ext-id/companies").
+		MatchParams(map[string]string{
+			"by":            ByExternalID,
+			"filter[ids][]": "1",
+			"limit":         "20",
+			"page":          "1",
+			"site":          "site",
+		}).
+		Reply(200).
+		BodyString(`
+		{
+		  "success": true,
+		  "companies": [
+		    {
+		      "isMain": true,
+		      "id": 1,
+		      "externalId": "company-ext-id",
+		      "customer": {
+		        "site": "site",
+		        "id": 2346,
+		        "externalId": "ext-id",
+		        "type": "customer_corporate"
+		      },
+		      "active": true,
+		      "name": "name",
+		      "brand": "brand",
+		      "site": "https://retailcrm.pro",
+		      "createdAt": "2019-10-15 16:16:56",
+		      "contragent": {
+		        "contragentType": "legal-entity",
+		        "legalName": "Legal Name",
+		        "legalAddress": "Legal Address",
+		        "INN": "000000000",
+		        "OKPO": "000000000",
+		        "KPP": "000000000",
+		        "OGRN": "000000000",
+		        "BIK": "000000000",
+		        "bank": "bank",
+		        "bankAddress": "bankAddress",
+		        "corrAccount": "corrAccount",
+		        "bankAccount": "bankAccount"
+		      },
+		      "address": {
+		        "id": 2034,
+		        "index": "123456",
+		        "countryIso": "RU",
+		        "region": "Russia",
+		        "city": "Moscow",
+		        "cityType": "city",
+		        "street": "Pushkinskaya",
+		        "streetType": "street",
+		        "text": "street Pushkinskaya",
+		        "externalId": "ext-addr-id",
+		        "name": "Main Address 2"
+		      },
+		      "marginSumm": 0,
+		      "totalSumm": 0,
+		      "averageSumm": 0,
+		      "ordersCount": 0,
+		      "costSumm": 0,
+		      "customFields": []
+		    }
+		  ]
+		}
+		`)
+
+	data, status, err := c.CorporateCustomerCompanies("ext-id", IdentifiersPairRequest{
+		Filter: IdentifiersPairFilter{
+			Ids: []string{"1"},
+		},
+		By:    ByExternalID,
+		Site:  "site",
+		Limit: 20,
+		Page:  1,
+	})
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.Companies) == 0 {
+		t.Error("data.Companies must not be empty")
+	}
+}
+
+func TestClient_CorporateCustomerCompaniesCreate(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/ext-id/companies/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":1}`)
+
+	data, status, err := c.CorporateCustomerCompaniesCreate("ext-id", ByExternalID, Company{
+		Name: "New Company",
+	}, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomerCompaniesEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/customer-ext-id/companies/company-ext-id/edit").
+		Reply(200).
+		BodyString(`{"success":true,"id":1}`)
+
+	data, status, err := c.CorporateCustomerCompaniesEdit(
+		"customer-ext-id",
+		ByExternalID,
+		ByExternalID,
+		Company{
+			ExternalID: "company-ext-id",
+			Name:       "New Company Name 2",
+		},
+		"site",
+	)
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
+func TestClient_CorporateCustomerContacts(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/customers-corporate/ext-id/contacts").
+		MatchParams(map[string]string{
+			"by":    ByExternalID,
+			"limit": "20",
+			"page":  "1",
+			"site":  "site",
+		}).
+		Reply(200).
+		BodyString(`
+		{
+		  "success": true,
+		  "contacts": [
+		    {
+		      "isMain": false,
+		      "customer": {
+		        "id": 2347,
+		        "site": "site"
+		      },
+		      "companies": []
+		    }
+		  ]
+		}
+		`)
+
+	data, status, err := c.CorporateCustomerContacts("ext-id", IdentifiersPairRequest{
+		Filter: IdentifiersPairFilter{},
+		By:     ByExternalID,
+		Site:   "site",
+		Limit:  20,
+		Page:   1,
+	})
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.Contacts) == 0 {
+		t.Error("data.Contacts must not be empty")
+	}
+}
+
+func TestClient_CorporateCustomerContactsCreate(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":2}`)
+
+	gock.New(crmURL).
+		Post("/customers-corporate/ext-id/contacts/create").
+		Reply(201).
+		BodyString(`{"success":true,"id":3}`)
+
+	createResponse, createStatus, createErr := c.CustomerCreate(Customer{
+		ExternalID: "test-customer-as-contact-person",
+		FirstName:  "Contact",
+		LastName:   "Person",
+	}, "site")
+
+	if createErr.Error() != "" {
+		t.Errorf("%v", createErr.Error())
+	}
+
+	if createStatus >= http.StatusBadRequest {
+		t.Errorf("%v", createErr.ApiError())
+	}
+
+	if createResponse.Success != true {
+		t.Errorf("%v", createErr.ApiError())
+	}
+
+	if createResponse.ID != 2 {
+		t.Errorf("invalid createResponse.ID: should be `2`, got `%d`", createResponse.ID)
+	}
+
+	data, status, err := c.CorporateCustomerContactsCreate("ext-id", ByExternalID, CorporateCustomerContact{
+		IsMain: false,
+		Customer: CorporateCustomerContactCustomer{
+			ExternalID: "test-customer-as-contact-person",
+			Site:       "site",
+		},
+		Companies: []IdentifiersPair{},
+	}, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.ID != 3 {
+		t.Errorf("invalid data.ID: should be `3`, got `%d`", data.ID)
+	}
+}
+
+func TestClient_CorporateCustomerContactsEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/ext-id/contacts/2350/edit").
+		Reply(200).
+		BodyString(`{"success":true,"id":19}`)
+
+	data, status, err := c.CorporateCustomerContactsEdit("ext-id", ByExternalID, ByID, CorporateCustomerContact{
+		IsMain: false,
+		Customer: CorporateCustomerContactCustomer{
+			ID: 2350,
+		},
+	}, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.ID == 0 {
+		t.Errorf("invalid data.ID: should be `19`, got `%d`", data.ID)
+	}
+}
+
+func TestClient_CorporateCustomerEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/customers-corporate/ext-id/edit").
+		Reply(200).
+		BodyString(`{"success":true,"id":2346}`)
+
+	data, status, err := c.CorporateCustomerEdit(CorporateCustomer{
+		ExternalID: "ext-id",
+		Nickname:   "Another Nickname 2",
+		Vip:        true,
+	}, ByExternalID, "site")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
 func TestClient_NotesNotes(t *testing.T) {
 	c := client()
 
@@ -1002,7 +1977,7 @@ func TestClient_OrderChange(t *testing.T) {
 	jr, _ = json.Marshal(&f)
 
 	p = url.Values{
-		"by":    {string("id")},
+		"by":    {string(ByID)},
 		"order": {string(jr[:])},
 	}
 
@@ -1013,7 +1988,7 @@ func TestClient_OrderChange(t *testing.T) {
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	ed, se, err := c.OrderEdit(f, "id")
+	ed, se, err := c.OrderEdit(f, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -1028,11 +2003,11 @@ func TestClient_OrderChange(t *testing.T) {
 
 	gock.New(crmURL).
 		Get(fmt.Sprintf("/orders/%s", f.ExternalID)).
-		MatchParam("by", "externalId").
+		MatchParam("by", ByExternalID).
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	data, status, err := c.Order(f.ExternalID, "externalId", "")
+	data, status, err := c.Order(f.ExternalID, ByExternalID, "")
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -1065,7 +2040,7 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 	jr, _ := json.Marshal(&f)
 
 	p := url.Values{
-		"by":    {string("id")},
+		"by":    {string(ByID)},
 		"order": {string(jr[:])},
 	}
 
@@ -1076,7 +2051,7 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found map"}`)
 
-	data, status, err := c.OrderEdit(f, "id")
+	data, status, err := c.OrderEdit(f, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -1421,7 +2396,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	paymentEditResponse, status, err := c.OrderPaymentEdit(k, "id")
+	paymentEditResponse, status, err := c.OrderPaymentEdit(k, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}
@@ -1512,7 +2487,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Payment not found"}`)
 
-	paymentEditResponse, status, err := c.OrderPaymentEdit(k, "id")
+	paymentEditResponse, status, err := c.OrderPaymentEdit(k, ByID)
 	if err.Error() != "" {
 		t.Errorf("%v", err.Error())
 	}

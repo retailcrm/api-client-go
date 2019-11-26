@@ -57,6 +57,73 @@ type CustomersFilter struct {
 	CustomFields               map[string]string `url:"customFields,omitempty,brackets"`
 }
 
+// CorporateCustomersFilter type
+type CorporateCustomersFilter struct {
+	ContragentName        string            `url:"contragentName,omitempty"`
+	ContragentInn         string            `url:"contragentInn,omitempty"`
+	ContragentKpp         string            `url:"contragentKpp,omitempty"`
+	ContragentBik         string            `url:"contragentBik,omitempty"`
+	ContragentCorrAccount string            `url:"contragentCorrAccount,omitempty"`
+	ContragentBankAccount string            `url:"contragentBankAccount,omitempty"`
+	ContragentTypes       []string          `url:"contragentTypes,omitempty,brackets"`
+	ExternalIds           []string          `url:"externalIds,omitempty,brackets"`
+	Name                  string            `url:"name,omitempty"`
+	City                  string            `url:"city,omitempty"`
+	Region                string            `url:"region,omitempty"`
+	Email                 string            `url:"email,omitempty"`
+	Notes                 string            `url:"notes,omitempty"`
+	MinOrdersCount        int               `url:"minOrdersCount,omitempty"`
+	MaxOrdersCount        int               `url:"maxOrdersCount,omitempty"`
+	MinAverageSumm        float32           `url:"minAverageSumm,omitempty"`
+	MaxAverageSumm        float32           `url:"maxAverageSumm,omitempty"`
+	MinTotalSumm          float32           `url:"minTotalSumm,omitempty"`
+	MaxTotalSumm          float32           `url:"maxTotalSumm,omitempty"`
+	ClassSegment          string            `url:"classSegment,omitempty"`
+	DiscountCardNumber    string            `url:"discountCardNumber,omitempty"`
+	Attachments           int               `url:"attachments,omitempty"`
+	MinCostSumm           float32           `url:"minCostSumm,omitempty"`
+	MaxCostSumm           float32           `url:"maxCostSumm,omitempty"`
+	Vip                   int               `url:"vip,omitempty"`
+	Bad                   int               `url:"bad,omitempty"`
+	TasksCount            int               `url:"tasksCounts,omitempty"`
+	Ids                   []string          `url:"ids,omitempty,brackets"`
+	Sites                 []string          `url:"sites,omitempty,brackets"`
+	Managers              []string          `url:"managers,omitempty,brackets"`
+	ManagerGroups         []string          `url:"managerGroups,omitempty,brackets"`
+	DateFrom              string            `url:"dateFrom,omitempty"`
+	DateTo                string            `url:"dateTo,omitempty"`
+	FirstOrderFrom        string            `url:"firstOrderFrom,omitempty"`
+	FirstOrderTo          string            `url:"firstOrderTo,omitempty"`
+	LastOrderFrom         string            `url:"lastOrderFrom,omitempty"`
+	LastOrderTo           string            `url:"lastOrderTo,omitempty"`
+	CustomFields          map[string]string `url:"customFields,omitempty,brackets"`
+}
+
+// CorporateCustomersNotesFilter type
+type CorporateCustomersNotesFilter struct {
+	Ids                 []string `url:"ids,omitempty,brackets"`
+	CustomerIds         []string `url:"ids,omitempty,brackets"`
+	CustomerExternalIds []string `url:"customerExternalIds,omitempty,brackets"`
+	ManagerIds          []string `url:"managerIds,omitempty,brackets"`
+	Text                string   `url:"text,omitempty"`
+	CreatedAtFrom       string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
+}
+
+// CorporateCustomerAddressesFilter type
+type CorporateCustomerAddressesFilter struct {
+	Ids    []string `url:"ids,omitempty,brackets"`
+	Name   string   `url:"name,omitempty"`
+	City   string   `url:"city,omitempty"`
+	Region string   `url:"region,omitempty"`
+}
+
+// IdentifiersPairFilter type
+type IdentifiersPairFilter struct {
+	Ids         []string `url:"ids,omitempty,brackets"`
+	ExternalIds []string `url:"externalIds,omitempty,brackets"`
+}
+
 // CustomersHistoryFilter type
 type CustomersHistoryFilter struct {
 	CustomerID         int    `url:"customerId,omitempty"`
@@ -64,6 +131,16 @@ type CustomersHistoryFilter struct {
 	CustomerExternalID string `url:"customerExternalId,omitempty"`
 	StartDate          string `url:"startDate,omitempty"`
 	EndDate            string `url:"endDate,omitempty"`
+}
+
+// CorporateCustomersHistoryFilter type
+type CorporateCustomersHistoryFilter struct {
+	CustomerID         int      `url:"customerId,omitempty"`
+	SinceID            int      `url:"sinceId,omitempty"`
+	CustomerExternalID string   `url:"customerExternalId,omitempty"`
+	ContactIds         []string `url:"contactIds,omitempty,brackets"`
+	StartDate          string   `url:"startDate,omitempty"`
+	EndDate            string   `url:"endDate,omitempty"`
 }
 
 // OrdersFilter type

@@ -165,10 +165,10 @@ func buildErr(data []byte, err *errs.Failure) {
 
 // checkBy select identifier type
 func checkBy(by string) string {
-	var context = "id"
+	var context = ByID
 
-	if by != "id" {
-		context = "externalId"
+	if by != ByID {
+		context = ByExternalID
 	}
 
 	return context
@@ -705,7 +705,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 //
 // 	var client = v5.New("https://demo.url", "09jIJ")
 //
-// 	data, status, err := client.Customer(12, "externalId", "")
+// 	data, status, err := client.Customer(12, v5.ByExternalID, "")
 //
 // 	if err.Error() != "" {
 // 		fmt.Printf("%v", err.RuntimeErr)
@@ -756,7 +756,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 //			ID: 		1,
 //			Email:      "ivanov@example.com",
 //		},
-//		"id",
+//		v5.ByID,
 //	)
 //
 // 	if err.Error() != "" {
@@ -775,7 +775,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
 
-	if context == "externalId" {
+	if context == ByExternalID {
 		uid = customer.ExternalID
 	}
 
@@ -789,6 +789,1002 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/edit", uid), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomers returns list of corporate customers matched the specified filter
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomers(v5.CorporateCustomersRequest{
+//		Filter: CorporateCustomersFilter{
+//			City: "Moscow",
+//		},
+//		Page: 3,
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	for _, value := range data.CustomersCorporate {
+// 		fmt.Printf("%v\n", value)
+// 	}
+func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (CorporateCustomersResponse, int, *errs.Failure) {
+	var resp CorporateCustomersResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate?%s", params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerCreate creates corporate customer
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-create
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerCreate(v5.CorporateCustomer{
+//		Nickname:  "Company",
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v", err.Id)
+//	}
+func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (CorporateCustomerChangeResponse, int, *errs.Failure) {
+	var resp CorporateCustomerChangeResponse
+
+	customerJSON, _ := json.Marshal(&customer)
+
+	p := url.Values{
+		"customerCorporate": {string(customerJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest("/customers-corporate/create", p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomersFixExternalIds will fix corporate customers external ID's
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-fix-external-ids
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomersFixExternalIds([]v5.IdentifiersPair{{
+//		ID:         1,
+//		ExternalID: 12,
+//	}})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+	var resp SuccessfulResponse
+
+	customersJSON, _ := json.Marshal(&customers)
+
+	p := url.Values{
+		"customersCorporate": {string(customersJSON[:])},
+	}
+
+	data, status, err := c.PostRequest("/customers-corporate/fix-external-ids", p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomersHistory returns corporate customer's history
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-fix-external-ids
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomersHistory(v5.CorporateCustomersHistoryRequest{
+//		Filter: v5.CorporateCustomersHistoryFilter{
+//			SinceID: 20,
+//		},
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	for _, value := range data.History {
+// 		fmt.Printf("%v\n", value)
+// 	}
+func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, *errs.Failure) {
+	var resp CorporateCustomersHistoryResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/history?%s", params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomers returns list of corporate customers matched the specified filter
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate-notes
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomersNotes(v5.CorporateCustomersNotesRequest{
+//		Filter: CorporateCustomersNotesFilter{
+//			Text: "text",
+//		},
+//		Page: 3,
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	for _, value := range data.Notes {
+// 		fmt.Printf("%v\n", value)
+// 	}
+func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (CorporateCustomersNotesResponse, int, *errs.Failure) {
+	var resp CorporateCustomersNotesResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/notes?%s", params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerNoteCreate creates corporate customer note
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-notes-create
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerNoteCreate(v5.CorporateCustomerNote{
+//		Text:  "text",
+//      Customer: &v5.IdentifiersPair{
+//			ID: 1,
+//		}
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v", err.Id)
+//	}
+func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, *errs.Failure) {
+	var resp CreateResponse
+
+	noteJSON, _ := json.Marshal(&note)
+
+	p := url.Values{
+		"note": {string(noteJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest("/customers-corporate/notes/create", p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerNoteDelete removes note from corporate customer
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-notes-id-delete
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerNoteDelete(12)
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+	var resp SuccessfulResponse
+
+	p := url.Values{
+		"id": {string(id)},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/notes/%d/delete", id), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomersUpload corporate customers batch upload
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-upload
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomersUpload([]v5.CorporateCustomer{
+//		{
+//			Nickname:  "Company",
+//			ExternalID: 1,
+//		},
+//		{
+//			Nickname:  "Company 2",
+//			ExternalID: 2,
+//		},
+//	}}
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.UploadedCustomers)
+// 	}
+func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ...string) (CorporateCustomersUploadResponse, int, *errs.Failure) {
+	var resp CorporateCustomersUploadResponse
+
+	uploadJSON, _ := json.Marshal(&customers)
+
+	p := url.Values{
+		"customersCorporate": {string(uploadJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest("/customers-corporate/upload", p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomer returns information about corporate customer
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate-externalId
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomer(12, v5.ByExternalID, "")
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.CorporateCustomer)
+// 	}
+func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerResponse, int, *errs.Failure) {
+	var resp CorporateCustomerResponse
+	var context = checkBy(by)
+
+	fw := CustomerRequest{context, site}
+	params, _ := query.Values(fw)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s?%s", id, params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerAddresses returns information about corporate customer addresses
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate-externalId-addresses
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerAddresses("ext-id", v5.CorporateCustomerAddressesRequest{
+// 		Filter: v5,CorporateCustomerAddressesFilter{
+// 			Name: "Main Address",
+// 		},
+// 		By:    v5.ByExternalID,
+// 		Site:  "site",
+// 		Limit: 20,
+// 		Page:  1,
+// 	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.Addresses)
+// 	}
+func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCustomerAddressesRequest) (CorporateCustomersAddressesResponse, int, *errs.Failure) {
+	var resp CorporateCustomersAddressesResponse
+
+	parameters.By = checkBy(parameters.By)
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/addresses?%s", id, params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerAddressesCreate creates corporate customer address
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-addresses-create
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerAddressesCreate("ext-id", v5.ByExternalID, v5.CorporateCustomerAddress{
+// 		Text: "this is new address",
+// 		Name: "New Address",
+// 	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v", data.ID)
+//	}
+func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+	var resp CreateResponse
+
+	addressJSON, _ := json.Marshal(&address)
+
+	p := url.Values{
+		"address": {string(addressJSON[:])},
+		"by":      {string(checkBy(by))},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/create", id), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomersAddressesEdit edit exact corporate customer address
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-addresses-entityExternalId-edit
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerAddressesEdit(
+// 		"customer-ext-id",
+// 		v5.ByExternalID,
+// 		v5.ByExternalID,
+// 		CorporateCustomerAddress{
+// 			ExternalID: "addr-ext-id",
+// 			Name:       "Main Address 2",
+// 		},
+// 	)
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.Customer)
+// 	}
+func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+	var (
+		resp CreateResponse
+		uid  string
+	)
+
+	customerBy = checkBy(customerBy)
+	entityBy = checkBy(entityBy)
+
+	switch entityBy {
+	case "id":
+		uid = strconv.Itoa(address.ID)
+	case "externalId":
+		uid = address.ExternalID
+	}
+
+	addressJSON, _ := json.Marshal(&address)
+
+	p := url.Values{
+		"by":       {string(customerBy)},
+		"entityBy": {string(entityBy)},
+		"address":  {string(addressJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/%s/edit", customerID, uid), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerCompanies returns information about corporate customer companies
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate-externalId-companies
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerCompanies("ext-id", v5.IdentifiersPairRequest{
+// 		Filter: v5,IdentifiersPairFilter{
+// 			Ids: []string{"1"},
+// 		},
+// 		By:    v5.ByExternalID,
+// 		Site:  "site",
+// 		Limit: 20,
+// 		Page:  1,
+// 	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.Companies)
+// 	}
+func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPairRequest) (CorporateCustomerCompaniesResponse, int, *errs.Failure) {
+	var resp CorporateCustomerCompaniesResponse
+
+	parameters.By = checkBy(parameters.By)
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/companies?%s", id, params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerCompaniesCreate creates corporate customer company
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-companies-create
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerCompaniesCreate("ext-id", v5.ByExternalID, v5.Company{
+// 		Name: "Company name",
+// 	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v", data.ID)
+//	}
+func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+	var resp CreateResponse
+
+	companyJSON, _ := json.Marshal(&company)
+
+	p := url.Values{
+		"company": {string(companyJSON[:])},
+		"by":      {string(checkBy(by))},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/create", id), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerCompaniesEdit edit exact corporate customer company
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-companies-entityExternalId-edit
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerCompaniesEdit(
+// 		"customer-ext-id",
+// 		v5.ByExternalID,
+// 		v5.ByExternalID,
+// 		Company{
+// 			ExternalID: "company-ext-id",
+// 			Name:       "New Company Name",
+// 		},
+// 	)
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.ID)
+// 	}
+func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+	var (
+		resp CreateResponse
+		uid  string
+	)
+
+	customerBy = checkBy(customerBy)
+	entityBy = checkBy(entityBy)
+
+	switch entityBy {
+	case "id":
+		uid = strconv.Itoa(company.ID)
+	case "externalId":
+		uid = company.ExternalID
+	}
+
+	addressJSON, _ := json.Marshal(&company)
+
+	p := url.Values{
+		"by":       {string(customerBy)},
+		"entityBy": {string(entityBy)},
+		"company":  {string(addressJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/%s/edit", customerID, uid), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerContacts returns information about corporate customer contacts
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-customers-corporate-externalId-contacts
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.CorporateCustomerContacts("ext-id", v5.IdentifiersPairRequest{
+// 		Filter: v5.IdentifiersPairFilter{
+// 			Ids: []string{"1"},
+// 		},
+// 		By:    v5.ByExternalID,
+// 		Site:  "site",
+// 		Limit: 20,
+// 		Page:  1,
+// 	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.Contacts)
+// 	}
+func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPairRequest) (CorporateCustomerContactsResponse, int, *errs.Failure) {
+	var resp CorporateCustomerContactsResponse
+
+	parameters.By = checkBy(parameters.By)
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/contacts?%s", id, params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerContactsCreate creates corporate customer contact
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-contacts-create
+//
+// Example (customer with specified id or externalId should exist in specified site):
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerContactsCreate("ext-id", v5.ByExternalID, v5.CorporateCustomerContact{
+// 		IsMain: false,
+// 		Customer: v5.CorporateCustomerContactCustomer{
+// 			ExternalID: "external_id",
+// 			Site:       "site",
+// 		},
+// 		Companies: []IdentifiersPair{},
+// 	}, "site")
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v", data.ID)
+//	}
+func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+	var resp CreateResponse
+
+	companyJSON, _ := json.Marshal(&contact)
+
+	p := url.Values{
+		"contact": {string(companyJSON[:])},
+		"by":      {string(checkBy(by))},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/create", id), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerContactsEdit edit exact corporate customer contact
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-contacts-entityExternalId-edit
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := c.CorporateCustomerContactsEdit("ext-id", v5.ByExternalID, v5.ByID, v5.CorporateCustomerContact{
+// 		IsMain: false,
+// 		Customer: v5.CorporateCustomerContactCustomer{
+// 			ID: 2350,
+// 		},
+// 	}, "site")
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.ID)
+// 	}
+func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+	var (
+		resp CreateResponse
+		uid  string
+	)
+
+	customerBy = checkBy(customerBy)
+	entityBy = checkBy(entityBy)
+
+	switch entityBy {
+	case "id":
+		uid = strconv.Itoa(contact.Customer.ID)
+	case "externalId":
+		uid = contact.Customer.ExternalID
+	}
+
+	addressJSON, _ := json.Marshal(&contact)
+
+	p := url.Values{
+		"by":       {string(customerBy)},
+		"entityBy": {string(entityBy)},
+		"contact":  {string(addressJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/%s/edit", customerID, uid), p)
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CorporateCustomerEdit edit exact corporate customer
+//
+// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-externalId-edit
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CorporateCustomerEdit(
+//		v5.CorporateCustomer{
+//			FirstName:  "Ivan",
+//			LastName:   "Ivanov",
+//			Patronymic: "Ivanovich",
+//			ID: 		1,
+//			Email:      "ivanov@example.com",
+//		},
+//		v5.ByID,
+//	)
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+//
+// 	if data.Success == true {
+// 		fmt.Printf("%v\n", data.Customer)
+// 	}
+func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+	var resp CustomerChangeResponse
+	var uid = strconv.Itoa(customer.ID)
+	var context = checkBy(by)
+
+	if context == ByExternalID {
+		uid = customer.ExternalID
+	}
+
+	customerJSON, _ := json.Marshal(&customer)
+
+	p := url.Values{
+		"by":                {string(context)},
+		"customerCorporate": {string(customerJSON[:])},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/edit", uid), p)
 	if err.Error() != "" {
 		return resp, status, err
 	}
@@ -1471,7 +2467,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 //			ID:     12,
 //			Amount: 500,
 //		},
-//		"id",
+//		v5.ByID,
 //	)
 //
 // 	if err.Error() != "" {
@@ -1486,7 +2482,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	var uid = strconv.Itoa(payment.ID)
 	var context = checkBy(by)
 
-	if context == "externalId" {
+	if context == ByExternalID {
 		uid = payment.ExternalID
 	}
 
@@ -1583,7 +2579,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 //
 // 	var client = v5.New("https://demo.url", "09jIJ")
 //
-// 	data, status, err := client.Order(12, "externalId", "")
+// 	data, status, err := client.Order(12, v5.ByExternalID, "")
 //
 // 	if err.Error() != "" {
 // 		fmt.Printf("%v", err.RuntimeErr)
@@ -1631,7 +2627,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 //			ID:    12,
 //			Items: []v5.OrderItem{{Offer: v5.Offer{ID: 13}, Quantity: 6}},
 //		},
-// 		"id",
+// 		v5.ByID,
 // 	)
 //
 // 	if err.Error() != "" {
@@ -1646,7 +2642,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	var uid = strconv.Itoa(order.ID)
 	var context = checkBy(by)
 
-	if context == "externalId" {
+	if context == ByExternalID {
 		uid = order.ExternalID
 	}
 

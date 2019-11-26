@@ -21,10 +21,12 @@ _testmain.go
 *.exe
 *.test
 *.prof
+coverage.txt
 
 # IDE's files
 .idea
 *.iml
 .env
+.swp
 
 # Project ignores

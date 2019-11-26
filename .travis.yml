@@ -4,8 +4,12 @@ go:
   - '1.9'
   - '1.10'
   - '1.11'
+  - '1.12'
+  - '1.13'
 before_install:
   - go get -v github.com/google/go-querystring/query
   - go get -v github.com/h2non/gock
   - cp .env.dist .env
-script: go test -v ./...
+script: ./go.test.sh
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
