@@ -1,6 +1,7 @@
-[![Build Status](https://img.shields.io/travis/retailcrm/api-client-go/master.svg?logo=travis&style=flat-square)](https://travis-ci.org/retailcrm/api-client-go)
+[![Build Status](https://img.shields.io/travis/retailcrm/api-client-go/master.svg?style=flat-square)](https://travis-ci.org/retailcrm/api-client-go)
+[![codecov](https://codecov.io/gh/retailcrm/api-client-go/branch/master/graph/badge.svg)](https://codecov.io/gh/retailcrm/api-client-go)
 [![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg?style=flat-square)](https://github.com/retailcrm/api-client-go/releases)
-[![GoLang version](https://img.shields.io/badge/go-1.8%20--%201.13-blue?style=flat-square)](https://golang.org/dl/)
+[![GoLang version](https://img.shields.io/badge/go->=1.8-blue?style=flat-square)](https://golang.org/dl/)
 [![Godoc reference](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/retailcrm/api-client-go)
 
 
