@@ -2509,7 +2509,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	return resp, status, nil
 }
 
-// OrderPaymentEdit edit payment
+// OrdersStatuses returns orders statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-statuses
 //
