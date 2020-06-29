@@ -2509,6 +2509,46 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	return resp, status, nil
 }
 
+// OrderPaymentEdit edit payment
+//
+// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-statuses
+//
+// Example:
+//
+// 	var client = v5.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.OrdersStatuses(v5.OrdersStatusesRequest{
+//		IDs:         []int{1},
+//		ExternalIDs: []string{"2"},
+//	})
+//
+// 	if err.Error() != "" {
+// 		fmt.Printf("%v", err.RuntimeErr)
+// 	}
+//
+// 	if status >= http.StatusBadRequest {
+// 		fmt.Printf("%v", err.ApiErr())
+// 	}
+func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, *errs.Failure) {
+	var resp OrdersStatusesResponse
+
+	params, _ := query.Values(request)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/orders/statuses?%s", params.Encode()))
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // OrdersUpload batch orders uploading
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-upload
