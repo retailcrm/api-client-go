@@ -130,6 +130,12 @@ type OrdersResponse struct {
 	Orders     []Order     `json:"orders,omitempty,brackets"`
 }
 
+// OrdersStatusesResponse type
+type OrdersStatusesResponse struct {
+	Success bool           `json:"success"`
+	Orders  []OrdersStatus `json:"orders"`
+}
+
 // OrdersUploadResponse type
 type OrdersUploadResponse struct {
 	Success        bool              `json:"success"`

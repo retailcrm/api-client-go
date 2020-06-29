@@ -2286,6 +2286,55 @@ func TestClient_OrdersFixExternalIds_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_OrdersStatuses(t *testing.T) {
+	c := client()
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/orders/statuses").
+		MatchParam("ids[]", "1").
+		MatchParam("externalIds[]", "2").
+		Reply(200).
+		BodyString(`
+			{
+				"success": true,
+				"orders": [
+					{
+						"id": 1,
+						"externalId": "123",
+						"status": "New",
+						"group": "new"
+					},
+					{
+						"id": 123,
+						"externalId": "2",
+						"status": "New",
+						"group": "new"
+					}
+				]
+			}`)
+
+	data, status, err := c.OrdersStatuses(OrdersStatusesRequest{
+		IDs:         []int{1},
+		ExternalIDs: []string{"2"},
+	})
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if len(data.Orders) == 0 {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
 func TestClient_OrdersHistory(t *testing.T) {
 	c := client()
 

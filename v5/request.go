@@ -78,6 +78,12 @@ type OrdersRequest struct {
 	Page   int          `url:"page,omitempty"`
 }
 
+// OrdersStatusesRequest type
+type OrdersStatusesRequest struct {
+	IDs         []int    `url:"ids,omitempty,brackets"`
+	ExternalIDs []string `url:"externalIds,omitempty,brackets"`
+}
+
 // OrdersUploadRequest type
 type OrdersUploadRequest struct {
 	Orders []Order `url:"orders,omitempty,brackets"`

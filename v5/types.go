@@ -318,6 +318,14 @@ type Order struct {
 	Payments                      map[string]OrderPayment `json:"payments,omitempty,brackets"`
 }
 
+// OrdersStatus type
+type OrdersStatus struct {
+	ID         int    `json:"id"`
+	ExternalID string `json:"externalId,omitempty"`
+	Status     string `json:"status"`
+	Group      string `json:"group"`
+}
+
 // OrderDelivery type
 type OrderDelivery struct {
 	Code            string                `json:"code,omitempty"`
