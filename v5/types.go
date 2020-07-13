@@ -26,24 +26,24 @@ type Pagination struct {
 
 // Address type
 type Address struct {
-	Index        string `json:"index,omitempty"`
-	CountryIso   string `json:"countryIso,omitempty"`
-	Region       string `json:"region,omitempty"`
-	RegionID     int    `json:"regionId,omitempty"`
-	City         string `json:"city,omitempty"`
-	CityID       int    `json:"cityId,omitempty"`
-	CityType     string `json:"cityType,omitempty"`
-	Street       string `json:"street,omitempty"`
-	StreetID     int    `json:"streetId,omitempty"`
-	StreetType   string `json:"streetType,omitempty"`
-	Building     string `json:"building,omitempty"`
-	Flat         string `json:"flat,omitempty"`
-	Floor        int    `json:"floor,omitempty"`
-	Block        int    `json:"block,omitempty"`
-	House        string `json:"house,omitempty"`
-	Metro        string `json:"metro,omitempty"`
-	Notes        string `json:"notes,omitempty"`
-	Text         string `json:"text,omitempty"`
+	Index      string `json:"index,omitempty"`
+	CountryIso string `json:"countryIso,omitempty"`
+	Region     string `json:"region,omitempty"`
+	RegionID   int    `json:"regionId,omitempty"`
+	City       string `json:"city,omitempty"`
+	CityID     int    `json:"cityId,omitempty"`
+	CityType   string `json:"cityType,omitempty"`
+	Street     string `json:"street,omitempty"`
+	StreetID   int    `json:"streetId,omitempty"`
+	StreetType string `json:"streetType,omitempty"`
+	Building   string `json:"building,omitempty"`
+	Flat       string `json:"flat,omitempty"`
+	Floor      int    `json:"floor,omitempty"`
+	Block      int    `json:"block,omitempty"`
+	House      string `json:"house,omitempty"`
+	Metro      string `json:"metro,omitempty"`
+	Notes      string `json:"notes,omitempty"`
+	Text       string `json:"text,omitempty"`
 }
 
 // GeoHierarchyRow type
@@ -148,6 +148,7 @@ type Customer struct {
 	BrowserID                    string            `json:"browserId,omitempty"`
 	MgCustomerID                 string            `json:"mgCustomerId,omitempty"`
 	PhotoURL                     string            `json:"photoUrl,omitempty"`
+	Tags                         []string          `json:"tags,omitempty"`
 	CustomFields                 map[string]string `json:"customFields,omitempty,brackets"`
 }
 
