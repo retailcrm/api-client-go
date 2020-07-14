@@ -622,6 +622,23 @@ type Segment struct {
 	Active         bool   `json:"active,omitempty"`
 }
 
+/*
+ * Settings related types
+ */
+
+// SettingsNode represents an item in settings. All settings nodes contains only string value and update time for now.
+type SettingsNode struct {
+	Value string `json:"value"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+// Settings type. Contains retailCRM configuration.
+type Settings struct {
+	DefaultCurrency SettingsNode `json:"default_currency"`
+	SystemLanguage SettingsNode `json:"system_language"`
+	Timezone SettingsNode `json:"timezone"`
+}
+
 /**
 Reference related types
 */

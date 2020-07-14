@@ -4000,6 +4000,43 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *e
 	return resp, status, nil
 }
 
+// Settings returns system settings
+//
+// For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-settings
+//
+// Example:
+//
+//	var client = v5.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Settings()
+//
+//	if err.Error() != "" {
+//		fmt.Printf("%v", err.RuntimeErr)
+//	}
+//
+//	if status >= http.StatusBadRequest {
+//		fmt.Printf("%v", err.ApiErr())
+//	}
+//
+//	fmt.Printf("%#v\n", data)
+func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
+	var resp SettingsResponse
+
+	data, status, err := c.GetRequest("/settings")
+	if err.Error() != "" {
+		return resp, status, err
+	}
+
+	json.Unmarshal(data, &resp)
+
+	if resp.Success == false {
+		buildErr(data, err)
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // Inventories returns leftover stocks and purchasing prices
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-inventories
