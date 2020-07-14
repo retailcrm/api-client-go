@@ -2248,8 +2248,8 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) OrderCreate(order Order, site ...string) (CreateResponse, int, *errs.Failure) {
-	var resp CreateResponse
+func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, *errs.Failure) {
+	var resp OrderCreateResponse
 	orderJSON, _ := json.Marshal(&order)
 
 	p := url.Values{

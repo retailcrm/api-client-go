@@ -11,6 +11,12 @@ type CreateResponse struct {
 	ID      int  `json:"id,omitempty"`
 }
 
+// OrderCreateResponse type
+type OrderCreateResponse struct {
+	CreateResponse
+	Order Order `json:"order,omitempty"`
+}
+
 // OperationResponse type
 type OperationResponse struct {
 	Success bool              `json:"success"`
