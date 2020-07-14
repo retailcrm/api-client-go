@@ -1956,7 +1956,83 @@ func TestClient_OrderChange(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(201).
-		BodyString(`{"success": true, "id": 1}`)
+		BodyString(`{
+    "success": true,
+    "id": 1,
+    "order": {
+        "slug": 1,
+        "id": 1,
+        "number": "1A",
+        "orderMethod": "shopping-cart",
+        "countryIso": "RU",
+        "createdAt": "2020-07-14 11:44:43",
+        "statusUpdatedAt": "2020-07-14 11:44:43",
+        "summ": 0,
+        "totalSumm": 0,
+        "prepaySum": 0,
+        "purchaseSumm": 0,
+        "markDatetime": "2020-07-14 11:44:43",
+        "call": false,
+        "expired": false,
+        "customer": {
+            "type": "customer",
+            "id": 1,
+            "isContact": false,
+            "createdAt": "2020-07-14 11:44:43",
+            "vip": false,
+            "bad": false,
+            "site": "site",
+            "contragent": {
+                "contragentType": "individual"
+            },
+            "tags": [],
+            "marginSumm": 0,
+            "totalSumm": 0,
+            "averageSumm": 0,
+            "ordersCount": 0,
+            "personalDiscount": 0,
+            "segments": [],
+            "email": "",
+            "phones": []
+        },
+        "contact": {
+            "type": "customer",
+            "id": 4512,
+            "isContact": false,
+            "createdAt": "2020-07-14 11:44:43",
+            "vip": false,
+            "bad": false,
+            "site": "site",
+            "contragent": {
+                "contragentType": "individual"
+            },
+            "tags": [],
+            "marginSumm": 0,
+            "totalSumm": 0,
+            "averageSumm": 0,
+            "ordersCount": 0,
+            "personalDiscount": 0,
+            "segments": [],
+            "email": "",
+            "phones": []
+        },
+        "contragent": {
+            "contragentType": "individual"
+        },
+        "delivery": {
+            "cost": 0,
+            "netCost": 0,
+            "address": {}
+        },
+        "site": "site",
+        "status": "new",
+        "items": [],
+        "payments": [],
+        "fromApi": true,
+        "shipmentStore": "main",
+        "shipped": false
+    }
+}`)
 
 	cr, sc, err := c.OrderCreate(f)
 	if err.Error() != "" {
@@ -1969,6 +2045,10 @@ func TestClient_OrderChange(t *testing.T) {
 
 	if cr.Success != true {
 		t.Errorf("%v", err.ApiError())
+	}
+
+	if cr.Order.Number != "1A" {
+		t.Errorf("invalid order number: got %s want %s", cr.Order.Number, "1A")
 	}
 
 	f.ID = cr.ID
