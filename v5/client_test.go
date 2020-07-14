@@ -4978,6 +4978,59 @@ func TestClient_Segments(t *testing.T) {
 	}
 }
 
+func TestClient_Settings(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/settings").
+		Reply(200).
+		BodyString(`{
+  "success": true,
+  "settings": {
+    "default_currency": {
+      "value": "RUB",
+      "updated_at": "2019-02-13 13:57:20"
+    },
+    "system_language": {
+      "value": "RU",
+      "updated_at": "2019-02-13 14:02:23"
+    },
+    "timezone": {
+      "value": "Europe/Moscow",
+      "updated_at": "2019-02-13 13:57:20"
+    }
+  }
+}
+`)
+
+	data, status, err := c.Settings()
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if data.Settings.DefaultCurrency.Value != "RUB" {
+		t.Errorf("Invalid default_currency value: %v", data.Settings.DefaultCurrency.Value)
+	}
+
+	if data.Settings.SystemLanguage.Value != "RU" {
+		t.Errorf("Invalid system_language value: %v", data.Settings.SystemLanguage.Value)
+	}
+
+	if data.Settings.Timezone.Value != "Europe/Moscow" {
+		t.Errorf("Invalid timezone value: %v", data.Settings.Timezone.Value)
+	}
+}
+
 func TestClient_Segments_Fail(t *testing.T) {
 	c := client()
 

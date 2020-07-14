@@ -218,6 +218,12 @@ type SegmentsResponse struct {
 	Segments   []Segment   `json:"segments,omitempty,brackets"`
 }
 
+// SettingsResponse type
+type SettingsResponse struct {
+	Success    bool        `json:"success"`
+	Settings   Settings    `json:"settings,omitempty,brackets"`
+}
+
 // CountriesResponse type
 type CountriesResponse struct {
 	Success      bool     `json:"success"`
