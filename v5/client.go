@@ -2489,6 +2489,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	paymentJSON, _ := json.Marshal(&payment)
 
 	p := url.Values{
+		"by":      context,
 		"payment": {string(paymentJSON[:])},
 	}
 
