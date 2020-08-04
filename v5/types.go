@@ -149,6 +149,7 @@ type Customer struct {
 	MgCustomerID                 string            `json:"mgCustomerId,omitempty"`
 	PhotoURL                     string            `json:"photoUrl,omitempty"`
 	CustomFields                 map[string]string `json:"customFields,omitempty,brackets"`
+	Tags                         []Tag             `json:"tags,brackets,omitempty"`
 }
 
 // CorporateCustomer type
