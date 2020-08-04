@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -273,6 +274,10 @@ func TestClient_CustomerChange(t *testing.T) {
 			Street:   "Кутузовский",
 			Building: "14",
 		},
+		Tags: []Tag{
+			{"first", "#3e89b6", false},
+			{"second", "#ffa654", false},
+		},
 	}
 
 	defer gock.Off()
@@ -337,7 +342,23 @@ func TestClient_CustomerChange(t *testing.T) {
 		Get(fmt.Sprintf("/api/v5/customers/%v", f.ExternalID)).
 		MatchParam("by", ByExternalID).
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true, 
+			"customer": {
+				"tags": [
+					{
+						"name": "first",
+						"color": "#3e89b6",
+						"attached": false
+					},
+					{
+						"name": "second",
+						"color": "#ffa654",
+						"attached": false
+					}
+				]
+			}
+		}`)
 
 	data, status, err := c.Customer(f.ExternalID, ByExternalID, "")
 	if err.Error() != "" {
@@ -349,6 +370,10 @@ func TestClient_CustomerChange(t *testing.T) {
 	}
 
 	if data.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if !reflect.DeepEqual(data.Customer.Tags, f.Tags) {
 		t.Errorf("%v", err.ApiError())
 	}
 }

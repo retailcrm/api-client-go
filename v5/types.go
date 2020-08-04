@@ -26,24 +26,24 @@ type Pagination struct {
 
 // Address type
 type Address struct {
-	Index        string `json:"index,omitempty"`
-	CountryIso   string `json:"countryIso,omitempty"`
-	Region       string `json:"region,omitempty"`
-	RegionID     int    `json:"regionId,omitempty"`
-	City         string `json:"city,omitempty"`
-	CityID       int    `json:"cityId,omitempty"`
-	CityType     string `json:"cityType,omitempty"`
-	Street       string `json:"street,omitempty"`
-	StreetID     int    `json:"streetId,omitempty"`
-	StreetType   string `json:"streetType,omitempty"`
-	Building     string `json:"building,omitempty"`
-	Flat         string `json:"flat,omitempty"`
-	Floor        int    `json:"floor,omitempty"`
-	Block        int    `json:"block,omitempty"`
-	House        string `json:"house,omitempty"`
-	Metro        string `json:"metro,omitempty"`
-	Notes        string `json:"notes,omitempty"`
-	Text         string `json:"text,omitempty"`
+	Index      string `json:"index,omitempty"`
+	CountryIso string `json:"countryIso,omitempty"`
+	Region     string `json:"region,omitempty"`
+	RegionID   int    `json:"regionId,omitempty"`
+	City       string `json:"city,omitempty"`
+	CityID     int    `json:"cityId,omitempty"`
+	CityType   string `json:"cityType,omitempty"`
+	Street     string `json:"street,omitempty"`
+	StreetID   int    `json:"streetId,omitempty"`
+	StreetType string `json:"streetType,omitempty"`
+	Building   string `json:"building,omitempty"`
+	Flat       string `json:"flat,omitempty"`
+	Floor      int    `json:"floor,omitempty"`
+	Block      int    `json:"block,omitempty"`
+	House      string `json:"house,omitempty"`
+	Metro      string `json:"metro,omitempty"`
+	Notes      string `json:"notes,omitempty"`
+	Text       string `json:"text,omitempty"`
 }
 
 // GeoHierarchyRow type
@@ -149,6 +149,7 @@ type Customer struct {
 	MgCustomerID                 string            `json:"mgCustomerId,omitempty"`
 	PhotoURL                     string            `json:"photoUrl,omitempty"`
 	CustomFields                 map[string]string `json:"customFields,omitempty,brackets"`
+	Tags                         []Tag             `json:"tags,brackets,omitempty"`
 }
 
 // CorporateCustomer type
@@ -628,15 +629,15 @@ type Segment struct {
 
 // SettingsNode represents an item in settings. All settings nodes contains only string value and update time for now.
 type SettingsNode struct {
-	Value string `json:"value"`
+	Value     string `json:"value"`
 	UpdatedAt string `json:"updated_at"`
 }
 
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
 	DefaultCurrency SettingsNode `json:"default_currency"`
-	SystemLanguage SettingsNode `json:"system_language"`
-	Timezone SettingsNode `json:"timezone"`
+	SystemLanguage  SettingsNode `json:"system_language"`
+	Timezone        SettingsNode `json:"timezone"`
 }
 
 /**
@@ -1100,4 +1101,11 @@ type Element struct {
 type Activity struct {
 	Active bool `json:"active"`
 	Freeze bool `json:"freeze"`
+}
+
+// Tag struct
+type Tag struct {
+	Name     string `json:"name,omitempty"`
+	Color    string `json:"color,omitempty"`
+	Attached bool   `json:"attached,omitempty"`
 }
