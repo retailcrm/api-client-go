@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"reflect"
+	"strings"
 )
 
 // ByID is "id" constant to use as `by` property in methods
@@ -383,7 +384,8 @@ func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 		field := object.Field(i)
 
 		if i, ok := field.Tag.Lookup("json"); ok {
-			delete(additionalData, i[:len(i)-10])
+			name := strings.Split(i, ",")[0]
+			delete(additionalData, strings.TrimSpace(name))
 		} else {
 			delete(additionalData, field.Name)
 		}
