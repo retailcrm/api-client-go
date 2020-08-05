@@ -19,7 +19,7 @@ func TestClient_OrderDeliveryData(t *testing.T) {
 	data, _ := json.Marshal(d)
 	expectedStr := `{"payerType":"type","pickuppointAddress":"address","status":"status","trackNumber":"track"}`
 	if string(data) != expectedStr {
-		t.Error("error")
+		t.Errorf("Marshaled: %s\nExpected: %s\n", data, expectedStr)
 	}
 
 	d.AdditionalFields = map[string]interface{}{
@@ -30,7 +30,7 @@ func TestClient_OrderDeliveryData(t *testing.T) {
 	data, _ = json.Marshal(d)
 	expectedStr = `{"customFirst":"one","customSecond":"two","payerType":"type","pickuppointAddress":"address","status":"status","trackNumber":"track"}`
 	if string(data) != expectedStr {
-		t.Error("error")
+		t.Errorf("Marshaled: %s\nExpected: %s\n", data, expectedStr)
 	}
 
 	d = OrderDeliveryData{}
