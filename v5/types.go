@@ -1,6 +1,10 @@
 package v5
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+	"reflect"
+)
 
 // ByID is "id" constant to use as `by` property in methods
 const ByID = "id"
@@ -26,24 +30,24 @@ type Pagination struct {
 
 // Address type
 type Address struct {
-	Index        string `json:"index,omitempty"`
-	CountryIso   string `json:"countryIso,omitempty"`
-	Region       string `json:"region,omitempty"`
-	RegionID     int    `json:"regionId,omitempty"`
-	City         string `json:"city,omitempty"`
-	CityID       int    `json:"cityId,omitempty"`
-	CityType     string `json:"cityType,omitempty"`
-	Street       string `json:"street,omitempty"`
-	StreetID     int    `json:"streetId,omitempty"`
-	StreetType   string `json:"streetType,omitempty"`
-	Building     string `json:"building,omitempty"`
-	Flat         string `json:"flat,omitempty"`
-	Floor        int    `json:"floor,omitempty"`
-	Block        int    `json:"block,omitempty"`
-	House        string `json:"house,omitempty"`
-	Metro        string `json:"metro,omitempty"`
-	Notes        string `json:"notes,omitempty"`
-	Text         string `json:"text,omitempty"`
+	Index      string `json:"index,omitempty"`
+	CountryIso string `json:"countryIso,omitempty"`
+	Region     string `json:"region,omitempty"`
+	RegionID   int    `json:"regionId,omitempty"`
+	City       string `json:"city,omitempty"`
+	CityID     int    `json:"cityId,omitempty"`
+	CityType   string `json:"cityType,omitempty"`
+	Street     string `json:"street,omitempty"`
+	StreetID   int    `json:"streetId,omitempty"`
+	StreetType string `json:"streetType,omitempty"`
+	Building   string `json:"building,omitempty"`
+	Flat       string `json:"flat,omitempty"`
+	Floor      int    `json:"floor,omitempty"`
+	Block      int    `json:"block,omitempty"`
+	House      string `json:"house,omitempty"`
+	Metro      string `json:"metro,omitempty"`
+	Notes      string `json:"notes,omitempty"`
+	Text       string `json:"text,omitempty"`
 }
 
 // GeoHierarchyRow type
@@ -354,12 +358,52 @@ type OrderDeliveryService struct {
 	Active bool   `json:"active,omitempty"`
 }
 
-// OrderDeliveryData type
-type OrderDeliveryData struct {
+// OrderDeliveryDataBasic type
+type OrderDeliveryDataBasic struct {
 	TrackNumber        string `json:"trackNumber,omitempty"`
 	Status             string `json:"status,omitempty"`
 	PickuppointAddress string `json:"pickuppointAddress,omitempty"`
 	PayerType          string `json:"payerType,omitempty"`
+}
+
+// OrderDeliveryData type
+type OrderDeliveryData struct {
+	OrderDeliveryDataBasic
+	AdditionalFields map[string]interface{}
+}
+
+// UnmarshalJSON method
+func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
+	var additionalData map[string]interface{}
+	json.Unmarshal(b, &additionalData)
+	json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	object := reflect.TypeOf(v.OrderDeliveryDataBasic)
+
+	for i := 0; i < object.NumField(); i++ {
+		field := object.Field(i)
+
+		if i, ok := field.Tag.Lookup("json"); ok {
+			delete(additionalData, i[:len(i)-10])
+		} else {
+			delete(additionalData, field.Name)
+		}
+	}
+
+	v.AdditionalFields = additionalData
+	return nil
+}
+
+// MarshalJSON method
+func (v OrderDeliveryData) MarshalJSON() ([]byte, error) {
+	result := map[string]interface{}{}
+	data, _ := json.Marshal(v.OrderDeliveryDataBasic)
+	json.Unmarshal(data, &result)
+
+	for key, value := range v.AdditionalFields {
+		result[key] = value
+	}
+
+	return json.Marshal(result)
 }
 
 // OrderMarketplace type
@@ -628,15 +672,15 @@ type Segment struct {
 
 // SettingsNode represents an item in settings. All settings nodes contains only string value and update time for now.
 type SettingsNode struct {
-	Value string `json:"value"`
+	Value     string `json:"value"`
 	UpdatedAt string `json:"updated_at"`
 }
 
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
 	DefaultCurrency SettingsNode `json:"default_currency"`
-	SystemLanguage SettingsNode `json:"system_language"`
-	Timezone SettingsNode `json:"timezone"`
+	SystemLanguage  SettingsNode `json:"system_language"`
+	Timezone        SettingsNode `json:"timezone"`
 }
 
 /**
