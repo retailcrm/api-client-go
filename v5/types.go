@@ -1,6 +1,11 @@
 package v5
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+	"reflect"
+	"strings"
+)
 
 // ByID is "id" constant to use as `by` property in methods
 const ByID = "id"
@@ -355,12 +360,53 @@ type OrderDeliveryService struct {
 	Active bool   `json:"active,omitempty"`
 }
 
-// OrderDeliveryData type
-type OrderDeliveryData struct {
+// OrderDeliveryDataBasic type
+type OrderDeliveryDataBasic struct {
 	TrackNumber        string `json:"trackNumber,omitempty"`
 	Status             string `json:"status,omitempty"`
 	PickuppointAddress string `json:"pickuppointAddress,omitempty"`
 	PayerType          string `json:"payerType,omitempty"`
+}
+
+// OrderDeliveryData type
+type OrderDeliveryData struct {
+	OrderDeliveryDataBasic
+	AdditionalFields map[string]interface{}
+}
+
+// UnmarshalJSON method
+func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
+	var additionalData map[string]interface{}
+	json.Unmarshal(b, &additionalData)
+	json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	object := reflect.TypeOf(v.OrderDeliveryDataBasic)
+
+	for i := 0; i < object.NumField(); i++ {
+		field := object.Field(i)
+
+		if i, ok := field.Tag.Lookup("json"); ok {
+			name := strings.Split(i, ",")[0]
+			delete(additionalData, strings.TrimSpace(name))
+		} else {
+			delete(additionalData, field.Name)
+		}
+	}
+
+	v.AdditionalFields = additionalData
+	return nil
+}
+
+// MarshalJSON method
+func (v OrderDeliveryData) MarshalJSON() ([]byte, error) {
+	result := map[string]interface{}{}
+	data, _ := json.Marshal(v.OrderDeliveryDataBasic)
+	json.Unmarshal(data, &result)
+
+	for key, value := range v.AdditionalFields {
+		result[key] = value
+	}
+
+	return json.Marshal(result)
 }
 
 // OrderMarketplace type
