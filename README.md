@@ -1,8 +1,8 @@
-[![Build Status](https://img.shields.io/travis/retailcrm/api-client-go/master.svg?style=flat-square)](https://travis-ci.org/retailcrm/api-client-go)
-[![Covarage](https://img.shields.io/codecov/c/gh/retailcrm/api-client-go/master.svg?style=flat-square)](https://codecov.io/gh/retailcrm/api-client-go)
-[![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg?style=flat-square)](https://github.com/retailcrm/api-client-go/releases)
-[![GoLang version](https://img.shields.io/badge/go->=1.8-blue?style=flat-square)](https://golang.org/dl/)
-[![Godoc reference](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square)](https://godoc.org/github.com/retailcrm/api-client-go)
+[![Build Status](https://github.com/retailcrm/api-client-go/workflows/ci/badge.svg)](https://github.com/retailcrm/api-client-go/actions)
+[![Covarage](https://img.shields.io/codecov/c/gh/retailcrm/api-client-go/master.svg?logo=codecov)](https://codecov.io/gh/retailcrm/api-client-go)
+[![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg)](https://github.com/retailcrm/api-client-go/releases)
+[![GoLang version](https://img.shields.io/badge/go->=1.8-blue)](https://golang.org/dl/)
+[![Godoc reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/retailcrm/api-client-go)
 
 
 # retailCRM API Go client
