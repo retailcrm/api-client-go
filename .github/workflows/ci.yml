@@ -14,7 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.8', '1.9', '1.10', '1.11', '1.12', '1.13', '1.14']
+        go-version: ['1.8', '1.9', '1.10', '1.11', '1.12', '1.13']
+        include:
+          go-version: '1.14'
+          coverage: 1
     steps:
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v2
@@ -30,8 +33,25 @@ jobs:
           go get -v github.com/retailcrm/api-client-go/errs
           cp .env.dist .env
       - name: Tests
-        run: ./go.test.sh
+        env:
+          COVERAGE: ${{ matrix.coverage }}
+        if: env.COVERAGE != 1
+        run: go test ./...
+      - name: Tests with coverage
+        env:
+          COVERAGE: ${{ matrix.coverage }}
+        if: env.COVERAGE == 1
+        run: |
+          go test ./errs -race -coverprofile=errs.out -covermode=atomic "$d"
+          go test ./v5 -race -coverprofile=v5.out -covermode=atomic "$d"
+          cat errs.out >> coverage.txt
+          cat v5.out >> coverage.txt
       - name: Coverage
+        env:
+          COVERAGE: ${{ matrix.coverage }}
+        if: env.COVERAGE == 1
         run: |
           bash <(curl -s https://codecov.io/bash)
           rm coverage.txt
+          rm errs.out
+          rm v5.out
