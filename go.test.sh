@@ -4,12 +4,13 @@ set -e
 export DEVELOPER_NODE=1
 export RETAILCRM_URL=https://test.retailcrm.pro
 export RETAILCRM_KEY=key
-echo "" > coverage.txt
+touch coverage.txt
 
-for d in $(go list ./... | grep -v vendor); do
-    go test -race -coverprofile=profile.out -covermode=atomic "$d"
-    if [ -f profile.out ]; then
-        cat profile.out >> coverage.txt
-        rm profile.out
-    fi
-done
+go test ./errs/ -race -coverprofile=errs.out -covermode=atomic "$d"
+go test ./v5/ -race -coverprofile=v5.out -covermode=atomic "$d"
+
+cat errs.out >> coverage.txt
+cat v5.out >> coverage.txt
+
+rm errs.out
+rm v5.out
