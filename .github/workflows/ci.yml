@@ -8,6 +8,11 @@ on:
       - '*.*'
   pull_request:
 
+env:
+  DEVELOPER_NODE: 1
+  RETAILCRM_URL: https://test.retailcrm.pro
+  RETAILCRM_KEY: key
+
 jobs:
   tests:
     name: Tests
@@ -42,10 +47,7 @@ jobs:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
         run: |
-          go test ./errs -race -coverprofile=errs.out -covermode=atomic "$d"
-          go test ./v5 -race -coverprofile=v5.out -covermode=atomic "$d"
-          cat errs.out >> coverage.txt
-          cat v5.out >> coverage.txt
+          go test ./... -race -coverprofile=coverage.txt -covermode=atomic "$d"
       - name: Coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
@@ -53,5 +55,3 @@ jobs:
         run: |
           bash <(curl -s https://codecov.io/bash)
           rm coverage.txt
-          rm errs.out
-          rm v5.out
