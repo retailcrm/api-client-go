@@ -32,4 +32,6 @@ jobs:
       - name: Tests
         run: ./go.test.sh
       - name: Coverage
-        run: bash <(curl -s https://codecov.io/bash)
+        run: |
+          bash <(curl -s https://codecov.io/bash)
+          rm coverage.txt

@@ -11,6 +11,3 @@ go test ./v5/ -race -coverprofile=v5.out -covermode=atomic "$d"
 
 cat errs.out >> coverage.txt
 cat v5.out >> coverage.txt
-
-rm errs.out
-rm v5.out
