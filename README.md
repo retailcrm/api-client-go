@@ -1,6 +1,7 @@
 [![Build Status](https://github.com/retailcrm/api-client-go/workflows/ci/badge.svg)](https://github.com/retailcrm/api-client-go/actions)
 [![Covarage](https://img.shields.io/codecov/c/gh/retailcrm/api-client-go/master.svg?logo=codecov&logoColor=white)](https://codecov.io/gh/retailcrm/api-client-go)
 [![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg?logo=github&logoColor=white)](https://github.com/retailcrm/api-client-go/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/retailcrm/api-client-go)](https://goreportcard.com/report/github.com/retailcrm/api-client-go)
 [![GoLang version](https://img.shields.io/badge/go->=1.8-blue)](https://golang.org/dl/)
 [![Godoc reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/retailcrm/api-client-go)
 
