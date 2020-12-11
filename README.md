@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/retailcrm/api-client-go.svg?logo=github&logoColor=white)](https://github.com/retailcrm/api-client-go/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/retailcrm/api-client-go)](https://goreportcard.com/report/github.com/retailcrm/api-client-go)
 [![GoLang version](https://img.shields.io/badge/go->=1.8-blue)](https://golang.org/dl/)
-[![Godoc reference](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/retailcrm/api-client-go)
+[![pkg.go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/retailcrm/api-client-go)
 
 
 # RetailCRM API Go client
