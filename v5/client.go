@@ -5083,7 +5083,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 	return resp, status, nil
 }
 
-// FileUpload uploads file to retailCRM
+// FileUpload uploads file to RetailCRM
 //
 // For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
 //
@@ -5163,7 +5163,7 @@ func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
 	return resp, status, nil
 }
 
-// FileDelete removes file from retailCRM
+// FileDelete removes file from RetailCRM
 //
 // For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
 //
@@ -5199,7 +5199,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	return resp, status, nil
 }
 
-// FileDownload downloads file from retailCRM
+// FileDownload downloads file from RetailCRM
 //
 // For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
 //
@@ -5226,7 +5226,7 @@ func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
 	return closer, status, nil
 }
 
-// FileEdit edits file name and relations with orders and customers in retailCRM
+// FileEdit edits file name and relations with orders and customers in RetailCRM
 //
 // For more information see https://help.retailcrm.pro/Developers/ApiVersion5#get--api-v5-files
 //

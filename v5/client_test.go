@@ -39,7 +39,7 @@ var (
 	user, _  = strconv.Atoi(os.Getenv("RETAILCRM_USER"))
 	statuses = map[int]bool{http.StatusOK: true, http.StatusCreated: true}
 	crmURL   = os.Getenv("RETAILCRM_URL")
-	badURL   = "https://qwertypoiu.retailcrm.ru"
+	badURL   = "https://qwertypoiu.retailcrm.pro"
 
 	statusFail  = "FailTest: status < 400"
 	successFail = "FailTest: Success == true"
