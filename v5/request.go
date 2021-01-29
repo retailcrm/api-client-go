@@ -175,10 +175,10 @@ type ProductsPropertiesRequest struct {
 
 // DeliveryTrackingRequest type
 type DeliveryTrackingRequest struct {
-	DeliveryID  string                  `url:"deliveryId,omitempty"`
-	TrackNumber string                  `url:"trackNumber,omitempty"`
-	History     []DeliveryHistoryRecord `url:"history,omitempty,brackets"`
-	ExtraData   map[string]string       `url:"extraData,omitempty,brackets"`
+	DeliveryID  string                  `json:"deliveryId,omitempty"`
+	TrackNumber string                  `json:"trackNumber,omitempty"`
+	History     []DeliveryHistoryRecord `json:"history,omitempty,brackets"`
+	ExtraData   map[string]string       `json:"extraData,omitempty,brackets"`
 }
 
 // DeliveryShipmentsRequest type
