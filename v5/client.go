@@ -196,11 +196,11 @@ func fillSite(p *url.Values, site []string) {
 // 	data, status, err := client.APIVersions()
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.versions {
@@ -235,11 +235,11 @@ func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
 // 	data, status, err := client.APICredentials()
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.credentials {
@@ -279,11 +279,11 @@ func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.Customers {
@@ -320,11 +320,11 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 // 	data, status, err := client.CustomersCombine([]v5.Customer{{ID: 1}, {ID: 2}}, Customer{ID: 3})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -373,11 +373,11 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -423,11 +423,11 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 //	}})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -468,11 +468,11 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.History {
@@ -514,11 +514,11 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.Notes {
@@ -561,11 +561,11 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *er
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -607,11 +607,11 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 //
 // 	data, status, err := client.CustomerNoteDelete(12)
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -661,11 +661,11 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 //	}}
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -708,11 +708,11 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 // 	data, status, err := client.Customer(12, v5.ByExternalID, "")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -760,11 +760,11 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 //	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -819,11 +819,11 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.CustomersCorporate {
@@ -862,11 +862,11 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -912,11 +912,11 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 //	}})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -957,11 +957,11 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.History {
@@ -1003,11 +1003,11 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.Notes {
@@ -1049,11 +1049,11 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -1096,11 +1096,11 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 // 	data, status, err := client.CorporateCustomerNoteDelete(12)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -1144,11 +1144,11 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 //	}}
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1191,11 +1191,11 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 // 	data, status, err := client.CorporateCustomer(12, v5.ByExternalID, "")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1242,11 +1242,11 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1287,11 +1287,11 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -1343,11 +1343,11 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 // 	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1413,11 +1413,11 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1457,11 +1457,11 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -1513,11 +1513,11 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 // 	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1583,11 +1583,11 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1632,11 +1632,11 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 // 	}, "site")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -1685,11 +1685,11 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 // 	}, "site")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1756,11 +1756,11 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 //	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1870,11 +1870,11 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.DeliveryShipments {
@@ -1921,11 +1921,11 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 //	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -1968,11 +1968,11 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 // 	data, status, err := client.DeliveryShipment(12)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -2013,11 +2013,11 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (DeliveryShipmentUpdateResponse, int, *errs.Failure) {
 	var resp DeliveryShipmentUpdateResponse
@@ -2055,11 +2055,11 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 // 	data, status, err := client.IntegrationModule("moysklad3")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -2106,11 +2106,11 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if data.Success == true {
@@ -2148,11 +2148,11 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 // 	data, status, err := client.Orders(v5.OrdersRequest{Filter: v5.OrdersFilter{City: "Moscow"}, Page: 1})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.Orders {
@@ -2189,11 +2189,11 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, *errs.Fa
 // 	data, status, err := client.OrdersCombine("ours", v5.Order{ID: 1}, v5.Order{ID: 1})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, *errs.Failure) {
 	var resp OperationResponse
@@ -2239,11 +2239,11 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -2288,11 +2288,11 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 //	}})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if data.Success == true {
@@ -2333,11 +2333,11 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 // 	data, status, err := client.OrdersHistory(v5.OrdersHistoryRequest{Filter: v5.OrdersHistoryFilter{SinceID: 20}})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.History {
@@ -2380,11 +2380,11 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -2427,11 +2427,11 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 // 	data, status, err := client.OrderPaymentDelete(12)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -2472,11 +2472,11 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 //	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -2525,11 +2525,11 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, *errs.Failure) {
 	var resp OrdersStatusesResponse
@@ -2577,11 +2577,11 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -2624,11 +2624,11 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 // 	data, status, err := client.Order(12, v5.ByExternalID, "")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -2673,11 +2673,11 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 // 	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateResponse, int, *errs.Failure) {
 	var resp CreateResponse
@@ -2723,11 +2723,11 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 // 	data, status, err := client.Packs(v5.PacksRequest{Filter: v5.PacksFilter{OrderID: 12}})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Packs {
@@ -2768,11 +2768,11 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failu
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -2812,11 +2812,11 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
 // 	data, status, err := client.PacksHistory(v5.PacksHistoryRequest{Filter: v5.OrdersHistoryFilter{SinceID: 5}})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.History {
@@ -2853,11 +2853,11 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 // 	data, status, err := client.Pack(112)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -2892,11 +2892,11 @@ func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
 // 	data, status, err := client.PackDelete(112)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -2927,11 +2927,11 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 // 	data, status, err := client.PackEdit(Pack{ID: 12, Quantity: 2})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
 	var resp CreateResponse
@@ -3013,11 +3013,11 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3078,11 +3078,11 @@ func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3145,11 +3145,11 @@ func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if data.Success == true {
@@ -3193,11 +3193,11 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Fail
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3258,11 +3258,11 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3325,11 +3325,11 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
 //	}
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3390,11 +3390,11 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
 //	}
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3456,11 +3456,11 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3522,11 +3522,11 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -3972,11 +3972,11 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	for _, value := range data.Segments {
@@ -4013,11 +4013,11 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *e
 //	data, status, err := client.Settings()
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	fmt.Printf("%#v\n", data)
@@ -4050,11 +4050,11 @@ func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
 // 	data, status, err := client.Inventories(v5.InventoriesRequest{Filter: v5.InventoriesFilter{Details: 1, ProductActive: 1}, Page: 1})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Offers {
@@ -4110,11 +4110,11 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 //	)
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
@@ -4166,11 +4166,11 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.ApiErr())
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
@@ -4213,11 +4213,11 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.ProductGroup {
@@ -4259,11 +4259,11 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Products {
@@ -4304,11 +4304,11 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *e
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Properties {
@@ -4349,11 +4349,11 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Tasks {
@@ -4393,11 +4393,11 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failu
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -4439,11 +4439,11 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *er
 // 	data, status, err := client.Task(12)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -4481,11 +4481,11 @@ func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -4525,11 +4525,11 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *
 // 	data, status, err := client.UserGroups(v5.UserGroupsRequest{Page: 1})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Groups {
@@ -4566,11 +4566,11 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 // 	data, status, err := client.Users(v5.UsersRequest{Filter: v5.UsersFilter{Active: 1}, Page: 1})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	for _, value := range data.Users {
@@ -4607,11 +4607,11 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failu
 // 	data, status, err := client.User(12)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -4646,11 +4646,11 @@ func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
 // 	data, status, err := client.UserStatus(12, "busy")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -4711,11 +4711,11 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.Costs {
@@ -4765,11 +4765,11 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
 // 	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -4812,11 +4812,11 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 //	data, status, err := client.client.CostsDelete([]int{1, 2, 3, 48, 49, 50})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -4874,11 +4874,11 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure
 // 	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -4919,11 +4919,11 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs
 //	data, status, err := client.Cost(1)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -4959,11 +4959,11 @@ func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
 //	data, status, err := client.CostDelete(1)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -5006,11 +5006,11 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -5057,11 +5057,11 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 	var resp FilesResponse
@@ -5100,11 +5100,11 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 //  data, status, err := client.FileUpload(file)
 //
 //  if err.Error() != "" {
-// 	    fmt.Printf("%v", err.RuntimeErr)
+// 	    fmt.Printf("%v", err.Error())
 //  }
 //
 //  if status >= http.StatusBadRequest {
-// 	    fmt.Printf("%v", err.ApiErr())
+// 	    fmt.Printf("%v", err.Error())
 //  }
 func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Failure) {
 	var resp FileUploadResponse
@@ -5136,11 +5136,11 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Fa
 // 	data, status, err := client.File(112)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 //	if data.Success == true {
@@ -5175,11 +5175,11 @@ func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
 //  data, status, err := client.FileDelete(123)
 //
 //  if err.Error() != "" {
-// 	    fmt.Printf("%v", err.RuntimeErr)
+// 	    fmt.Printf("%v", err.Error())
 //  }
 //
 //  if status >= http.StatusBadRequest {
-// 	    fmt.Printf("%v", err.ApiErr())
+// 	    fmt.Printf("%v", err.Error())
 //  }
 func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
@@ -5211,11 +5211,11 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 //  fileData, status, err := client.FileDownload(123)
 //
 //  if err.Error() != "" {
-// 	    fmt.Printf("%v", err.RuntimeErr)
+// 	    fmt.Printf("%v", err.Error())
 //  }
 //
 //  if status >= http.StatusBadRequest {
-// 	    fmt.Printf("%v", err.ApiErr())
+// 	    fmt.Printf("%v", err.Error())
 //  }
 func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d/download", id))
@@ -5238,11 +5238,11 @@ func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
 //  data, status, err := client.FileEdit(123, File{Filename: "image2.jpg"})
 //
 //  if err.Error() != "" {
-// 	    fmt.Printf("%v", err.RuntimeErr)
+// 	    fmt.Printf("%v", err.Error())
 //  }
 //
 //  if status >= http.StatusBadRequest {
-// 	    fmt.Printf("%v", err.ApiErr())
+// 	    fmt.Printf("%v", err.Error())
 //  }
 func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) {
 	var resp FileResponse
@@ -5280,11 +5280,11 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) 
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	for _, value := range data.CustomFields {
@@ -5326,11 +5326,11 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	for _, value := range data.CustomDictionaries {
@@ -5381,11 +5381,11 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	If data.Success == true {
@@ -5427,11 +5427,11 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 //	data, status, err := client.CustomDictionary("courier-profiles")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -5480,11 +5480,11 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *
 //	})
 //
 //	if err.Error() != "" {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	if status >= http.StatusBadRequest {
-//		fmt.Printf("%v", err.RuntimeErr)
+//		fmt.Printf("%v", err.Error())
 //	}
 //
 //	If data.Success == true {
@@ -5531,11 +5531,11 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -5577,11 +5577,11 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 //	data, status, err := client.CustomField("order", "first-order")
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
@@ -5621,11 +5621,11 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *er
 //	})
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	If data.Success == true {
