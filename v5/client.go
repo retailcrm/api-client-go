@@ -1806,30 +1806,31 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 // Example:
 //
 // 	var client = v5.New("https://demo.url", "09jIJ")
+//  t, _ := time.Parse("2006-01-02 15:04:05", "2012-12-12 12:12:12")
 //
 //	data, status, err := client.DeliveryTracking(
-//		v5.DeliveryTrackingRequest{
+//		[]v5.DeliveryTrackingRequest{{
 //			DeliveryID: "1",
-//			TrackNumber "123",
-//			History: []DeliveryHistoryRecord{
+//			TrackNumber: "123",
+//			History: []v5.DeliveryHistoryRecord{
 //				{
 //					Code: "cancel",
-//					UpdatedAt: "2012-12-12 12:12:12"
+//					UpdatedAt: t.Format(time.RFC3339),
 //				},
-//			}
-//		},
+//			},
+//		}},
 //		"delivery-1",
 //	)
 //
 // 	if err.Error() != "" {
-// 		fmt.Printf("%v", err.RuntimeErr)
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
 // 	if status >= http.StatusBadRequest {
-// 		fmt.Printf("%v", err.ApiErr())
+// 		fmt.Printf("%v", err.Error())
 // 	}
 //
-func (c *Client) DeliveryTracking(parameters DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, *errs.Failure) {
 	var resp SuccessfulResponse
 
 	updateJSON, _ := json.Marshal(&parameters)

@@ -5473,6 +5473,43 @@ func TestClient_ProductsProperties(t *testing.T) {
 	}
 }
 
+func TestClient_DeliveryTracking(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	p := url.Values{
+		"statusUpdate": {`[{"deliveryId":"123","history":[{"code":"1","updatedAt":"2020-01-01T00:00:00:000"}]}]`},
+	}
+
+	gock.New(crmURL).
+		Post("/delivery/generic/subcode/tracking").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	g, status, err := c.DeliveryTracking([]DeliveryTrackingRequest{{
+		DeliveryID: "123",
+		History: []DeliveryHistoryRecord{{
+			Code:      "1",
+			UpdatedAt: "2020-01-01T00:00:00:000",
+		}},
+	}}, "subcode")
+
+	if err.Error() != "" {
+		t.Errorf("%v", err.Error())
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err.ApiError())
+	}
+
+	if g.Success != true {
+		t.Errorf("%v", err.ApiError())
+	}
+}
+
 func TestClient_DeliveryShipments(t *testing.T) {
 	c := client()
 
