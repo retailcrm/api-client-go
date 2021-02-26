@@ -12,10 +12,13 @@ func TestTag_MarshalJSON(t *testing.T) {
 		{"second", "#ffa654", false},
 	}
 	names := []byte(`["first","second"]`)
-	str, _ := json.Marshal(tags)
+	str, err := json.Marshal(tags)
 
-	eq := reflect.DeepEqual(str, names)
-	if eq != true {
+	if err != nil {
+		t.Errorf("%v", err.Error())
+	}
+
+	if !reflect.DeepEqual(str, names) {
 		t.Errorf("Marshaled: %#v\nExpected: %#v\n", str, names)
 	}
 }
