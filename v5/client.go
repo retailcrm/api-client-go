@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/retailcrm/api-client-go/errs"
 	"io"
 	"io/ioutil"
 	"log"
@@ -15,7 +16,6 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/retailcrm/api-client-go/errs"
 )
 
 // New initialize client
@@ -28,10 +28,10 @@ func New(url string, key string) *Client {
 }
 
 // GetRequest implements GET Request
-func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, *errs.Failure) {
+func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, error) {
 	var res []byte
 	var prefix = "/api/v5"
-	failure := &errs.Failure{}
+	apiError := &ApiError{}
 
 	if len(versioned) > 0 {
 		s := versioned[0]
@@ -43,8 +43,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	req.Header.Set("X-API-KEY", c.Key)
@@ -55,29 +54,28 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		failure.SetApiError(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
-		return res, resp.StatusCode, failure
+		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, apiError
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		failure.SetRuntimeError(err)
+		return res, 0, err
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, failure
+	return res, resp.StatusCode, nil
 }
 
 // PostRequest implements POST Request with generic body data
-func (c *Client) PostRequest(uri string, postData interface{}, contType ...string) ([]byte, int, *errs.Failure) {
+func (c *Client) PostRequest(uri string, postData interface{}, contType ...string) ([]byte, int, error) {
 	var (
 		res         []byte
 		contentType string
@@ -153,16 +151,6 @@ func buildRawResponse(resp *http.Response) ([]byte, error) {
 	return res, nil
 }
 
-func buildErr(data []byte, err *errs.Failure) {
-	resp, e := errs.ErrorResponse(data)
-	err.SetRuntimeError(e)
-	err.SetApiError(resp.ErrorMsg)
-
-	if resp.Errors != nil {
-		err.SetApiErrors(errs.ErrorsHandler(resp.Errors))
-	}
-}
-
 // checkBy select identifier type
 func checkBy(by string) string {
 	var context = ByID
@@ -206,7 +194,7 @@ func fillSite(p *url.Values, site []string) {
 // 	for _, value := range data.versions {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
+func (c *Client) APIVersions() (VersionResponse, int, error) {
 	var resp VersionResponse
 
 	data, status, err := c.GetRequest("/api-versions", false)
@@ -217,7 +205,7 @@ func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -245,7 +233,7 @@ func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
 // 	for _, value := range data.credentials {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
+func (c *Client) APICredentials() (CredentialResponse, int, error) {
 	var resp CredentialResponse
 
 	data, status, err := c.GetRequest("/credentials", false)
@@ -256,7 +244,7 @@ func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -289,7 +277,7 @@ func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
 // 	for _, value := range data.Customers {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int, *errs.Failure) {
+func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int, error) {
 	var resp CustomersResponse
 
 	params, _ := query.Values(parameters)
@@ -302,7 +290,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -326,7 +314,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	combineJSONIn, _ := json.Marshal(&customers)
@@ -345,7 +333,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -383,7 +371,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 
 	customerJSON, _ := json.Marshal(&customer)
@@ -402,7 +390,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -429,7 +417,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	customersJSON, _ := json.Marshal(&customers)
@@ -446,7 +434,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -478,7 +466,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (CustomersHistoryResponse, int, *errs.Failure) {
+func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (CustomersHistoryResponse, int, error) {
 	var resp CustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
@@ -491,7 +479,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -524,7 +512,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 // 	for _, value := range data.Notes {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *errs.Failure) {
+func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, error) {
 	var resp NotesResponse
 
 	params, _ := query.Values(parameters)
@@ -537,7 +525,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -571,7 +559,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *er
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	noteJSON, _ := json.Marshal(&note)
@@ -590,7 +578,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -613,7 +601,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -628,7 +616,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -671,7 +659,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedCustomers)
 // 	}
-func (c *Client) CustomersUpload(customers []Customer, site ...string) (CustomersUploadResponse, int, *errs.Failure) {
+func (c *Client) CustomersUpload(customers []Customer, site ...string) (CustomersUploadResponse, int, error) {
 	var resp CustomersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&customers)
@@ -690,7 +678,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -718,7 +706,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Failure) {
+func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 	var resp CustomerResponse
 	var context = checkBy(by)
 
@@ -733,7 +721,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -770,7 +758,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
@@ -796,7 +784,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -829,7 +817,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 // 	for _, value := range data.CustomersCorporate {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (CorporateCustomersResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (CorporateCustomersResponse, int, error) {
 	var resp CorporateCustomersResponse
 
 	params, _ := query.Values(parameters)
@@ -842,7 +830,7 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -872,7 +860,7 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (CorporateCustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (CorporateCustomerChangeResponse, int, error) {
 	var resp CorporateCustomerChangeResponse
 
 	customerJSON, _ := json.Marshal(&customer)
@@ -891,7 +879,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -918,7 +906,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	customersJSON, _ := json.Marshal(&customers)
@@ -935,7 +923,7 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -967,7 +955,7 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, error) {
 	var resp CorporateCustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
@@ -980,7 +968,7 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1013,7 +1001,7 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 // 	for _, value := range data.Notes {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (CorporateCustomersNotesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (CorporateCustomersNotesResponse, int, error) {
 	var resp CorporateCustomersNotesResponse
 
 	params, _ := query.Values(parameters)
@@ -1026,7 +1014,7 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1059,7 +1047,7 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	noteJSON, _ := json.Marshal(&note)
@@ -1078,7 +1066,7 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1102,7 +1090,7 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -1117,7 +1105,7 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1154,7 +1142,7 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedCustomers)
 // 	}
-func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ...string) (CorporateCustomersUploadResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ...string) (CorporateCustomersUploadResponse, int, error) {
 	var resp CorporateCustomersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&customers)
@@ -1173,7 +1161,7 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1201,7 +1189,7 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.CorporateCustomer)
 // 	}
-func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerResponse, int, error) {
 	var resp CorporateCustomerResponse
 	var context = checkBy(by)
 
@@ -1216,7 +1204,7 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1252,7 +1240,7 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Addresses)
 // 	}
-func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCustomerAddressesRequest) (CorporateCustomersAddressesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCustomerAddressesRequest) (CorporateCustomersAddressesResponse, int, error) {
 	var resp CorporateCustomersAddressesResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1266,7 +1254,7 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1297,7 +1285,7 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	addressJSON, _ := json.Marshal(&address)
@@ -1317,7 +1305,7 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1353,7 +1341,7 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1387,7 +1375,7 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1423,7 +1411,7 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Companies)
 // 	}
-func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPairRequest) (CorporateCustomerCompaniesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPairRequest) (CorporateCustomerCompaniesResponse, int, error) {
 	var resp CorporateCustomerCompaniesResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1437,7 +1425,7 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1467,7 +1455,7 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company Company, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&company)
@@ -1487,7 +1475,7 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1523,7 +1511,7 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy string, company Company, site ...string) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1557,7 +1545,7 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1593,7 +1581,7 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Contacts)
 // 	}
-func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPairRequest) (CorporateCustomerContactsResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPairRequest) (CorporateCustomerContactsResponse, int, error) {
 	var resp CorporateCustomerContactsResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1607,7 +1595,7 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1642,7 +1630,7 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&contact)
@@ -1662,7 +1650,7 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1695,7 +1683,7 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1729,7 +1717,7 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1766,7 +1754,7 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
@@ -1792,7 +1780,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1830,7 +1818,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
 //
-func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	updateJSON, _ := json.Marshal(&parameters)
@@ -1847,7 +1835,7 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1880,7 +1868,7 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 // 	for _, value := range data.DeliveryShipments {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (DeliveryShipmentsResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (DeliveryShipmentsResponse, int, error) {
 	var resp DeliveryShipmentsResponse
 
 	params, _ := query.Values(parameters)
@@ -1893,7 +1881,7 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1931,7 +1919,7 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType string, site ...string) (DeliveryShipmentUpdateResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType string, site ...string) (DeliveryShipmentUpdateResponse, int, error) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -1950,7 +1938,7 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -1978,7 +1966,7 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.DeliveryShipment)
 // 	}
-func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error) {
 	var resp DeliveryShipmentResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/delivery/shipments/%d", id))
@@ -1989,7 +1977,7 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2019,7 +2007,7 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (DeliveryShipmentUpdateResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (DeliveryShipmentUpdateResponse, int, error) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -2037,7 +2025,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2065,7 +2053,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.IntegrationModule)
 // 	}
-func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int, *errs.Failure) {
+func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int, error) {
 	var resp IntegrationModuleResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/integration-modules/%s", code))
@@ -2076,7 +2064,7 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2116,7 +2104,7 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.Info)
 //	}
-func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (IntegrationModuleEditResponse, int, *errs.Failure) {
+func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (IntegrationModuleEditResponse, int, error) {
 	var resp IntegrationModuleEditResponse
 	updateJSON, _ := json.Marshal(&integrationModule)
 
@@ -2130,7 +2118,7 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2158,21 +2146,20 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 // 	for _, value := range data.Orders {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, *errs.Failure) {
+func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 	var resp OrdersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2195,7 +2182,7 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, *errs.Fa
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, *errs.Failure) {
+func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, error) {
 	var resp OperationResponse
 
 	combineJSONIn, _ := json.Marshal(&order)
@@ -2215,7 +2202,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2249,7 +2236,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, *errs.Failure) {
+func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, error) {
 	var resp OrderCreateResponse
 	orderJSON, _ := json.Marshal(&order)
 
@@ -2267,7 +2254,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2298,7 +2285,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.ID)
 //	}
-func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	ordersJSON, _ := json.Marshal(&orders)
@@ -2315,7 +2302,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2343,7 +2330,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryResponse, int, *errs.Failure) {
+func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryResponse, int, error) {
 	var resp OrdersHistoryResponse
 
 	params, _ := query.Values(parameters)
@@ -2356,7 +2343,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2390,7 +2377,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	paymentJSON, _ := json.Marshal(&payment)
@@ -2409,7 +2396,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2433,7 +2420,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -2448,7 +2435,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2478,7 +2465,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(payment.ID)
 	var context = checkBy(by)
@@ -2504,7 +2491,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2531,7 +2518,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, *errs.Failure) {
+func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, error) {
 	var resp OrdersStatusesResponse
 
 	params, _ := query.Values(request)
@@ -2544,7 +2531,7 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2587,7 +2574,7 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedOrders)
 // 	}
-func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadResponse, int, *errs.Failure) {
+func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadResponse, int, error) {
 	var resp OrdersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&orders)
@@ -2606,7 +2593,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2634,7 +2621,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Order)
 // 	}
-func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) {
+func (c *Client) Order(id, by, site string) (OrderResponse, int, error) {
 	var resp OrderResponse
 	var context = checkBy(by)
 
@@ -2642,15 +2629,15 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
+		//apiError = NewApiError()
+		return resp, status, nil
 	}
 
 	return resp, status, nil
@@ -2679,7 +2666,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 	var uid = strconv.Itoa(order.ID)
 	var context = checkBy(by)
@@ -2705,7 +2692,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2733,7 +2720,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 //	for _, value := range data.Packs {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failure) {
+func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 	var resp PacksResponse
 
 	params, _ := query.Values(parameters)
@@ -2746,7 +2733,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2778,7 +2765,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
+func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
 	packJSON, _ := json.Marshal(&pack)
 
@@ -2794,7 +2781,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2822,7 +2809,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
 //	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryResponse, int, *errs.Failure) {
+func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryResponse, int, error) {
 	var resp PacksHistoryResponse
 
 	params, _ := query.Values(parameters)
@@ -2835,7 +2822,7 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2863,7 +2850,7 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Pack)
 // 	}
-func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
+func (c *Client) Pack(id int) (PackResponse, int, error) {
 	var resp PackResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs/%d", id))
@@ -2874,7 +2861,7 @@ func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2898,7 +2885,7 @@ func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/delete", id), url.Values{})
@@ -2909,7 +2896,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2933,7 +2920,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
+func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	packJSON, _ := json.Marshal(&pack)
@@ -2950,7 +2937,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2960,7 +2947,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
 // Countries returns list of available country codes
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-countries
-func (c *Client) Countries() (CountriesResponse, int, *errs.Failure) {
+func (c *Client) Countries() (CountriesResponse, int, error) {
 	var resp CountriesResponse
 
 	data, status, err := c.GetRequest("/reference/countries")
@@ -2971,7 +2958,7 @@ func (c *Client) Countries() (CountriesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -2981,7 +2968,7 @@ func (c *Client) Countries() (CountriesResponse, int, *errs.Failure) {
 // CostGroups returns costs groups list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-groups
-func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
+func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	var resp CostGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-groups")
@@ -2992,7 +2979,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3019,7 +3006,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&costGroup)
@@ -3036,7 +3023,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3046,7 +3033,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *e
 // CostItems returns costs items list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-items
-func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
+func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	var resp CostItemsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-items")
@@ -3057,7 +3044,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3084,7 +3071,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&costItem)
@@ -3101,7 +3088,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3111,7 +3098,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs
 // Couriers returns list of couriers
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
-func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
+func (c *Client) Couriers() (CouriersResponse, int, error) {
 	var resp CouriersResponse
 
 	data, status, err := c.GetRequest("/reference/couriers")
@@ -3122,7 +3109,7 @@ func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3155,7 +3142,7 @@ func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
 // 	if data.Success == true {
 // 		fmt.Printf("%v", data.ID)
 // 	}
-func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	objJSON, _ := json.Marshal(&courier)
@@ -3172,7 +3159,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Fail
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3199,7 +3186,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Fail
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&courier)
@@ -3216,7 +3203,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Fa
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3226,7 +3213,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Fa
 // DeliveryServices returns list of delivery services
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-services
-func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure) {
+func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	var resp DeliveryServiceResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-services")
@@ -3237,7 +3224,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3264,7 +3251,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&deliveryService)
@@ -3281,7 +3268,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3291,7 +3278,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 // DeliveryTypes returns list of delivery types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-types
-func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-types")
@@ -3302,7 +3289,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3331,7 +3318,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&deliveryType)
@@ -3348,7 +3335,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3358,7 +3345,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 // LegalEntities returns list of legal entities
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-legal-entities
-func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
+func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	var resp LegalEntitiesResponse
 
 	data, status, err := c.GetRequest("/reference/legal-entities")
@@ -3369,7 +3356,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3396,7 +3383,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&legalEntity)
@@ -3413,7 +3400,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3423,7 +3410,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 // OrderMethods returns list of order methods
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-methods
-func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
+func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	var resp OrderMethodsResponse
 
 	data, status, err := c.GetRequest("/reference/order-methods")
@@ -3434,7 +3421,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3462,7 +3449,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&orderMethod)
@@ -3479,7 +3466,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3489,7 +3476,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 // OrderTypes return list of order types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-types
-func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
+func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	var resp OrderTypesResponse
 
 	data, status, err := c.GetRequest("/reference/order-types")
@@ -3500,7 +3487,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3528,7 +3515,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&orderType)
@@ -3545,7 +3532,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3555,7 +3542,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *e
 // PaymentStatuses returns list of payment statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-statuses
-func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, *errs.Failure) {
+func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	var resp PaymentStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-statuses")
@@ -3566,7 +3553,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, *errs.Failure)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3576,7 +3563,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, *errs.Failure)
 // PaymentStatusEdit payment status creation/editing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-statuses-code-edit
-func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&paymentStatus)
@@ -3593,7 +3580,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3603,7 +3590,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 // PaymentTypes returns list of payment types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-types
-func (c *Client) PaymentTypes() (PaymentTypesResponse, int, *errs.Failure) {
+func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	var resp PaymentTypesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-types")
@@ -3614,7 +3601,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3624,7 +3611,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, *errs.Failure) {
 // PaymentTypeEdit payment type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-types-code-edit
-func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&paymentType)
@@ -3641,7 +3628,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3651,7 +3638,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 // PriceTypes returns list of price types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-price-types
-func (c *Client) PriceTypes() (PriceTypesResponse, int, *errs.Failure) {
+func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	var resp PriceTypesResponse
 
 	data, status, err := c.GetRequest("/reference/price-types")
@@ -3662,7 +3649,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3672,7 +3659,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, *errs.Failure) {
 // PriceTypeEdit price type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-price-types-code-edit
-func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&priceType)
@@ -3689,7 +3676,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3699,7 +3686,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *e
 // ProductStatuses returns list of item statuses in order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-product-statuses
-func (c *Client) ProductStatuses() (ProductStatusesResponse, int, *errs.Failure) {
+func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	var resp ProductStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/product-statuses")
@@ -3710,7 +3697,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, *errs.Failure)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3720,7 +3707,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, *errs.Failure)
 // ProductStatusEdit order item status create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-product-statuses-code-edit
-func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&productStatus)
@@ -3737,7 +3724,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3747,7 +3734,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 // Sites returns the sites list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-sites
-func (c *Client) Sites() (SitesResponse, int, *errs.Failure) {
+func (c *Client) Sites() (SitesResponse, int, error) {
 	var resp SitesResponse
 
 	data, status, err := c.GetRequest("/reference/sites")
@@ -3758,7 +3745,7 @@ func (c *Client) Sites() (SitesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3768,7 +3755,7 @@ func (c *Client) Sites() (SitesResponse, int, *errs.Failure) {
 // SiteEdit site create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
-func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&site)
@@ -3785,7 +3772,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3795,7 +3782,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
 // StatusGroups returns list of order status groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-status-groups
-func (c *Client) StatusGroups() (StatusGroupsResponse, int, *errs.Failure) {
+func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	var resp StatusGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/status-groups")
@@ -3806,7 +3793,7 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3816,7 +3803,7 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, *errs.Failure) {
 // Statuses returns list of order statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-statuses
-func (c *Client) Statuses() (StatusesResponse, int, *errs.Failure) {
+func (c *Client) Statuses() (StatusesResponse, int, error) {
 	var resp StatusesResponse
 
 	data, status, err := c.GetRequest("/reference/statuses")
@@ -3827,7 +3814,7 @@ func (c *Client) Statuses() (StatusesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3837,7 +3824,7 @@ func (c *Client) Statuses() (StatusesResponse, int, *errs.Failure) {
 // StatusEdit order status create/edit
 //
 // For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
-func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&st)
@@ -3854,7 +3841,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3864,7 +3851,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) 
 // Stores returns list of warehouses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-stores
-func (c *Client) Stores() (StoresResponse, int, *errs.Failure) {
+func (c *Client) Stores() (StoresResponse, int, error) {
 	var resp StoresResponse
 
 	data, status, err := c.GetRequest("/reference/stores")
@@ -3875,7 +3862,7 @@ func (c *Client) Stores() (StoresResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3885,7 +3872,7 @@ func (c *Client) Stores() (StoresResponse, int, *errs.Failure) {
 // StoreEdit warehouse create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-stores-code-edit
-func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&store)
@@ -3902,7 +3889,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3912,7 +3899,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure)
 // Units returns units list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-units
-func (c *Client) Units() (UnitsResponse, int, *errs.Failure) {
+func (c *Client) Units() (UnitsResponse, int, error) {
 	var resp UnitsResponse
 
 	data, status, err := c.GetRequest("/reference/units")
@@ -3923,7 +3910,7 @@ func (c *Client) Units() (UnitsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3933,7 +3920,7 @@ func (c *Client) Units() (UnitsResponse, int, *errs.Failure) {
 // UnitEdit unit create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-units-code-edit
-func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&unit)
@@ -3950,7 +3937,7 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -3982,7 +3969,7 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
 //	for _, value := range data.Segments {
 //		fmt.Printf("%v\n", value)
 //	}
-func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *errs.Failure) {
+func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, error) {
 	var resp SegmentsResponse
 
 	params, _ := query.Values(parameters)
@@ -3995,7 +3982,7 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4021,7 +4008,7 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *e
 //	}
 //
 //	fmt.Printf("%#v\n", data)
-func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
+func (c *Client) Settings() (SettingsResponse, int, error) {
 	var resp SettingsResponse
 
 	data, status, err := c.GetRequest("/settings")
@@ -4032,7 +4019,7 @@ func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4060,7 +4047,7 @@ func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
 //	for _, value := range data.Offers {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse, int, *errs.Failure) {
+func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse, int, error) {
 	var resp InventoriesResponse
 
 	params, _ := query.Values(parameters)
@@ -4073,7 +4060,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4118,7 +4105,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
-func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (StoreUploadResponse, int, *errs.Failure) {
+func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
 	uploadJSON, _ := json.Marshal(&inventories)
@@ -4137,7 +4124,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4174,7 +4161,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
-func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, int, *errs.Failure) {
+func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
 	uploadJSON, _ := json.Marshal(&prices)
@@ -4191,7 +4178,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4223,7 +4210,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 //	for _, value := range data.ProductGroup {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroupsResponse, int, *errs.Failure) {
+func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroupsResponse, int, error) {
 	var resp ProductsGroupsResponse
 
 	params, _ := query.Values(parameters)
@@ -4236,7 +4223,7 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4269,7 +4256,7 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 //	for _, value := range data.Products {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *errs.Failure) {
+func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, error) {
 	var resp ProductsResponse
 
 	params, _ := query.Values(parameters)
@@ -4282,7 +4269,7 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4314,7 +4301,7 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *e
 //	for _, value := range data.Properties {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (ProductsPropertiesResponse, int, *errs.Failure) {
+func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (ProductsPropertiesResponse, int, error) {
 	var resp ProductsPropertiesResponse
 
 	params, _ := query.Values(parameters)
@@ -4327,7 +4314,7 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4359,7 +4346,7 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 //	for _, value := range data.Tasks {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failure) {
+func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 	var resp TasksResponse
 
 	params, _ := query.Values(parameters)
@@ -4372,7 +4359,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4403,7 +4390,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 	taskJSON, _ := json.Marshal(&task)
 
@@ -4421,7 +4408,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4449,7 +4436,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *er
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Task)
 // 	}
-func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
+func (c *Client) Task(id int) (TaskResponse, int, error) {
 	var resp TaskResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/tasks/%d", id))
@@ -4460,7 +4447,7 @@ func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4487,7 +4474,7 @@ func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(task.ID)
 
@@ -4507,8 +4494,8 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
+		a := NewApiError(data)
+		return resp, status, a
 	}
 
 	return resp, status, nil
@@ -4535,7 +4522,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *
 //	for _, value := range data.Groups {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, int, *errs.Failure) {
+func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, int, error) {
 	var resp UserGroupsResponse
 
 	params, _ := query.Values(parameters)
@@ -4548,7 +4535,7 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4576,7 +4563,7 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 //	for _, value := range data.Users {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failure) {
+func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 	var resp UsersResponse
 
 	params, _ := query.Values(parameters)
@@ -4589,7 +4576,7 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4617,7 +4604,7 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.User)
 // 	}
-func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
+func (c *Client) User(id int) (UserResponse, int, error) {
 	var resp UserResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/users/%d", id))
@@ -4628,7 +4615,7 @@ func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4652,7 +4639,7 @@ func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -4667,7 +4654,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, st, err
 	}
 
@@ -4677,7 +4664,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *er
 // StaticticsUpdate updates statistics
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-statistic-update
-func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.GetRequest("/statistic/update")
@@ -4688,7 +4675,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4721,7 +4708,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
 // 	for _, value := range data.Costs {
 // 		fmt.Printf("%v\n", value.Summ)
 // 	}
-func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
+func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 	var resp CostsResponse
 
 	params, _ := query.Values(costs)
@@ -4735,7 +4722,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4775,7 +4762,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.ID)
 // 	}
-func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -4794,7 +4781,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4822,7 +4809,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 // 	If data.Success == true {
 // 		fmt.Printf("Not removed costs: %v", data.NotRemovedIds)
 // 	}
-func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure) {
+func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	var resp CostsDeleteResponse
 
 	costJSON, _ := json.Marshal(&ids)
@@ -4839,7 +4826,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4884,7 +4871,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure
 // 	If data.Success == true {
 // 		fmt.Printf("Uploaded costs: %v", data.UploadedCosts)
 // 	}
-func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs.Failure) {
+func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error) {
 	var resp CostsUploadResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -4901,7 +4888,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4929,7 +4916,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Cost)
 // 	}
-func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
+func (c *Client) Cost(id int) (CostResponse, int, error) {
 	var resp CostResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/costs/%d", id))
@@ -4941,7 +4928,7 @@ func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -4965,7 +4952,7 @@ func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	costJSON, _ := json.Marshal(&id)
@@ -4983,7 +4970,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5016,7 +5003,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Id)
 // 	}
-func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -5035,7 +5022,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5063,7 +5050,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
+func (c *Client) Files(files FilesRequest) (FilesResponse, int, error) {
 	var resp FilesResponse
 
 	params, _ := query.Values(files)
@@ -5077,7 +5064,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5106,7 +5093,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Failure) {
+func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, error) {
 	var resp FileUploadResponse
 
 	data, status, err := c.PostRequest("/files/upload", reader, "application/octet-stream")
@@ -5118,7 +5105,7 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Fa
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5146,7 +5133,7 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Fa
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.File)
 // 	}
-func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
+func (c *Client) File(id int) (FileResponse, int, error) {
 	var resp FileResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d", id))
@@ -5157,7 +5144,7 @@ func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5181,7 +5168,7 @@ func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) FileDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/delete", id), strings.NewReader(""))
@@ -5193,7 +5180,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5217,7 +5204,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
+func (c *Client) FileDownload(id int) (io.ReadCloser, int, error) {
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d/download", id))
 	if status != http.StatusOK {
 		return nil, status, err
@@ -5244,7 +5231,7 @@ func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) {
+func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	var resp FileResponse
 
 	req, _ := json.Marshal(file)
@@ -5259,7 +5246,7 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5290,7 +5277,7 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) 
 // 	for _, value := range data.CustomFields {
 //		fmt.Printf("%v\n", value)
 //	}
-func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsResponse, int, *errs.Failure) {
+func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsResponse, int, error) {
 	var resp CustomFieldsResponse
 
 	params, _ := query.Values(customFields)
@@ -5304,7 +5291,7 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5336,7 +5323,7 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 //	for _, value := range data.CustomDictionaries {
 //		fmt.Printf("%v\n", value.Elements)
 //	}
-func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (CustomDictionariesResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (CustomDictionariesResponse, int, error) {
 	var resp CustomDictionariesResponse
 
 	params, _ := query.Values(customDictionaries)
@@ -5350,7 +5337,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5391,7 +5378,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 //	If data.Success == true {
 //		fmt.Printf("%v", data.Code)
 //	}
-func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customDictionary)
@@ -5409,7 +5396,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5437,7 +5424,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.CustomDictionary.Name)
 // 	}
-func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, error) {
 	var resp CustomDictionaryResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries/%s", code))
@@ -5449,7 +5436,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5490,7 +5477,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *
 //	If data.Success == true {
 //		fmt.Printf("%v", data.Code)
 //	}
-func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customDictionary)
@@ -5507,7 +5494,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5541,7 +5528,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Code)
 // 	}
-func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customFields)
@@ -5559,7 +5546,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5587,7 +5574,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.CustomField)
 // 	}
-func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *errs.Failure) {
+func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, error) {
 	var resp CustomFieldResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/%s/%s", entity, code))
@@ -5599,7 +5586,7 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 
@@ -5631,7 +5618,7 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *er
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Code)
 // 	}
-func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customFields)
@@ -5649,7 +5636,7 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
+		//buildErr(data, err)
 		return resp, status, err
 	}
 

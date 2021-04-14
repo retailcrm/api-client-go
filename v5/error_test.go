@@ -1,4 +1,4 @@
-package errs
+package v5
 
 import (
 	"reflect"
