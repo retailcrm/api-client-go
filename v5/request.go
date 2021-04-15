@@ -1,33 +1,33 @@
 package v5
 
-// CustomerRequest type
+// CustomerRequest type.
 type CustomerRequest struct {
 	By   string `url:"by,omitempty"`
 	Site string `url:"site,omitempty"`
 }
 
-// CustomersRequest type
+// CustomersRequest type.
 type CustomersRequest struct {
 	Filter CustomersFilter `url:"filter,omitempty"`
 	Limit  int             `url:"limit,omitempty"`
 	Page   int             `url:"page,omitempty"`
 }
 
-// CorporateCustomersRequest type
+// CorporateCustomersRequest type.
 type CorporateCustomersRequest struct {
 	Filter CorporateCustomersFilter `url:"filter,omitempty"`
 	Limit  int                      `url:"limit,omitempty"`
 	Page   int                      `url:"page,omitempty"`
 }
 
-// CorporateCustomersNotesRequest type
+// CorporateCustomersNotesRequest type.
 type CorporateCustomersNotesRequest struct {
 	Filter CorporateCustomersNotesFilter `url:"filter,omitempty"`
 	Limit  int                           `url:"limit,omitempty"`
 	Page   int                           `url:"page,omitempty"`
 }
 
-// CorporateCustomerAddressesRequest type
+// CorporateCustomerAddressesRequest type.
 type CorporateCustomerAddressesRequest struct {
 	Filter CorporateCustomerAddressesFilter `url:"filter,omitempty"`
 	By     string                           `url:"by,omitempty"`
@@ -36,7 +36,7 @@ type CorporateCustomerAddressesRequest struct {
 	Page   int                              `url:"page,omitempty"`
 }
 
-// IdentifiersPairRequest type
+// IdentifiersPairRequest type.
 type IdentifiersPairRequest struct {
 	Filter IdentifiersPairFilter `url:"filter,omitempty"`
 	By     string                `url:"by,omitempty"`
@@ -45,135 +45,135 @@ type IdentifiersPairRequest struct {
 	Page   int                   `url:"page,omitempty"`
 }
 
-// CustomersUploadRequest type
+// CustomersUploadRequest type.
 type CustomersUploadRequest struct {
 	Customers []Customer `url:"customers,omitempty,brackets"`
 	Site      string     `url:"site,omitempty"`
 }
 
-// CustomersHistoryRequest type
+// CustomersHistoryRequest type.
 type CustomersHistoryRequest struct {
 	Filter CustomersHistoryFilter `url:"filter,omitempty"`
 	Limit  int                    `url:"limit,omitempty"`
 	Page   int                    `url:"page,omitempty"`
 }
 
-// CorporateCustomersHistoryRequest type
+// CorporateCustomersHistoryRequest type.
 type CorporateCustomersHistoryRequest struct {
 	Filter CorporateCustomersHistoryFilter `url:"filter,omitempty"`
 	Limit  int                             `url:"limit,omitempty"`
 	Page   int                             `url:"page,omitempty"`
 }
 
-// OrderRequest type
+// OrderRequest type.
 type OrderRequest struct {
 	By   string `url:"by,omitempty"`
 	Site string `url:"site,omitempty"`
 }
 
-// OrdersRequest type
+// OrdersRequest type.
 type OrdersRequest struct {
 	Filter OrdersFilter `url:"filter,omitempty"`
 	Limit  int          `url:"limit,omitempty"`
 	Page   int          `url:"page,omitempty"`
 }
 
-// OrdersStatusesRequest type
+// OrdersStatusesRequest type.
 type OrdersStatusesRequest struct {
 	IDs         []int    `url:"ids,omitempty,brackets"`
 	ExternalIDs []string `url:"externalIds,omitempty,brackets"`
 }
 
-// OrdersUploadRequest type
+// OrdersUploadRequest type.
 type OrdersUploadRequest struct {
 	Orders []Order `url:"orders,omitempty,brackets"`
 	Site   string  `url:"site,omitempty"`
 }
 
-// OrdersHistoryRequest type
+// OrdersHistoryRequest type.
 type OrdersHistoryRequest struct {
 	Filter OrdersHistoryFilter `url:"filter,omitempty"`
 	Limit  int                 `url:"limit,omitempty"`
 	Page   int                 `url:"page,omitempty"`
 }
 
-// PacksRequest type
+// PacksRequest type.
 type PacksRequest struct {
 	Filter PacksFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// PacksHistoryRequest type
+// PacksHistoryRequest type.
 type PacksHistoryRequest struct {
 	Filter OrdersHistoryFilter `url:"filter,omitempty"`
 	Limit  int                 `url:"limit,omitempty"`
 	Page   int                 `url:"page,omitempty"`
 }
 
-// UsersRequest type
+// UsersRequest type.
 type UsersRequest struct {
 	Filter UsersFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// UserGroupsRequest type
+// UserGroupsRequest type.
 type UserGroupsRequest struct {
 	Limit int `url:"limit,omitempty"`
 	Page  int `url:"page,omitempty"`
 }
 
-// TasksRequest type
+// TasksRequest type.
 type TasksRequest struct {
 	Filter TasksFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// NotesRequest type
+// NotesRequest type.
 type NotesRequest struct {
 	Filter NotesFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// SegmentsRequest type
+// SegmentsRequest type.
 type SegmentsRequest struct {
 	Filter SegmentsFilter `url:"filter,omitempty"`
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
 }
 
-// InventoriesRequest type
+// InventoriesRequest type.
 type InventoriesRequest struct {
 	Filter InventoriesFilter `url:"filter,omitempty"`
 	Limit  int               `url:"limit,omitempty"`
 	Page   int               `url:"page,omitempty"`
 }
 
-// ProductsGroupsRequest type
+// ProductsGroupsRequest type.
 type ProductsGroupsRequest struct {
 	Filter ProductsGroupsFilter `url:"filter,omitempty"`
 	Limit  int                  `url:"limit,omitempty"`
 	Page   int                  `url:"page,omitempty"`
 }
 
-// ProductsRequest type
+// ProductsRequest type.
 type ProductsRequest struct {
 	Filter ProductsFilter `url:"filter,omitempty"`
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
 }
 
-// ProductsPropertiesRequest type
+// ProductsPropertiesRequest type.
 type ProductsPropertiesRequest struct {
 	Filter ProductsPropertiesFilter `url:"filter,omitempty"`
 	Limit  int                      `url:"limit,omitempty"`
 	Page   int                      `url:"page,omitempty"`
 }
 
-// DeliveryTrackingRequest type
+// DeliveryTrackingRequest type.
 type DeliveryTrackingRequest struct {
 	DeliveryID  string                  `json:"deliveryId,omitempty"`
 	TrackNumber string                  `json:"trackNumber,omitempty"`
@@ -181,35 +181,35 @@ type DeliveryTrackingRequest struct {
 	ExtraData   map[string]string       `json:"extraData,omitempty,brackets"`
 }
 
-// DeliveryShipmentsRequest type
+// DeliveryShipmentsRequest type.
 type DeliveryShipmentsRequest struct {
 	Filter ShipmentFilter `url:"filter,omitempty"`
 	Limit  int            `url:"limit,omitempty"`
 	Page   int            `url:"page,omitempty"`
 }
 
-// CostsRequest type
+// CostsRequest type.
 type CostsRequest struct {
 	Filter CostsFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// FilesRequest type
+// FilesRequest type.
 type FilesRequest struct {
 	Filter FilesFilter `url:"filter,omitempty"`
 	Limit  int         `url:"limit,omitempty"`
 	Page   int         `url:"page,omitempty"`
 }
 
-// CustomFieldsRequest type
+// CustomFieldsRequest type.
 type CustomFieldsRequest struct {
 	Filter CustomFieldsFilter `url:"filter,omitempty"`
 	Limit  int                `url:"limit,omitempty"`
 	Page   int                `url:"page,omitempty"`
 }
 
-// CustomDictionariesRequest type
+// CustomDictionariesRequest type.
 type CustomDictionariesRequest struct {
 	Filter CustomDictionariesFilter `url:"filter,omitempty"`
 	Limit  int                      `url:"limit,omitempty"`

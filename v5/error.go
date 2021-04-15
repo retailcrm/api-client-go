@@ -5,14 +5,14 @@ import (
 	"strconv"
 )
 
-// ApiErrorsList struct
+// ApiErrorsList struct.
 type ApiErrorsList map[string]string
 
-// ApiError struct
+// ApiError struct.
 type ApiError struct {
 	SuccessfulResponse
-	ErrorMsg string `json:"errorMsg,omitempty"`
-	Errors ApiErrorsList `json:"errors,omitempty"`
+	ErrorMsg string        `json:"errorMsg,omitempty"`
+	Errors   ApiErrorsList `json:"errors,omitempty"`
 }
 
 func (e *ApiError) Error() string {
@@ -23,8 +23,13 @@ func (e *ApiError) GetApiErrors() map[string]string {
 	return e.Errors
 }
 
-func NewApiError (dataResponse []byte) error {
+func NewApiError(dataResponse []byte) error {
 	a := &ApiError{}
+
+	if dataResponse[0] == 60 {
+		a.ErrorMsg = "405 Not Allowed"
+		return a
+	}
 
 	if err := json.Unmarshal(dataResponse, a); err != nil {
 		return err
@@ -33,7 +38,7 @@ func NewApiError (dataResponse []byte) error {
 	return a
 }
 
-// ErrorsHandler returns map
+// ErrorsHandler returns map.
 func ErrorsHandler(errs interface{}) map[string]string {
 	m := make(map[string]string)
 

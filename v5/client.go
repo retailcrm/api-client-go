@@ -17,7 +17,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// New initialize client
+// New initialize client.
 func New(url string, key string) *Client {
 	return &Client{
 		URL:        url,
@@ -26,7 +26,7 @@ func New(url string, key string) *Client {
 	}
 }
 
-// GetRequest implements GET Request
+// GetRequest implements GET Request.
 func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, error) {
 	var res []byte
 	var prefix = "/api/v5"
@@ -73,7 +73,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	return res, resp.StatusCode, nil
 }
 
-// PostRequest implements POST Request with generic body data
+// PostRequest implements POST Request with generic body data.
 func (c *Client) PostRequest(uri string, postData interface{}, contType ...string) ([]byte, int, error) {
 	var (
 		res         []byte
@@ -118,8 +118,8 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 	if err != nil {
 		return res, 0, err
 	}
-	fmt.Println(resp)
-	if resp.StatusCode >= http.StatusBadRequest {
+
+	if resp.StatusCode >= http.StatusInternalServerError {
 		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
 		return res, resp.StatusCode, apiError
 	}
@@ -147,7 +147,7 @@ func buildRawResponse(resp *http.Response) ([]byte, error) {
 	return res, nil
 }
 
-// checkBy select identifier type
+// checkBy select identifier type.
 func checkBy(by string) string {
 	var context = ByID
 
@@ -158,7 +158,7 @@ func checkBy(by string) string {
 	return context
 }
 
-// fillSite add site code to parameters if present
+// fillSite add site code to parameters if present.
 func fillSite(p *url.Values, site []string) {
 	if len(site) > 0 {
 		s := site[0]
@@ -194,15 +194,14 @@ func (c *Client) APIVersions() (VersionResponse, int, error) {
 	var resp VersionResponse
 
 	data, status, err := c.GetRequest("/api-versions", false)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -233,15 +232,14 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 	var resp CredentialResponse
 
 	data, status, err := c.GetRequest("/credentials", false)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -279,15 +277,14 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -322,15 +319,14 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	}
 
 	data, status, err := c.PostRequest("/customers/combine", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -379,15 +375,14 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -423,15 +418,14 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	}
 
 	data, status, err := c.PostRequest("/customers/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -468,15 +462,14 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -514,15 +507,14 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/notes?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -567,15 +559,14 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/notes/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -605,15 +596,14 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/notes/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -667,15 +657,14 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -710,15 +699,14 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -773,15 +761,14 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -819,15 +806,14 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -868,15 +854,14 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -912,15 +897,14 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 	}
 
 	data, status, err := c.PostRequest("/customers-corporate/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -957,15 +941,14 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1003,15 +986,14 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/notes?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1055,15 +1037,14 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/notes/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1094,15 +1075,14 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, e
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/notes/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1150,15 +1130,14 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1193,15 +1172,14 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1243,15 +1221,14 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/addresses?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1294,15 +1271,14 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1364,15 +1340,14 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1414,15 +1389,14 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/companies?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1464,15 +1438,14 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1534,15 +1507,14 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1584,15 +1556,14 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/contacts?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1639,15 +1610,14 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1706,15 +1676,14 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1769,15 +1738,14 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1824,15 +1792,14 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/generic/%s/tracking", subcode), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1870,15 +1837,14 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/delivery/shipments?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1927,15 +1893,14 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/delivery/shipments/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -1966,15 +1931,14 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error)
 	var resp DeliveryShipmentResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/delivery/shipments/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2014,15 +1978,14 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/shipments/%s/edit", strconv.Itoa(shipment.ID)), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2053,15 +2016,14 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 	var resp IntegrationModuleResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/integration-modules/%s", code))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2107,15 +2069,14 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 	p := url.Values{"integrationModule": {string(updateJSON[:])}}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2191,15 +2152,14 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 	}
 
 	data, status, err := c.PostRequest("/orders/combine", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2243,15 +2203,14 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2291,15 +2250,14 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest("/orders/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2332,15 +2290,14 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2385,15 +2342,14 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/payments/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2424,15 +2380,14 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/payments/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2480,15 +2435,14 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/payments/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2520,15 +2474,14 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 	params, _ := query.Values(request)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/statuses?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2582,15 +2535,14 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2681,15 +2633,14 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2722,15 +2673,14 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2770,15 +2720,14 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest("/orders/packs/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2811,15 +2760,14 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2850,15 +2798,14 @@ func (c *Client) Pack(id int) (PackResponse, int, error) {
 	var resp PackResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2885,15 +2832,14 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/delete", id), url.Values{})
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2926,15 +2872,14 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/edit", pack.ID), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2947,15 +2892,14 @@ func (c *Client) Countries() (CountriesResponse, int, error) {
 	var resp CountriesResponse
 
 	data, status, err := c.GetRequest("/reference/countries")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -2968,15 +2912,14 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	var resp CostGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-groups")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3012,15 +2955,14 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-groups/%s/edit", costGroup.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3033,15 +2975,14 @@ func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	var resp CostItemsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-items")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3077,15 +3018,14 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-items/%s/edit", costItem.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3098,15 +3038,14 @@ func (c *Client) Couriers() (CouriersResponse, int, error) {
 	var resp CouriersResponse
 
 	data, status, err := c.GetRequest("/reference/couriers")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3148,15 +3087,14 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest("/reference/couriers/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3192,15 +3130,14 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/couriers/%d/edit", courier.ID), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3213,15 +3150,14 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	var resp DeliveryServiceResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-services")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3257,15 +3193,14 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3278,15 +3213,14 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3324,15 +3258,14 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3345,15 +3278,14 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	var resp LegalEntitiesResponse
 
 	data, status, err := c.GetRequest("/reference/legal-entities")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3389,15 +3321,14 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/legal-entities/%s/edit", legalEntity.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3410,15 +3341,14 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	var resp OrderMethodsResponse
 
 	data, status, err := c.GetRequest("/reference/order-methods")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3455,15 +3385,14 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3476,15 +3405,14 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	var resp OrderTypesResponse
 
 	data, status, err := c.GetRequest("/reference/order-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3521,15 +3449,14 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3542,15 +3469,14 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	var resp PaymentStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3569,15 +3495,14 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3590,15 +3515,14 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	var resp PaymentTypesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3617,15 +3541,14 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3638,15 +3561,14 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	var resp PriceTypesResponse
 
 	data, status, err := c.GetRequest("/reference/price-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3665,15 +3587,14 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3686,15 +3607,14 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	var resp ProductStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/product-statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3713,15 +3633,14 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3734,15 +3653,14 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 	var resp SitesResponse
 
 	data, status, err := c.GetRequest("/reference/sites")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3761,15 +3679,14 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/sites/%s/edit", site.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3782,15 +3699,14 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	var resp StatusGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/status-groups")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3803,15 +3719,14 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 	var resp StatusesResponse
 
 	data, status, err := c.GetRequest("/reference/statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3819,7 +3734,7 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 
 // StatusEdit order status create/edit
 //
-// For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
+// For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit.
 func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3830,15 +3745,14 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/statuses/%s/edit", st.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3851,15 +3765,14 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 	var resp StoresResponse
 
 	data, status, err := c.GetRequest("/reference/stores")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3878,15 +3791,14 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/stores/%s/edit", store.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3899,15 +3811,14 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 	var resp UnitsResponse
 
 	data, status, err := c.GetRequest("/reference/units")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3926,15 +3837,14 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/units/%s/edit", unit.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -3971,15 +3881,14 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, er
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/segments?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4008,15 +3917,14 @@ func (c *Client) Settings() (SettingsResponse, int, error) {
 	var resp SettingsResponse
 
 	data, status, err := c.GetRequest("/settings")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4049,15 +3957,14 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/inventories?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4113,15 +4020,14 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/store/inventories/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4167,15 +4073,14 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	}
 
 	data, status, err := c.PostRequest("/store/prices/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4212,15 +4117,14 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/product-groups?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4258,15 +4162,14 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/products?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4303,15 +4206,14 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/products/properties?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4348,15 +4250,14 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/tasks?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4397,15 +4298,14 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/tasks/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4436,15 +4336,14 @@ func (c *Client) Task(id int) (TaskResponse, int, error) {
 	var resp TaskResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/tasks/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4483,7 +4382,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/tasks/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
@@ -4524,15 +4423,14 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/user-groups?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4565,15 +4463,14 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/users?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4604,15 +4501,14 @@ func (c *Client) User(id int) (UserResponse, int, error) {
 	var resp UserResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/users/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4643,15 +4539,14 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 	}
 
 	data, st, err := c.PostRequest(fmt.Sprintf("/users/%d/status", id), p)
-	if err.Error() != "" {
+	if err != nil  {
 		return resp, st, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, st, err
+		return resp, st, NewApiError(data)
 	}
 
 	return resp, st, nil
@@ -4664,15 +4559,14 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.GetRequest("/statistic/update")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4711,15 +4605,14 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/costs?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4770,15 +4663,14 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/costs/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4815,15 +4707,14 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	}
 
 	data, status, err := c.PostRequest("/costs/delete", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4877,15 +4768,14 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error
 	}
 
 	data, status, err := c.PostRequest("/costs/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4917,15 +4807,14 @@ func (c *Client) Cost(id int) (CostResponse, int, error) {
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/costs/%d", id))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -4959,15 +4848,14 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", id), p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5011,15 +4899,14 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5060,8 +4947,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5101,8 +4987,7 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5133,15 +5018,14 @@ func (c *Client) File(id int) (FileResponse, int, error) {
 	var resp FileResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5176,8 +5060,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5242,8 +5125,7 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5280,15 +5162,14 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5326,15 +5207,14 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5385,15 +5265,14 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 
 	data, status, err := c.PostRequest("/custom-fields/dictionaries/create", p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5425,15 +5304,14 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries/%s", code))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5483,15 +5361,14 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5535,15 +5412,14 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity), p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5575,15 +5451,14 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, err
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/%s/%s", entity, code))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil
@@ -5625,15 +5500,14 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//buildErr(data, err)
-		return resp, status, err
+		return resp, status, NewApiError(data)
 	}
 
 	return resp, status, nil

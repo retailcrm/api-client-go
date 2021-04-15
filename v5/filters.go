@@ -1,6 +1,6 @@
 package v5
 
-// CustomersFilter type
+// CustomersFilter type.
 type CustomersFilter struct {
 	Ids                        []string          `url:"ids,omitempty,brackets"`
 	ExternalIds                []string          `url:"externalIds,omitempty,brackets"`
@@ -57,7 +57,7 @@ type CustomersFilter struct {
 	CustomFields               map[string]string `url:"customFields,omitempty,brackets"`
 }
 
-// CorporateCustomersFilter type
+// CorporateCustomersFilter type.
 type CorporateCustomersFilter struct {
 	ContragentName        string            `url:"contragentName,omitempty"`
 	ContragentInn         string            `url:"contragentInn,omitempty"`
@@ -99,7 +99,7 @@ type CorporateCustomersFilter struct {
 	CustomFields          map[string]string `url:"customFields,omitempty,brackets"`
 }
 
-// CorporateCustomersNotesFilter type
+// CorporateCustomersNotesFilter type.
 type CorporateCustomersNotesFilter struct {
 	Ids                 []string `url:"ids,omitempty,brackets"`
 	CustomerIds         []string `url:"ids,omitempty,brackets"`
@@ -110,7 +110,7 @@ type CorporateCustomersNotesFilter struct {
 	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
 }
 
-// CorporateCustomerAddressesFilter type
+// CorporateCustomerAddressesFilter type.
 type CorporateCustomerAddressesFilter struct {
 	Ids    []string `url:"ids,omitempty,brackets"`
 	Name   string   `url:"name,omitempty"`
@@ -118,13 +118,13 @@ type CorporateCustomerAddressesFilter struct {
 	Region string   `url:"region,omitempty"`
 }
 
-// IdentifiersPairFilter type
+// IdentifiersPairFilter type.
 type IdentifiersPairFilter struct {
 	Ids         []string `url:"ids,omitempty,brackets"`
 	ExternalIds []string `url:"externalIds,omitempty,brackets"`
 }
 
-// CustomersHistoryFilter type
+// CustomersHistoryFilter type.
 type CustomersHistoryFilter struct {
 	CustomerID         int    `url:"customerId,omitempty"`
 	SinceID            int    `url:"sinceId,omitempty"`
@@ -133,7 +133,7 @@ type CustomersHistoryFilter struct {
 	EndDate            string `url:"endDate,omitempty"`
 }
 
-// CorporateCustomersHistoryFilter type
+// CorporateCustomersHistoryFilter type.
 type CorporateCustomersHistoryFilter struct {
 	CustomerID         int      `url:"customerId,omitempty"`
 	SinceID            int      `url:"sinceId,omitempty"`
@@ -143,7 +143,7 @@ type CorporateCustomersHistoryFilter struct {
 	EndDate            string   `url:"endDate,omitempty"`
 }
 
-// OrdersFilter type
+// OrdersFilter type.
 type OrdersFilter struct {
 	Ids                            []int             `url:"ids,omitempty,brackets"`
 	ExternalIds                    []string          `url:"externalIds,omitempty,brackets"`
@@ -234,7 +234,7 @@ type OrdersFilter struct {
 	CustomFields                   map[string]string `url:"customFields,omitempty,brackets"`
 }
 
-// OrdersHistoryFilter type
+// OrdersHistoryFilter type.
 type OrdersHistoryFilter struct {
 	OrderID         int    `url:"orderId,omitempty"`
 	SinceID         int    `url:"sinceId,omitempty"`
@@ -243,7 +243,7 @@ type OrdersHistoryFilter struct {
 	EndDate         string `url:"endDate,omitempty"`
 }
 
-// UsersFilter type
+// UsersFilter type.
 type UsersFilter struct {
 	Email         string   `url:"email,omitempty"`
 	Status        string   `url:"status,omitempty"`
@@ -256,7 +256,7 @@ type UsersFilter struct {
 	Groups        []string `url:"groups,omitempty,brackets"`
 }
 
-// TasksFilter type
+// TasksFilter type.
 type TasksFilter struct {
 	OrderNumber string `url:"orderNumber,omitempty"`
 	Status      string `url:"status,omitempty"`
@@ -268,7 +268,7 @@ type TasksFilter struct {
 	Performers  []int  `url:"performers,omitempty,brackets"`
 }
 
-// NotesFilter type
+// NotesFilter type.
 type NotesFilter struct {
 	Ids                 []int    `url:"ids,omitempty,brackets"`
 	CustomerIds         []int    `url:"customerIds,omitempty,brackets"`
@@ -279,7 +279,7 @@ type NotesFilter struct {
 	CreatedAtTo         string   `url:"createdAtTo,omitempty"`
 }
 
-// SegmentsFilter type
+// SegmentsFilter type.
 type SegmentsFilter struct {
 	Ids               []int  `url:"ids,omitempty,brackets"`
 	Active            int    `url:"active,omitempty"`
@@ -291,7 +291,7 @@ type SegmentsFilter struct {
 	DateTo            string `url:"dateTo,omitempty"`
 }
 
-// PacksFilter type
+// PacksFilter type.
 type PacksFilter struct {
 	Ids                []int    `url:"ids,omitempty,brackets"`
 	Stores             []string `url:"stores,omitempty"`
@@ -306,7 +306,7 @@ type PacksFilter struct {
 	DeliveryNoteNumber string   `url:"deliveryNoteNumber,omitempty"`
 }
 
-// InventoriesFilter type
+// InventoriesFilter type.
 type InventoriesFilter struct {
 	Ids               []int    `url:"ids,omitempty,brackets"`
 	ProductExternalID string   `url:"productExternalId,omitempty"`
@@ -319,7 +319,7 @@ type InventoriesFilter struct {
 	Sites             []string `url:"sites,omitempty,brackets"`
 }
 
-// ProductsGroupsFilter type
+// ProductsGroupsFilter type.
 type ProductsGroupsFilter struct {
 	Ids           []int    `url:"ids,omitempty,brackets"`
 	Sites         []string `url:"sites,omitempty,brackets"`
@@ -327,7 +327,7 @@ type ProductsGroupsFilter struct {
 	ParentGroupID string   `url:"parentGroupId,omitempty"`
 }
 
-// ProductsFilter type
+// ProductsFilter type.
 type ProductsFilter struct {
 	Ids              []int             `url:"ids,omitempty,brackets"`
 	OfferIds         []int             `url:"offerIds,omitempty,brackets"`
@@ -355,14 +355,14 @@ type ProductsFilter struct {
 	Properties       map[string]string `url:"properties,omitempty,brackets"`
 }
 
-// ProductsPropertiesFilter type
+// ProductsPropertiesFilter type.
 type ProductsPropertiesFilter struct {
 	Code  string   `url:"code,omitempty"`
 	Name  string   `url:"name,omitempty"`
 	Sites []string `url:"sites,omitempty,brackets"`
 }
 
-// ShipmentFilter type
+// ShipmentFilter type.
 type ShipmentFilter struct {
 	Ids           []int    `url:"ids,omitempty,brackets"`
 	ExternalID    string   `url:"externalId,omitempty"`
@@ -375,7 +375,7 @@ type ShipmentFilter struct {
 	Statuses      []string `url:"statuses,omitempty,brackets"`
 }
 
-// CostsFilter type
+// CostsFilter type.
 type CostsFilter struct {
 	MinSumm          string   `url:"minSumm,omitempty"`
 	MaxSumm          string   `url:"maxSumm,omitempty"`
@@ -395,7 +395,7 @@ type CostsFilter struct {
 	OrderExternalIds []string `url:"orderIds,omitempty,brackets"`
 }
 
-// FilesFilter type
+// FilesFilter type.
 type FilesFilter struct {
 	Ids                 []int    `url:"ids,omitempty,brackets"`
 	OrderIds            []int    `url:"orderIds,omitempty,brackets"`
@@ -412,7 +412,7 @@ type FilesFilter struct {
 	Sites               []string `url:"sites,omitempty,brackets"`
 }
 
-// CustomFieldsFilter type
+// CustomFieldsFilter type.
 type CustomFieldsFilter struct {
 	Name        string `url:"name,omitempty"`
 	Code        string `url:"code,omitempty"`
@@ -422,7 +422,7 @@ type CustomFieldsFilter struct {
 	DisplayArea string `url:"displayArea,omitempty"`
 }
 
-// CustomDictionariesFilter type
+// CustomDictionariesFilter type.
 type CustomDictionariesFilter struct {
 	Name string `url:"name,omitempty"`
 	Code string `url:"code,omitempty"`
