@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/retailcrm/api-client-go/errs"
 	"io"
 	"io/ioutil"
 	"log"
@@ -83,7 +82,7 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 	)
 
 	prefix := "/api/v5"
-	failure := &errs.Failure{}
+	apiError := &ApiError{}
 
 	if len(contType) > 0 {
 		contentType = contType[0]
@@ -98,15 +97,14 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 		if i, ok := postData.(io.Reader); ok {
 			reader = i
 		} else {
-			failure.SetRuntimeError(errors.New("postData should be url.Values or implement io.Reader"))
-			return []byte{}, 0, failure
+			err := errors.New("postData should be url.Values or implement io.Reader")
+			return []byte{}, 0, err
 		}
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	req.Header.Set("Content-Type", contentType)
@@ -118,26 +116,24 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
-
-	if resp.StatusCode >= http.StatusInternalServerError {
-		failure.SetApiError(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
-		return res, resp.StatusCode, failure
+	fmt.Println(resp)
+	if resp.StatusCode >= http.StatusBadRequest {
+		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, apiError
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, failure
+	return res, resp.StatusCode, nil
 }
 
 func buildRawResponse(resp *http.Response) ([]byte, error) {

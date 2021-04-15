@@ -8,19 +8,11 @@ func (t Tag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Name)
 }
 
-func (a *ApiError) UnmarshalJSON(data []byte) error {
-	var e ApiErrorsList
-
-	if err := json.Unmarshal(data, &e); err != nil {
+func (a *ApiErrorsList) UnmarshalJSON (data []byte) error {
+	var i interface {}
+	if err := json.Unmarshal(data, &i); err != nil {
 		return err
 	}
-
-	a.SuccessfulResponse = SuccessfulResponse{e.Success}
-	a.ErrorMsg = e.ErrorsMsg
-
-	if e.Errors != nil {
-		a.Errors = ErrorsHandler(e.Errors)
-	}
-
+	*a = ErrorsHandler(i)
 	return nil
 }
