@@ -113,16 +113,16 @@ func TestClient_ApiVersionsVersions(t *testing.T) {
 		BodyString(`{"success": true, "versions" : ["1.0", "4.0", "3.0", "4.0", "5.0"]}`)
 
 	data, status, err := c.APIVersions()
-	if err.Error() != "" {
+	if err != nil {
 		t.Errorf("%v", err.Error())
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -137,16 +137,16 @@ func TestClient_ApiVersionsVersionsBadUrl(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg" : "Account does not exist"}`)
 
 	data, status, err := c.APIVersions()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != false {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 }
 
@@ -161,16 +161,16 @@ func TestClient_ApiCredentialsCredentialsBadKey(t *testing.T) {
 	c := client()
 
 	data, status, err := c.APICredentials()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 
 	if data.Success != false {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 }
 
@@ -185,16 +185,16 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 	c := client()
 
 	data, status, err := c.APICredentials()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -217,16 +217,16 @@ func TestClient_CustomersCustomers(t *testing.T) {
 		Page: 3,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 }
 
@@ -247,8 +247,8 @@ func TestClient_CustomersCustomers_Fail(t *testing.T) {
 		},
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -296,16 +296,16 @@ func TestClient_CustomerChange(t *testing.T) {
 		BodyString(`{"success": true, "id": 123}`)
 
 	cr, sc, err := c.CustomerCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if sc != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cr.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	f.ID = cr.ID
@@ -326,16 +326,16 @@ func TestClient_CustomerChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	ed, se, err := c.CustomerEdit(f, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if se != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if ed.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -361,20 +361,20 @@ func TestClient_CustomerChange(t *testing.T) {
 		}`)
 
 	data, status, err := c.Customer(f.ExternalID, ByExternalID, "")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if !reflect.DeepEqual(data.Customer.Tags, f.Tags) {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -401,8 +401,8 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Parameter 'externalId' in 'customer' is missing"}`)
 
 	cr, sc, err := c.CustomerCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if sc < http.StatusBadRequest {
@@ -431,8 +431,8 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	ed, se, err := c.CustomerEdit(f, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if se < http.StatusBadRequest {
@@ -450,8 +450,8 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	data, status, err := c.Customer(codeFail, ByExternalID, "")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -492,16 +492,16 @@ func TestClient_CustomersUpload(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.CustomersUpload(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -525,8 +525,8 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
 
 	data, status, err := c.CustomersUpload(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -562,16 +562,16 @@ func TestClient_CustomersCombine(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.CustomersCombine(customers, resultCustomer)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -599,8 +599,8 @@ func TestClient_CustomersCombine_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
 	data, status, err := c.CustomersCombine([]Customer{{}, {}}, Customer{})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -636,16 +636,16 @@ func TestClient_CustomersFixExternalIds(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	fx, fe, err := c.CustomersFixExternalIds(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if fe != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if fx.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -670,8 +670,8 @@ func TestClient_CustomersFixExternalIds_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
 
 	data, status, err := c.CustomersFixExternalIds(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -699,16 +699,16 @@ func TestClient_CustomersHistory(t *testing.T) {
 		BodyString(`{"success": true, "history": [{"id": 1}]}`)
 
 	data, status, err := c.CustomersHistory(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.History) == 0 {
@@ -733,8 +733,8 @@ func TestClient_CustomersHistory_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, status, err := c.CustomersHistory(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -765,16 +765,16 @@ func TestClient_CorporateCustomersList(t *testing.T) {
 		Page: 3,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Logf("%v", err.ApiError())
+		t.Logf("%v", err)
 	}
 }
 
@@ -861,16 +861,16 @@ func TestClient_CorporateCustomersCreate(t *testing.T) {
 
 	data, status, err := c.CorporateCustomerCreate(customer, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -898,16 +898,16 @@ func TestClient_CorporateCustomersFixExternalIds(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	fx, fe, err := c.CorporateCustomersFixExternalIds(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if fe != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if fx.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -932,8 +932,8 @@ func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
 
 	data, status, err := c.CorporateCustomersFixExternalIds(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -961,16 +961,16 @@ func TestClient_CorporateCustomersHistory(t *testing.T) {
 		BodyString(`{"success": true, "history": [{"id": 1}]}`)
 
 	data, status, err := c.CorporateCustomersHistory(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.History) == 0 {
@@ -995,8 +995,8 @@ func TestClient_CorporateCustomersHistory_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, status, err := c.CorporateCustomersHistory(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -1049,16 +1049,16 @@ func TestClient_CorporateCustomersNotes(t *testing.T) {
 		},
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Notes[0].Text != "<p>sample text</p>" {
@@ -1083,16 +1083,16 @@ func TestClient_CorporateCustomerNoteCreate(t *testing.T) {
 		},
 	}, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.ID != 1 {
@@ -1112,16 +1112,16 @@ func TestClient_CorporateCustomerNoteDelete(t *testing.T) {
 
 	data, status, err := c.CorporateCustomerNoteDelete(1)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1152,16 +1152,16 @@ func TestClient_CorporateCustomersUpload(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.CorporateCustomersUpload(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1185,8 +1185,8 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
 
 	data, status, err := c.CorporateCustomersUpload(customers)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -1242,16 +1242,16 @@ func TestClient_CorporateCustomer(t *testing.T) {
 		`)
 
 	data, status, err := c.CorporateCustomer("ext-id", ByExternalID, "site")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1301,16 +1301,16 @@ func TestClient_CorporateCustomerAddresses(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.Addresses) == 0 {
@@ -1333,16 +1333,16 @@ func TestClient_CorporateCustomerAddressesCreate(t *testing.T) {
 		Name: "New Address",
 	}, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1367,16 +1367,16 @@ func TestClient_CorporateCustomerAddressesEdit(t *testing.T) {
 		"site",
 	)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1462,16 +1462,16 @@ func TestClient_CorporateCustomerCompanies(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.Companies) == 0 {
@@ -1493,16 +1493,16 @@ func TestClient_CorporateCustomerCompaniesCreate(t *testing.T) {
 		Name: "New Company",
 	}, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1527,16 +1527,16 @@ func TestClient_CorporateCustomerCompaniesEdit(t *testing.T) {
 		"site",
 	)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1578,16 +1578,16 @@ func TestClient_CorporateCustomerContacts(t *testing.T) {
 		Page:   1,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.Contacts) == 0 {
@@ -1616,16 +1616,16 @@ func TestClient_CorporateCustomerContactsCreate(t *testing.T) {
 		LastName:   "Person",
 	}, "site")
 
-	if createErr.Error() != "" {
-		t.Errorf("%v", createErr.Error())
+	if createErr != nil {
+		t.Errorf("%v", createErr)
 	}
 
 	if createStatus >= http.StatusBadRequest {
-		t.Errorf("%v", createErr.ApiError())
+		t.Errorf("%v", createErr)
 	}
 
 	if createResponse.Success != true {
-		t.Errorf("%v", createErr.ApiError())
+		t.Errorf("%v", createErr)
 	}
 
 	if createResponse.ID != 2 {
@@ -1641,16 +1641,16 @@ func TestClient_CorporateCustomerContactsCreate(t *testing.T) {
 		Companies: []IdentifiersPair{},
 	}, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.ID != 3 {
@@ -1675,16 +1675,16 @@ func TestClient_CorporateCustomerContactsEdit(t *testing.T) {
 		},
 	}, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("(%d) %v", status, err.ApiError())
+		t.Errorf("(%d) %v", status, err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.ID == 0 {
@@ -1708,16 +1708,16 @@ func TestClient_CorporateCustomerEdit(t *testing.T) {
 		Vip:        true,
 	}, ByExternalID, "site")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("(%d) %v", status, err.ApiError())
+		t.Errorf("(%d) %v", status, err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1733,20 +1733,20 @@ func TestClient_NotesNotes(t *testing.T) {
 		BodyString(`{"success": true, "notes": [{"id": 1}]}`)
 
 	data, status, err := c.CustomerNotes(NotesRequest{Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.Notes) == 0 {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1764,8 +1764,8 @@ func TestClient_NotesNotes_Fail(t *testing.T) {
 	data, status, err := c.CustomerNotes(NotesRequest{
 		Filter: NotesFilter{CreatedAtFrom: "2020-13-12"},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -1804,20 +1804,20 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	noteCreateResponse, noteCreateStatus, err := c.CustomerNoteCreate(note)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if noteCreateStatus != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if noteCreateResponse.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	p = url.Values{
-		"id": {string(1)},
+		"id": {fmt.Sprint(1)},
 	}
 
 	gock.New(crmURL).
@@ -1828,17 +1828,17 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	noteDeleteResponse, noteDeleteStatus, err := c.CustomerNoteDelete(noteCreateResponse.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if noteDeleteStatus != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if noteDeleteResponse.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1866,8 +1866,8 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"customer": "Set one of the following fields: id, externalId"}}`)
 
 	data, status, err := c.CustomerNoteCreate(note)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -1879,7 +1879,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {string(iCodeFail)},
+		"id": {fmt.Sprint(iCodeFail)},
 	}
 
 	gock.New(crmURL).
@@ -1890,8 +1890,8 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Note not found map"}`)
 
 	noteDeleteResponse, noteDeleteStatus, err := c.CustomerNoteDelete(iCodeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if noteDeleteStatus < http.StatusBadRequest {
@@ -1916,17 +1916,17 @@ func TestClient_OrdersOrders(t *testing.T) {
 		BodyString(`{"success": true, "orders":  [{"id": 1}]}`)
 
 	data, status, err := c.Orders(OrdersRequest{Filter: OrdersFilter{City: "Москва"}, Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -1942,8 +1942,8 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[attachments]": "SThis value is not valid."}}`)
 
 	data, status, err := c.Orders(OrdersRequest{Filter: OrdersFilter{Attachments: 7}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2060,16 +2060,16 @@ func TestClient_OrderChange(t *testing.T) {
 }`)
 
 	cr, sc, err := c.OrderCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if sc != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cr.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cr.Order.Number != "1A" {
@@ -2094,16 +2094,16 @@ func TestClient_OrderChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	ed, se, err := c.OrderEdit(f, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if se != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if ed.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -2113,16 +2113,16 @@ func TestClient_OrderChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.Order(f.ExternalID, ByExternalID, "")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2157,8 +2157,8 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found map"}`)
 
 	data, status, err := c.OrderEdit(f, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2199,17 +2199,17 @@ func TestClient_OrdersUpload(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.OrdersUpload(orders)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2241,8 +2241,8 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Orders are loaded with errors"}`)
 
 	data, status, err := c.OrdersUpload(orders)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2275,17 +2275,17 @@ func TestClient_OrdersCombine(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.OrdersCombine("ours", Order{ID: 1}, Order{ID: 2})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2309,10 +2309,9 @@ func TestClient_OrdersCombine_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
 	data, status, err := c.OrdersCombine("ours", Order{}, Order{})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
-
 	if status < http.StatusBadRequest {
 		t.Error(statusFail)
 	}
@@ -2345,17 +2344,17 @@ func TestClient_OrdersFixExternalIds(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	fx, fe, err := c.OrdersFixExternalIds(orders)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if fe != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if fx.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2378,8 +2377,8 @@ func TestClient_OrdersFixExternalIds_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
 	data, status, err := c.OrdersFixExternalIds(orders)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2423,20 +2422,20 @@ func TestClient_OrdersStatuses(t *testing.T) {
 		IDs:         []int{1},
 		ExternalIDs: []string{"2"},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.Orders) == 0 {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2452,21 +2451,21 @@ func TestClient_OrdersHistory(t *testing.T) {
 		BodyString(`{"success": true, "history": [{"id": 1}]}`)
 
 	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{SinceID: 20}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.History) == 0 {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2482,8 +2481,8 @@ func TestClient_OrdersHistory_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2521,16 +2520,16 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	paymentCreateResponse, status, err := c.OrderPaymentCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if paymentCreateResponse.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	k := Payment{
@@ -2551,20 +2550,20 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	paymentEditResponse, status, err := c.OrderPaymentEdit(k, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if paymentEditResponse.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	p = url.Values{
-		"id": {string(paymentCreateResponse.ID)},
+		"id": {fmt.Sprint(paymentCreateResponse.ID)},
 	}
 
 	gock.New(crmURL).
@@ -2575,16 +2574,16 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	paymentDeleteResponse, status, err := c.OrderPaymentDelete(paymentCreateResponse.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if paymentDeleteResponse.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2612,8 +2611,8 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"order": "Set one of the following fields: id, externalId, number"}}`)
 
 	data, status, err := c.OrderPaymentCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2642,8 +2641,8 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Payment not found"}`)
 
 	paymentEditResponse, status, err := c.OrderPaymentEdit(k, ByID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2655,7 +2654,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {string(iCodeFail)},
+		"id": {fmt.Sprint(iCodeFail)},
 	}
 
 	gock.New(crmURL).
@@ -2666,8 +2665,8 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Payment not found"}`)
 
 	paymentDeleteResponse, status, err := c.OrderPaymentDelete(iCodeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2698,16 +2697,16 @@ func TestClient_TasksTasks(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.Tasks(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2728,8 +2727,8 @@ func TestClient_TasksTasks_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.Tasks(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2763,16 +2762,16 @@ func TestClient_TaskChange(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	cr, sc, err := c.TaskCreate(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if sc != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cr.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	f.ID = cr.ID
@@ -2784,16 +2783,16 @@ func TestClient_TaskChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	gt, sg, err := c.Task(f.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if sg != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if gt.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	jr, _ = json.Marshal(f)
@@ -2809,17 +2808,17 @@ func TestClient_TaskChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.TaskEdit(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2846,8 +2845,8 @@ func TestClient_TaskChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Task is not loaded", "errors": {"performerId": "This value should not be blank."}}`)
 
 	data, status, err := c.TaskEdit(f)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2872,17 +2871,17 @@ func TestClient_UsersUsers(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 1}, Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2899,8 +2898,8 @@ func TestClient_UsersUsers_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"active": "he value you selected is not a valid choice."}}`)
 
 	data, status, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 3}, Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2923,17 +2922,17 @@ func TestClient_UsersUser(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.User(user)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -2948,8 +2947,8 @@ func TestClient_UsersUser_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	data, status, err := c.User(iCodeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -2973,16 +2972,16 @@ func TestClient_UsersGroups(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.UserGroups(UserGroupsRequest{Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3003,17 +3002,16 @@ func TestClient_UsersUpdate(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.UserStatus(user, "busy")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3034,8 +3032,8 @@ func TestClient_UsersUpdate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	data, status, err := c.UserStatus(iCodeFail, "busy")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -3058,16 +3056,16 @@ func TestClient_StaticticsUpdate(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.StaticticsUpdate()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3082,16 +3080,16 @@ func TestClient_Countries(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.Couriers()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3106,16 +3104,16 @@ func TestClient_CostGroups(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.CostGroups()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3130,16 +3128,16 @@ func TestClient_CostItems(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.CostItems()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3154,16 +3152,16 @@ func TestClient_Couriers(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.Couriers()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3178,16 +3176,16 @@ func TestClient_DeliveryService(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.DeliveryServices()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3202,16 +3200,16 @@ func TestClient_DeliveryTypes(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.DeliveryTypes()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3226,16 +3224,16 @@ func TestClient_LegalEntities(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.LegalEntities()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3250,16 +3248,16 @@ func TestClient_OrderMethods(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.OrderMethods()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3285,16 +3283,16 @@ func TestClient_OrderPaymentEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.OrderPaymentEdit(payment, "externalId")
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3309,16 +3307,16 @@ func TestClient_OrderTypes(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.OrderTypes()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3333,16 +3331,16 @@ func TestClient_PaymentStatuses(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PaymentStatuses()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3357,16 +3355,16 @@ func TestClient_PaymentTypes(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PaymentTypes()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3381,16 +3379,16 @@ func TestClient_PriceTypes(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PriceTypes()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3405,16 +3403,16 @@ func TestClient_ProductStatuses(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.ProductStatuses()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3429,16 +3427,16 @@ func TestClient_Statuses(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.Statuses()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3453,16 +3451,16 @@ func TestClient_StatusGroups(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.StatusGroups()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3477,16 +3475,16 @@ func TestClient_Sites(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.Sites()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3501,16 +3499,16 @@ func TestClient_Stores(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.Stores()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3542,16 +3540,16 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.CostGroupEdit(costGroup)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	costItem := CostItem{
@@ -3577,17 +3575,17 @@ func TestClient_CostGroupItemEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	idata, st, err := c.CostItemEdit(costItem)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if idata.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3617,8 +3615,8 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.CostGroupEdit(costGroup)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -3652,8 +3650,8 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	idata, st, err := c.CostItemEdit(costItem)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -3691,16 +3689,16 @@ func TestClient_Courier(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	data, st, err := c.CourierCreate(cur)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	cur.ID = data.ID
@@ -3720,17 +3718,17 @@ func TestClient_Courier(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	idata, st, err := c.CourierEdit(cur)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if idata.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3753,8 +3751,8 @@ func TestClient_Courier_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"firstName": "Specify the first name"}}`)
 
 	data, st, err := c.CourierCreate(Courier{})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -3780,8 +3778,8 @@ func TestClient_Courier_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "An attempt was made to edit a nonexistent record"}`)
 
 	idata, st, err := c.CourierEdit(cur)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -3818,17 +3816,17 @@ func TestClient_DeliveryServiceEdit(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	data, st, err := c.DeliveryServiceEdit(deliveryService)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3855,8 +3853,8 @@ func TestClient_DeliveryServiceEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.DeliveryServiceEdit(deliveryService)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -3898,17 +3896,17 @@ func TestClient_DeliveryTypeEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.DeliveryTypeEdit(deliveryType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -3939,8 +3937,8 @@ func TestClient_DeliveryTypeEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.DeliveryTypeEdit(deliveryType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -3977,17 +3975,17 @@ func TestClient_OrderMethodEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.OrderMethodEdit(orderMethod)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4015,8 +4013,8 @@ func TestClient_OrderMethodEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.OrderMethodEdit(orderMethod)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4054,17 +4052,17 @@ func TestClient_OrderTypeEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.OrderTypeEdit(orderType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4091,8 +4089,8 @@ func TestClient_OrderTypeEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.OrderTypeEdit(orderType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4132,17 +4130,17 @@ func TestClient_PaymentStatusEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PaymentStatusEdit(paymentStatus)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4172,8 +4170,8 @@ func TestClient_PaymentStatusEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.PaymentStatusEdit(paymentStatus)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4210,17 +4208,17 @@ func TestClient_PaymentTypeEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PaymentTypeEdit(paymentType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4248,8 +4246,8 @@ func TestClient_PaymentTypeEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.PaymentTypeEdit(paymentType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4285,16 +4283,16 @@ func TestClient_PriceTypeEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.PriceTypeEdit(priceType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4321,8 +4319,8 @@ func TestClient_PriceTypeEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.PriceTypeEdit(priceType)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4359,16 +4357,16 @@ func TestClient_ProductStatusEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.ProductStatusEdit(productStatus)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4396,8 +4394,8 @@ func TestClient_ProductStatusEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.ProductStatusEdit(productStatus)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4434,17 +4432,17 @@ func TestClient_StatusEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.StatusEdit(status)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4473,8 +4471,8 @@ func TestClient_StatusEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.StatusEdit(status)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4511,12 +4509,12 @@ func TestClient_SiteEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, _, err := c.SiteEdit(site)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if data.Success == false {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4545,8 +4543,8 @@ func TestClient_SiteEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Method Not Allowed"}`)
 
 	data, _, err := c.SiteEdit(site)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if data.Success != false {
@@ -4581,16 +4579,16 @@ func TestClient_StoreEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.StoreEdit(store)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4620,8 +4618,8 @@ func TestClient_StoreEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	data, st, err := c.StoreEdit(store)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4644,16 +4642,16 @@ func TestClient_Units(t *testing.T) {
 		BodyString(`{"success": true, "units": []}`)
 
 	data, st, err := c.Units()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if st != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4684,16 +4682,16 @@ func TestClient_UnitsEdit(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, st, err := c.UnitEdit(unit)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[st] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4721,8 +4719,8 @@ func TestClient_UnitEdit_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Method not found"}`)
 
 	data, st, err := c.UnitEdit(unit)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if st < http.StatusBadRequest {
@@ -4758,16 +4756,16 @@ func TestClient_PackChange(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	p, status, err := c.PackCreate(pack)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if p.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -4776,16 +4774,16 @@ func TestClient_PackChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	s, status, err := c.Pack(p.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if s.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	jr, _ = json.Marshal(&Pack{ID: p.ID, Quantity: 2})
@@ -4802,16 +4800,16 @@ func TestClient_PackChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	e, status, err := c.PackEdit(Pack{ID: p.ID, Quantity: 2})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if e.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -4821,16 +4819,16 @@ func TestClient_PackChange(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	d, status, err := c.PackDelete(p.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if d.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4859,8 +4857,8 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format"}`)
 
 	p, status, err := c.PackCreate(pack)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -4877,8 +4875,8 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format"}`)
 
 	s, status, err := c.Pack(iCodeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -4903,8 +4901,8 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Pack with id 123123 not found"}`)
 
 	e, status, err := c.PackEdit(Pack{ID: iCodeFail, Quantity: 2})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -4922,8 +4920,8 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Pack not found"}`)
 
 	d, status, err := c.PackDelete(iCodeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -4947,21 +4945,21 @@ func TestClient_PacksHistory(t *testing.T) {
 		BodyString(`{"success": true, "history": [{"id": 1}]}`)
 
 	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{SinceID: 5}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if len(data.History) == 0 {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -4977,8 +4975,8 @@ func TestClient_PacksHistory_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5002,17 +5000,17 @@ func TestClient_Packs(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{}, Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5028,8 +5026,8 @@ func TestClient_Packs_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{ShipmentDateFrom: "2020-13-12"}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5054,17 +5052,17 @@ func TestClient_Inventories(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	data, status, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Details: 1}, Page: 1})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5080,8 +5078,8 @@ func TestClient_Inventories_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Sites: []string{codeFail}}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5104,17 +5102,17 @@ func TestClient_Segments(t *testing.T) {
 		BodyString(`{"success": true, "id": 1}`)
 
 	data, status, err := c.Segments(SegmentsRequest{})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5146,16 +5144,16 @@ func TestClient_Settings(t *testing.T) {
 `)
 
 	data, status, err := c.Settings()
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Settings.DefaultCurrency.Value != "RUB" {
@@ -5183,8 +5181,8 @@ func TestClient_Segments_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.Segments(SegmentsRequest{Filter: SegmentsFilter{Active: 3}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5229,16 +5227,16 @@ func TestClient_IntegrationModule(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	m, status, err := c.IntegrationModuleEdit(integrationModule)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusCreated {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if m.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -5247,16 +5245,16 @@ func TestClient_IntegrationModule(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	g, status, err := c.IntegrationModule(code)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5292,8 +5290,8 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	m, status, err := c.IntegrationModuleEdit(integrationModule)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5310,8 +5308,8 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	g, status, err := c.IntegrationModule(code)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5339,17 +5337,17 @@ func TestClient_ProductsGroup(t *testing.T) {
 			Active: 1,
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5369,8 +5367,8 @@ func TestClient_ProductsGroup_Fail(t *testing.T) {
 			Active: 3,
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5400,17 +5398,17 @@ func TestClient_Products(t *testing.T) {
 			MinPrice: 1,
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5428,8 +5426,8 @@ func TestClient_Products_Fail(t *testing.T) {
 	g, status, err := c.Products(ProductsRequest{
 		Filter: ProductsFilter{Active: 3},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5460,16 +5458,16 @@ func TestClient_ProductsProperties(t *testing.T) {
 			Sites: sites,
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5497,16 +5495,16 @@ func TestClient_DeliveryTracking(t *testing.T) {
 		}},
 	}}, "subcode")
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5526,16 +5524,16 @@ func TestClient_DeliveryShipments(t *testing.T) {
 			DateFrom: "2017-10-10",
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if g.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5555,8 +5553,8 @@ func TestClient_DeliveryShipments_Fail(t *testing.T) {
 			Stores: []string{codeFail},
 		},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
@@ -5595,16 +5593,16 @@ func TestClient_Cost(t *testing.T) {
 
 	data, status, err := c.CostCreate(costRecord)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	id := data.ID
@@ -5625,16 +5623,16 @@ func TestClient_Cost(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if costs.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -5644,16 +5642,16 @@ func TestClient_Cost(t *testing.T) {
 
 	cost, status, err := c.Cost(id)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cost.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	costRecord.DateFrom = "2018-04-09"
@@ -5675,16 +5673,16 @@ func TestClient_Cost(t *testing.T) {
 
 	costEdit, status, err := c.CostEdit(id, costRecord)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if costEdit.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	j, _ := json.Marshal(&id)
@@ -5702,16 +5700,16 @@ func TestClient_Cost(t *testing.T) {
 
 	costDelete, status, err := c.CostDelete(id)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if costDelete.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5741,16 +5739,16 @@ func TestClient_Cost_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Cost is not loaded"}`)
 
 	data, status, err := c.CostCreate(costRecord)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Error("Error must be return")
 	}
 
 	if status < http.StatusBadRequest {
 		t.Error(statusFail)
 	}
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	id := data.ID
@@ -5764,8 +5762,8 @@ func TestClient_Cost_Fail(t *testing.T) {
 	costs, status, err := c.Costs(CostsRequest{
 		Filter: CostsFilter{Sites: []string{codeFail}},
 	})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -5782,8 +5780,8 @@ func TestClient_Cost_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	cost, status, err := c.Cost(id)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -5813,8 +5811,8 @@ func TestClient_Cost_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Cost is not loaded"}`)
 
 	costEdit, status, err := c.CostEdit(id, costRecord)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -5838,8 +5836,8 @@ func TestClient_Cost_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	costDelete, status, err := c.CostDelete(id)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -5891,17 +5889,17 @@ func TestClient_CostsUpload(t *testing.T) {
 
 	data, status, err := c.CostsUpload(costsUpload)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	ids := data.UploadedCosts
@@ -5920,17 +5918,17 @@ func TestClient_CostsUpload(t *testing.T) {
 		BodyString(`{"success": true}`)
 
 	costsDelete, status, err := c.CostsDelete(ids)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if costsDelete.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -5965,8 +5963,8 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Costs are loaded with errors"}`)
 
 	data, status, err := c.CostsUpload(costsUpload)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -5993,8 +5991,8 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Expected array, but got NULL: null"}`)
 
 	costsDelete, status, err := c.CostsDelete(ids)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -6029,7 +6027,7 @@ func TestClient_Files(t *testing.T) {
 	})
 
 	if status != 200 {
-		t.Errorf("%v %v", err.Error(), err.ApiError())
+		t.Errorf("%v %v", err.Error(), err)
 	}
 }
 
@@ -6045,16 +6043,16 @@ func TestClient_FileUpload(t *testing.T) {
 		BodyString(`{"success": true, "file": {"id": 1}}`)
 
 	data, status, err := c.FileUpload(file)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.File.ID != 1 {
@@ -6074,8 +6072,8 @@ func TestClient_FileUploadFail(t *testing.T) {
 		BodyString(`{"success":false,"errorMsg":"Your account doesn't have enough money to upload files."}`)
 
 	_, status, err := c.FileUpload(file)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusBadRequest {
@@ -6115,16 +6113,16 @@ func TestClient_File(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
 
 	s, status, err := c.File(fileResponse.File.ID)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if s.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if s.File.ID != fileResponse.File.ID {
@@ -6132,8 +6130,8 @@ func TestClient_File(t *testing.T) {
 	}
 
 	s, status, err = c.File(invalidFile)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusNotFound {
@@ -6165,21 +6163,21 @@ func TestClient_FileDelete(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
 
 	data, status, err := c.FileDelete(successful)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	data, status, err = c.FileDelete(badRequest)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusBadRequest {
@@ -6187,8 +6185,8 @@ func TestClient_FileDelete(t *testing.T) {
 	}
 
 	data, status, err = c.FileDelete(notFound)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusNotFound {
@@ -6215,12 +6213,12 @@ func TestClient_FileDownload(t *testing.T) {
 		BodyString("")
 
 	data, status, err := c.FileDownload(successful)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	fetchedByte, errr := ioutil.ReadAll(data)
@@ -6234,8 +6232,8 @@ func TestClient_FileDownload(t *testing.T) {
 	}
 
 	data, status, err = c.FileDownload(fail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusBadRequest {
@@ -6266,16 +6264,16 @@ func TestClient_FileEdit(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not Found"}`)
 
 	data, status, err := c.FileEdit(successful, *resp.File)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if status != http.StatusOK {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.File.Filename != resp.File.Filename {
@@ -6300,16 +6298,16 @@ func TestClient_CustomFields(t *testing.T) {
 
 	data, status, err := c.CustomFields(CustomFieldsRequest{})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -6325,8 +6323,8 @@ func TestClient_CustomFields_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.CustomFields(CustomFieldsRequest{Filter: CustomFieldsFilter{Type: codeFail}})
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -6371,16 +6369,16 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 
 	data, status, err := c.CustomDictionariesCreate(customDictionary)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -6399,17 +6397,17 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 		Page:  1,
 	})
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cds.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -6419,12 +6417,12 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 
 	cd, status, err := c.CustomDictionary(code)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if cd.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	customDictionary.Name = "test223"
@@ -6450,16 +6448,16 @@ func TestClient_CustomDictionariesCreate(t *testing.T) {
 
 	cde, status, err := c.CustomDictionaryEdit(customDictionary)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cde.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -6493,8 +6491,8 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.CustomDictionariesCreate(customDictionary)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != false {
@@ -6507,8 +6505,8 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	cd, status, err := c.CustomDictionary(codeFail)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if cd.Success != false {
@@ -6536,12 +6534,12 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	cde, status, err := c.CustomDictionaryEdit(customDictionary)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if cde.Success != false {
@@ -6578,17 +6576,17 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 
 	data, status, err := c.CustomFieldsCreate(customFields)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
 
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	gock.New(crmURL).
@@ -6598,16 +6596,16 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 
 	customField, status, err := c.CustomField("order", codeCustomField)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if customField.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	customFields.DisplayArea = "delivery"
@@ -6627,16 +6625,16 @@ func TestClient_CustomFieldsCreate(t *testing.T) {
 
 	customFieldEdit, status, err := c.CustomFieldEdit(customFields)
 
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 
 	if !statuses[status] {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 
 	if customFieldEdit.Success != true {
-		t.Errorf("%v", err.ApiError())
+		t.Errorf("%v", err)
 	}
 }
 
@@ -6668,8 +6666,8 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
 	data, status, err := c.CustomFieldsCreate(customFields)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -6686,8 +6684,8 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
 	customField, status, err := c.CustomField("order", codeCustomField)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
@@ -6714,8 +6712,8 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		BodyString(`{"success": false, "errorMsg": "API method not found"}`)
 
 	customFieldEdit, status, err := c.CustomFieldEdit(customFields)
-	if err.Error() != "" {
-		t.Errorf("%v", err.Error())
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 
 	if status < http.StatusBadRequest {
