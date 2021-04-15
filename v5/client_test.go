@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/h2non/gock"
 	"github.com/joho/godotenv"
+	"gopkg.in/h2non/gock.v1"
 )
 
 func TestMain(m *testing.M) {

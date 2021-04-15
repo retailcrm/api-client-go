@@ -28,7 +28,7 @@ jobs:
       - name: Get dependencies
         run: |
           go get -v github.com/google/go-querystring/query
-          go get -v github.com/h2non/gock
+          go get -v gopkg.in/h2non/gock.v1
           go get -v github.com/joho/godotenv
           go get -v github.com/retailcrm/api-client-go/errs
           cp .env.dist .env
@@ -56,7 +56,7 @@ jobs:
       - name: Get dependencies
         run: |
           go get -v github.com/google/go-querystring/query
-          go get -v github.com/h2non/gock
+          go get -v gopkg.in/h2non/gock.v1
           go get -v github.com/joho/godotenv
           go get -v github.com/retailcrm/api-client-go/errs
           cp .env.dist .env
