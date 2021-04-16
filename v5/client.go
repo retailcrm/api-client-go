@@ -617,7 +617,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	var resp SuccessfulResponse
 
 	p := url.Values{
-		"id": {string(id)},
+		"id": {strconv.Itoa(id)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/notes/%d/delete", id), p)
@@ -1106,7 +1106,7 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 	var resp SuccessfulResponse
 
 	p := url.Values{
-		"id": {string(id)},
+		"id": {strconv.Itoa(id)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/notes/%d/delete", id), p)
@@ -2437,7 +2437,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	var resp SuccessfulResponse
 
 	p := url.Values{
-		"id": {string(id)},
+		"id": {strconv.Itoa(id)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/payments/%d/delete", id), p)
