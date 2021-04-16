@@ -16,7 +16,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"gopkg.in/h2non/gock.v1"
+	gock "gopkg.in/h2non/gock.v1"
 )
 
 func TestMain(m *testing.M) {
@@ -1817,7 +1817,7 @@ func TestClient_NotesCreateDelete(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {fmt.Sprint(1)},
+		"id": {"1"},
 	}
 
 	gock.New(crmURL).
@@ -1879,7 +1879,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {fmt.Sprint(iCodeFail)},
+		"id": {strconv.Itoa(iCodeFail)},
 	}
 
 	gock.New(crmURL).
@@ -2563,7 +2563,7 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {fmt.Sprint(paymentCreateResponse.ID)},
+		"id": {strconv.Itoa(paymentCreateResponse.ID)},
 	}
 
 	gock.New(crmURL).
@@ -2654,7 +2654,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 	}
 
 	p = url.Values{
-		"id": {fmt.Sprint(iCodeFail)},
+		"id": {strconv.Itoa(iCodeFail)},
 	}
 
 	gock.New(crmURL).
