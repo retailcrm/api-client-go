@@ -98,7 +98,7 @@ type Property struct {
 	Code  string   `json:"code,omitempty"`
 	Name  string   `json:"name,omitempty"`
 	Value string   `json:"value,omitempty"`
-	Sites []string `json:"Sites,omitempty,brackets"`
+	Sites []string `json:"Sites,omitempty"`
 }
 
 // IdentifiersPair type.
@@ -127,7 +127,7 @@ type Customer struct {
 	Patronymic                   string            `json:"patronymic,omitempty"`
 	Sex                          string            `json:"sex,omitempty"`
 	Email                        string            `json:"email,omitempty"`
-	Phones                       []Phone           `json:"phones,brackets,omitempty"`
+	Phones                       []Phone           `json:"phones,omitempty"`
 	Address                      *Address          `json:"address,omitempty"`
 	CreatedAt                    string            `json:"createdAt,omitempty"`
 	Birthday                     string            `json:"birthday,omitempty"`
@@ -153,8 +153,8 @@ type Customer struct {
 	BrowserID                    string            `json:"browserId,omitempty"`
 	MgCustomerID                 string            `json:"mgCustomerId,omitempty"`
 	PhotoURL                     string            `json:"photoUrl,omitempty"`
-	CustomFields                 map[string]string `json:"customFields,omitempty,brackets"`
-	Tags                         []Tag             `json:"tags,brackets,omitempty"`
+	CustomFields                 map[string]string `json:"customFields,omitempty"`
+	Tags                         []Tag             `json:"tags,omitempty"`
 }
 
 // CorporateCustomer type.
@@ -165,7 +165,7 @@ type CorporateCustomer struct {
 	CreatedAt          string                     `json:"createdAt,omitempty"`
 	Vip                bool                       `json:"vip,omitempty"`
 	Bad                bool                       `json:"bad,omitempty"`
-	CustomFields       map[string]string          `json:"customFields,omitempty,brackets"`
+	CustomFields       map[string]string          `json:"customFields,omitempty"`
 	PersonalDiscount   float32                    `json:"personalDiscount,omitempty"`
 	DiscountCardNumber string                     `json:"discountCardNumber,omitempty"`
 	ManagerID          int                        `json:"managerId,omitempty"`
@@ -226,7 +226,7 @@ type Company struct {
 	CreatedAt    string            `json:"createdAt,omitempty"`
 	Contragent   *Contragent       `json:"contragent,omitempty"`
 	Address      *IdentifiersPair  `json:"address,omitempty"`
-	CustomFields map[string]string `json:"customFields,omitempty,brackets"`
+	CustomFields map[string]string `json:"customFields,omitempty"`
 }
 
 // CorporateCustomerNote type.
@@ -249,9 +249,9 @@ type CustomerHistoryRecord struct {
 	Deleted   bool      `json:"deleted,omitempty"`
 	Source    string    `json:"source,omitempty"`
 	Field     string    `json:"field,omitempty"`
-	User      *User     `json:"user,omitempty,brackets"`
-	APIKey    *APIKey   `json:"apiKey,omitempty,brackets"`
-	Customer  *Customer `json:"customer,omitempty,brackets"`
+	User      *User     `json:"user,omitempty"`
+	APIKey    *APIKey   `json:"apiKey,omitempty"`
+	Customer  *Customer `json:"customer,omitempty"`
 }
 
 // CorporateCustomerHistoryRecord type.
@@ -262,9 +262,9 @@ type CorporateCustomerHistoryRecord struct {
 	Deleted           bool               `json:"deleted,omitempty"`
 	Source            string             `json:"source,omitempty"`
 	Field             string             `json:"field,omitempty"`
-	User              *User              `json:"user,omitempty,brackets"`
-	APIKey            *APIKey            `json:"apiKey,omitempty,brackets"`
-	CorporateCustomer *CorporateCustomer `json:"corporateCustomer,omitempty,brackets"`
+	User              *User              `json:"user,omitempty"`
+	APIKey            *APIKey            `json:"apiKey,omitempty"`
+	CorporateCustomer *CorporateCustomer `json:"corporateCustomer,omitempty"`
 }
 
 /**
@@ -319,9 +319,9 @@ type Order struct {
 	Customer                      *Customer               `json:"customer,omitempty"`
 	Delivery                      *OrderDelivery          `json:"delivery,omitempty"`
 	Marketplace                   *OrderMarketplace       `json:"marketplace,omitempty"`
-	Items                         []OrderItem             `json:"items,omitempty,brackets"`
-	CustomFields                  map[string]string       `json:"customFields,omitempty,brackets"`
-	Payments                      map[string]OrderPayment `json:"payments,omitempty,brackets"`
+	Items                         []OrderItem             `json:"items,omitempty"`
+	CustomFields                  map[string]string       `json:"customFields,omitempty"`
+	Payments                      map[string]OrderPayment `json:"payments,omitempty"`
 }
 
 // OrdersStatus type.
@@ -442,7 +442,7 @@ type OrderItem struct {
 	Comment               string              `json:"comment,omitempty"`
 	IsCanceled            bool                `json:"isCanceled,omitempty"`
 	Offer                 Offer               `json:"offer,omitempty"`
-	Properties            map[string]Property `json:"properties,omitempty,brackets"`
+	Properties            map[string]Property `json:"properties,omitempty"`
 	PriceType             *PriceType          `json:"priceType,omitempty"`
 }
 
@@ -454,9 +454,9 @@ type OrdersHistoryRecord struct {
 	Deleted   bool    `json:"deleted,omitempty"`
 	Source    string  `json:"source,omitempty"`
 	Field     string  `json:"field,omitempty"`
-	User      *User   `json:"user,omitempty,brackets"`
-	APIKey    *APIKey `json:"apiKey,omitempty,brackets"`
-	Order     *Order  `json:"order,omitempty,brackets"`
+	User      *User   `json:"user,omitempty"`
+	APIKey    *APIKey `json:"apiKey,omitempty"`
+	Order     *Order  `json:"order,omitempty"`
 }
 
 // Pack type.
@@ -488,8 +488,8 @@ type PacksHistoryRecord struct {
 	Deleted   bool   `json:"deleted,omitempty"`
 	Source    string `json:"source,omitempty"`
 	Field     string `json:"field,omitempty"`
-	User      *User  `json:"user,omitempty,brackets"`
-	Pack      *Pack  `json:"pack,omitempty,brackets"`
+	User      *User  `json:"user,omitempty"`
+	Pack      *Pack  `json:"pack,omitempty"`
 }
 
 // Offer type.
@@ -507,11 +507,11 @@ type Offer struct {
 	Width         float32           `json:"width,omitempty"`
 	Length        float32           `json:"length,omitempty"`
 	Weight        float32           `json:"weight,omitempty"`
-	Stores        []Inventory       `json:"stores,omitempty,brackets"`
-	Properties    map[string]string `json:"properties,omitempty,brackets"`
-	Prices        []OfferPrice      `json:"prices,omitempty,brackets"`
-	Images        []string          `json:"images,omitempty,brackets"`
-	Unit          *Unit             `json:"unit,omitempty,brackets"`
+	Stores        []Inventory       `json:"stores,omitempty"`
+	Properties    map[string]string `json:"properties,omitempty"`
+	Prices        []OfferPrice      `json:"prices,omitempty"`
+	Images        []string          `json:"images,omitempty"`
+	Unit          *Unit             `json:"unit,omitempty"`
 }
 
 // Inventory type.
@@ -585,7 +585,7 @@ type User struct {
 	Email      string      `json:"email,omitempty"`
 	Phone      string      `json:"phone,omitempty"`
 	Status     string      `json:"status,omitempty"`
-	Groups     []UserGroup `json:"groups,omitempty,brackets"`
+	Groups     []UserGroup `json:"groups,omitempty"`
 	MgUserId   uint64      `json:"mgUserId,omitempty"`
 }
 
@@ -596,12 +596,12 @@ type UserGroup struct {
 	SignatureTemplate     string   `json:"signatureTemplate,omitempty"`
 	IsManager             bool     `json:"isManager,omitempty"`
 	IsDeliveryMen         bool     `json:"isDeliveryMen,omitempty"`
-	DeliveryTypes         []string `json:"deliveryTypes,omitempty,brackets"`
-	BreakdownOrderTypes   []string `json:"breakdownOrderTypes,omitempty,brackets"`
-	BreakdownSites        []string `json:"breakdownSites,omitempty,brackets"`
-	BreakdownOrderMethods []string `json:"breakdownOrderMethods,omitempty,brackets"`
-	GrantedOrderTypes     []string `json:"grantedOrderTypes,omitempty,brackets"`
-	GrantedSites          []string `json:"grantedSites,omitempty,brackets"`
+	DeliveryTypes         []string `json:"deliveryTypes,omitempty"`
+	BreakdownOrderTypes   []string `json:"breakdownOrderTypes,omitempty"`
+	BreakdownSites        []string `json:"breakdownSites,omitempty"`
+	BreakdownOrderMethods []string `json:"breakdownOrderMethods,omitempty"`
+	GrantedOrderTypes     []string `json:"grantedOrderTypes,omitempty"`
+	GrantedSites          []string `json:"grantedSites,omitempty"`
 }
 
 /**
@@ -796,7 +796,7 @@ type PaymentStatus struct {
 	PaymentComplete bool     `json:"paymentComplete,omitempty"`
 	Description     string   `json:"description,omitempty"`
 	Ordering        int      `json:"ordering,omitempty"`
-	PaymentTypes    []string `json:"paymentTypes,omitempty,brackets"`
+	PaymentTypes    []string `json:"paymentTypes,omitempty"`
 }
 
 // PaymentType type.
@@ -807,8 +807,8 @@ type PaymentType struct {
 	DefaultForCRM   bool     `json:"defaultForCrm,omitempty"`
 	DefaultForAPI   bool     `json:"defaultForApi,omitempty"`
 	Description     string   `json:"description,omitempty"`
-	DeliveryTypes   []string `json:"deliveryTypes,omitempty,brackets"`
-	PaymentStatuses []string `json:"PaymentStatuses,omitempty,brackets"`
+	DeliveryTypes   []string `json:"deliveryTypes,omitempty"`
+	PaymentStatuses []string `json:"PaymentStatuses,omitempty"`
 }
 
 // PriceType type.
@@ -821,8 +821,8 @@ type PriceType struct {
 	Description      string            `json:"description,omitempty"`
 	FilterExpression string            `json:"filterExpression,omitempty"`
 	Ordering         int               `json:"ordering,omitempty"`
-	Groups           []string          `json:"groups,omitempty,brackets"`
-	Geo              []GeoHierarchyRow `json:"geo,omitempty,brackets"`
+	Groups           []string          `json:"groups,omitempty"`
+	Geo              []GeoHierarchyRow `json:"geo,omitempty"`
 }
 
 // ProductStatus type.
@@ -853,7 +853,7 @@ type StatusGroup struct {
 	Active   bool     `json:"active,omitempty"`
 	Ordering int      `json:"ordering,omitempty"`
 	Process  bool     `json:"process,omitempty"`
-	Statuses []string `json:"statuses,omitempty,brackets"`
+	Statuses []string `json:"statuses,omitempty"`
 }
 
 // Site type.
@@ -915,9 +915,9 @@ type Product struct {
 	Recommended  bool              `json:"recommended,omitempty"`
 	Active       bool              `json:"active,omitempty"`
 	Quantity     float32           `json:"quantity,omitempty"`
-	Offers       []Offer           `json:"offers,omitempty,brackets"`
-	Groups       []ProductGroup    `json:"groups,omitempty,brackets"`
-	Properties   map[string]string `json:"properties,omitempty,brackets"`
+	Offers       []Offer           `json:"offers,omitempty"`
+	Groups       []ProductGroup    `json:"groups,omitempty"`
+	Properties   map[string]string `json:"properties,omitempty"`
 }
 
 // DeliveryHistoryRecord type.
@@ -940,8 +940,8 @@ type DeliveryShipment struct {
 	Time            *DeliveryTime     `json:"time,omitempty"`
 	LunchTime       string            `json:"lunchTime,omitempty"`
 	Comment         string            `json:"comment,omitempty"`
-	Orders          []Order           `json:"orders,omitempty,brackets"`
-	ExtraData       map[string]string `json:"extraData,omitempty,brackets"`
+	Orders          []Order           `json:"orders,omitempty"`
+	ExtraData       map[string]string `json:"extraData,omitempty"`
 }
 
 // IntegrationModule type.
@@ -973,8 +973,8 @@ type Integrations struct {
 // Delivery type.
 type Delivery struct {
 	Description           string              `json:"description,omitempty"`
-	Actions               map[string]string   `json:"actions,omitempty,brackets"`
-	PayerType             []string            `json:"payerType,omitempty,brackets"`
+	Actions               map[string]string   `json:"actions,omitempty"`
+	PayerType             []string            `json:"payerType,omitempty"`
 	PlatePrintLimit       int                 `json:"platePrintLimit,omitempty"`
 	RateDeliveryCost      bool                `json:"rateDeliveryCost,omitempty"`
 	AllowPackages         bool                `json:"allowPackages,omitempty"`
@@ -1023,8 +1023,8 @@ type Telephony struct {
 	OutputEventSupported bool             `json:"outputEventSupported,omitempty"`
 	HangupEventSupported bool             `json:"hangupEventSupported,omitempty"`
 	ChangeUserStatusURL  string           `json:"changeUserStatusUrl,omitempty"`
-	AdditionalCodes      []AdditionalCode `json:"additionalCodes,omitempty,brackets"`
-	ExternalPhones       []ExternalPhone  `json:"externalPhones,omitempty,brackets"`
+	AdditionalCodes      []AdditionalCode `json:"additionalCodes,omitempty"`
+	ExternalPhones       []ExternalPhone  `json:"externalPhones,omitempty"`
 }
 
 // AdditionalCode type.
@@ -1041,7 +1041,7 @@ type ExternalPhone struct {
 
 // Warehouse type.
 type Warehouse struct {
-	Actions []Action `json:"actions,omitempty,brackets"`
+	Actions []Action `json:"actions,omitempty"`
 }
 
 // Action type.
@@ -1073,7 +1073,7 @@ type CostRecord struct {
 	CostItem string   `json:"costItem,omitempty"`
 	UserId   int      `json:"userId,omitempty"`
 	Order    *Order   `json:"order,omitempty"`
-	Sites    []string `json:"sites,omitempty,brackets"`
+	Sites    []string `json:"sites,omitempty"`
 }
 
 // Cost type.
@@ -1089,7 +1089,7 @@ type Cost struct {
 	CreatedBy string   `json:"createdBy,omitempty"`
 	Order     *Order   `json:"order,omitempty"`
 	UserId    int      `json:"userId,omitempty"`
-	Sites     []string `json:"sites,omitempty,brackets"`
+	Sites     []string `json:"sites,omitempty"`
 }
 
 // File type.
@@ -1133,7 +1133,7 @@ CustomDictionaries related types
 type CustomDictionary struct {
 	Name     string    `json:"name,omitempty"`
 	Code     string    `json:"code,omitempty"`
-	Elements []Element `json:"elements,omitempty,brackets"`
+	Elements []Element `json:"elements,omitempty"`
 }
 
 // Element type.

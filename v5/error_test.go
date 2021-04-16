@@ -1,8 +1,9 @@
 package v5
 
 import (
-	"errors"
 	"testing"
+
+	"golang.org/x/xerrors"
 )
 
 func TestFailure_ApiErrorsSlice(t *testing.T) {
@@ -14,7 +15,7 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 	var expEr *APIError
 	e := NewAPIError(b)
 
-	if errors.As(e, &expEr) {
+	if xerrors.As(e, &expEr) {
 		if eq := expEr.Errors["0"] == expected["0"]; eq != true {
 			t.Errorf("%+v", eq)
 		}
@@ -32,7 +33,7 @@ func TestFailure_ApiErrorsMap(t *testing.T) {
 	var expEr *APIError
 	e := NewAPIError(b)
 
-	if errors.As(e, &expEr) {
+	if xerrors.As(e, &expEr) {
 		if eq := expected["id"] == expEr.Errors["id"]; eq != true {
 			t.Errorf("%+v", eq)
 		}
