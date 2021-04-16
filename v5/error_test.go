@@ -1,6 +1,7 @@
 package v5
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -10,9 +11,15 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 		"0": "Your account has insufficient funds to activate integration module",
 	}
 
-	e := NewApiError(b)
-	if eq := e.(*ApiError).Errors["0"] == expected["0"]; eq != true {
-		t.Errorf("%+v", eq)
+	var expEr *APIError
+	e := NewAPIError(b)
+
+	if errors.As(e, &expEr) {
+		if eq := expEr.Errors["0"] == expected["0"]; eq != true {
+			t.Errorf("%+v", eq)
+		}
+	} else {
+		t.Errorf("Error must be type of APIError: %v", e)
 	}
 }
 
@@ -22,8 +29,14 @@ func TestFailure_ApiErrorsMap(t *testing.T) {
 		"id": "ID must be an integer",
 	}
 
-	e := NewApiError(b)
-	if eq := expected["id"] == e.(*ApiError).Errors["id"]; eq != true {
-		t.Errorf("%+v", eq)
+	var expEr *APIError
+	e := NewAPIError(b)
+
+	if errors.As(e, &expEr) {
+		if eq := expected["id"] == expEr.Errors["id"]; eq != true {
+			t.Errorf("%+v", eq)
+		}
+	} else {
+		t.Errorf("Error must be type of APIError: %v", e)
 	}
 }

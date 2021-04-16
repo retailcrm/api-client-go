@@ -30,7 +30,7 @@ func New(url string, key string) *Client {
 func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, error) {
 	var res []byte
 	var prefix = "/api/v5"
-	apiError := &ApiError{}
+	apiError := &APIError{}
 
 	if len(versioned) > 0 {
 		s := versioned[0]
@@ -82,7 +82,7 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 	)
 
 	prefix := "/api/v5"
-	apiError := &ApiError{}
+	apiError := &APIError{}
 
 	if len(contType) > 0 {
 		contentType = contType[0]
@@ -201,7 +201,7 @@ func (c *Client) APIVersions() (VersionResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -239,7 +239,7 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -284,7 +284,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -326,7 +326,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -382,7 +382,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -425,7 +425,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -469,7 +469,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -514,7 +514,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -566,7 +566,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -603,7 +603,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -664,7 +664,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -706,7 +706,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -768,7 +768,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -813,7 +813,7 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -842,7 +842,9 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (CorporateCustomerChangeResponse, int, error) {
+func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (
+	CorporateCustomerChangeResponse, int, error,
+) {
 	var resp CorporateCustomerChangeResponse
 
 	customerJSON, _ := json.Marshal(&customer)
@@ -861,7 +863,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -904,7 +906,7 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -935,7 +937,9 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, error) {
+func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (
+	CorporateCustomersHistoryResponse, int, error,
+) {
 	var resp CorporateCustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
@@ -948,7 +952,7 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -980,7 +984,9 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 // 	for _, value := range data.Notes {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (CorporateCustomersNotesResponse, int, error) {
+func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (
+	CorporateCustomersNotesResponse, int, error,
+) {
 	var resp CorporateCustomersNotesResponse
 
 	params, _ := query.Values(parameters)
@@ -993,7 +999,7 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1044,7 +1050,7 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1082,7 +1088,7 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1118,7 +1124,9 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, e
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedCustomers)
 // 	}
-func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ...string) (CorporateCustomersUploadResponse, int, error) {
+func (c *Client) CorporateCustomersUpload(
+	customers []CorporateCustomer, site ...string,
+) (CorporateCustomersUploadResponse, int, error) {
 	var resp CorporateCustomersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&customers)
@@ -1137,7 +1145,7 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1179,7 +1187,7 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1214,7 +1222,9 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Addresses)
 // 	}
-func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCustomerAddressesRequest) (CorporateCustomersAddressesResponse, int, error) {
+func (c *Client) CorporateCustomerAddresses(
+	id string, parameters CorporateCustomerAddressesRequest,
+) (CorporateCustomersAddressesResponse, int, error) {
 	var resp CorporateCustomersAddressesResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1228,7 +1238,7 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1258,7 +1268,9 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerAddressesCreate(
+	id string, by string, address CorporateCustomerAddress, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	addressJSON, _ := json.Marshal(&address)
@@ -1278,7 +1290,7 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1313,7 +1325,9 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerAddressesEdit(
+	customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1347,7 +1361,7 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1382,7 +1396,9 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Companies)
 // 	}
-func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPairRequest) (CorporateCustomerCompaniesResponse, int, error) {
+func (c *Client) CorporateCustomerCompanies(
+	id string, parameters IdentifiersPairRequest,
+) (CorporateCustomerCompaniesResponse, int, error) {
 	var resp CorporateCustomerCompaniesResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1396,7 +1412,7 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1425,7 +1441,9 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company Company, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerCompaniesCreate(
+	id string, by string, company Company, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&company)
@@ -1445,7 +1463,7 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1480,7 +1498,9 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy string, company Company, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerCompaniesEdit(
+	customerID, customerBy, entityBy string, company Company, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1514,7 +1534,7 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1549,7 +1569,9 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Contacts)
 // 	}
-func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPairRequest) (CorporateCustomerContactsResponse, int, error) {
+func (c *Client) CorporateCustomerContacts(
+	id string, parameters IdentifiersPairRequest,
+) (CorporateCustomerContactsResponse, int, error) {
 	var resp CorporateCustomerContactsResponse
 
 	parameters.By = checkBy(parameters.By)
@@ -1563,7 +1585,7 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1597,7 +1619,9 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerContactsCreate(
+	id string, by string, contact CorporateCustomerContact, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&contact)
@@ -1617,7 +1641,7 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1649,7 +1673,9 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, error) {
+func (c *Client) CorporateCustomerContactsEdit(
+	customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1683,7 +1709,7 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1719,7 +1745,9 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (CustomerChangeResponse, int, error) {
+func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (
+	CustomerChangeResponse, int, error,
+) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
@@ -1745,7 +1773,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1782,7 +1810,9 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
 //
-func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, error) {
+func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (
+	SuccessfulResponse, int, error,
+) {
 	var resp SuccessfulResponse
 
 	updateJSON, _ := json.Marshal(&parameters)
@@ -1799,7 +1829,7 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1844,7 +1874,7 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1881,7 +1911,9 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType string, site ...string) (DeliveryShipmentUpdateResponse, int, error) {
+func (c *Client) DeliveryShipmentCreate(
+	shipment DeliveryShipment, deliveryType string, site ...string,
+) (DeliveryShipmentUpdateResponse, int, error) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -1900,7 +1932,7 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1938,7 +1970,7 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -1967,7 +1999,9 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error)
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (DeliveryShipmentUpdateResponse, int, error) {
+func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (
+	DeliveryShipmentUpdateResponse, int, error,
+) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -1985,7 +2019,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2023,7 +2057,7 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2062,7 +2096,9 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.Info)
 //	}
-func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (IntegrationModuleEditResponse, int, error) {
+func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
+	IntegrationModuleEditResponse, int, error,
+) {
 	var resp IntegrationModuleEditResponse
 	updateJSON, _ := json.Marshal(&integrationModule)
 
@@ -2076,7 +2112,7 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2116,7 +2152,7 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2159,7 +2195,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2210,7 +2246,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2257,7 +2293,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2297,7 +2333,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2349,7 +2385,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2387,7 +2423,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2442,7 +2478,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2481,7 +2517,7 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2542,7 +2578,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2584,8 +2620,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		//apiError = NewApiError()
-		return resp, status, nil
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2640,7 +2675,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2680,7 +2715,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2727,7 +2762,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2767,7 +2802,7 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2805,7 +2840,7 @@ func (c *Client) Pack(id int) (PackResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2839,7 +2874,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2879,7 +2914,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2899,7 +2934,7 @@ func (c *Client) Countries() (CountriesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2919,7 +2954,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2962,7 +2997,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -2982,7 +3017,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3025,7 +3060,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3045,7 +3080,7 @@ func (c *Client) Couriers() (CouriersResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3094,7 +3129,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3137,7 +3172,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3157,7 +3192,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3200,7 +3235,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3220,7 +3255,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3265,7 +3300,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3285,7 +3320,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3328,7 +3363,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3348,7 +3383,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3392,7 +3427,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3412,7 +3447,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3456,7 +3491,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3476,7 +3511,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3502,7 +3537,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3522,7 +3557,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3548,7 +3583,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3568,7 +3603,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3594,7 +3629,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3614,7 +3649,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3640,7 +3675,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3660,7 +3695,7 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3686,7 +3721,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3706,7 +3741,7 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3726,7 +3761,7 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3752,7 +3787,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3772,7 +3807,7 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3798,7 +3833,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3818,7 +3853,7 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3844,7 +3879,7 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3888,7 +3923,7 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3924,7 +3959,7 @@ func (c *Client) Settings() (SettingsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -3964,7 +3999,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4027,7 +4062,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4080,7 +4115,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4124,7 +4159,7 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4169,7 +4204,7 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4213,7 +4248,7 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4257,7 +4292,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4305,7 +4340,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4343,7 +4378,7 @@ func (c *Client) Task(id int) (TaskResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4389,7 +4424,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		a := NewApiError(data)
+		a := NewAPIError(data)
 		return resp, status, a
 	}
 
@@ -4430,7 +4465,7 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4470,7 +4505,7 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4508,7 +4543,7 @@ func (c *Client) User(id int) (UserResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4546,7 +4581,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, st, NewApiError(data)
+		return resp, st, NewAPIError(data)
 	}
 
 	return resp, st, nil
@@ -4566,7 +4601,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4612,7 +4647,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4670,7 +4705,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4714,7 +4749,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4775,7 +4810,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4814,7 +4849,7 @@ func (c *Client) Cost(id int) (CostResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4855,7 +4890,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4906,7 +4941,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4947,7 +4982,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -4987,7 +5022,7 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5025,7 +5060,7 @@ func (c *Client) File(id int) (FileResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5060,7 +5095,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5114,9 +5149,11 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	var resp FileResponse
 
 	req, _ := json.Marshal(file)
-	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/edit", id), url.Values{
-		"file": {string(req)},
-	})
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/files/%d/edit", id), url.Values{
+			"file": {string(req)},
+		},
+	)
 
 	if err != nil && err.Error() != "" {
 		return resp, status, err
@@ -5125,7 +5162,7 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5169,7 +5206,7 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5200,7 +5237,9 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 //	for _, value := range data.CustomDictionaries {
 //		fmt.Printf("%v\n", value.Elements)
 //	}
-func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (CustomDictionariesResponse, int, error) {
+func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (
+	CustomDictionariesResponse, int, error,
+) {
 	var resp CustomDictionariesResponse
 
 	params, _ := query.Values(customDictionaries)
@@ -5214,7 +5253,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5272,7 +5311,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5311,7 +5350,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5368,7 +5407,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5419,7 +5458,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5458,7 +5497,7 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, err
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil
@@ -5498,7 +5537,9 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 		"customField": {string(costJSON[:])},
 	}
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p)
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p,
+	)
 
 	if err != nil {
 		return resp, status, err
@@ -5507,7 +5548,7 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, status, NewApiError(data)
+		return resp, status, NewAPIError(data)
 	}
 
 	return resp, status, nil

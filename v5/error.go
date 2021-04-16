@@ -5,28 +5,26 @@ import (
 	"strconv"
 )
 
-// ApiErrorsList struct.
-type ApiErrorsList map[string]string
+const ArrowHTML = 60
 
-// ApiError struct.
-type ApiError struct {
+// APIErrorsList struct.
+type APIErrorsList map[string]string
+
+// APIError struct.
+type APIError struct {
 	SuccessfulResponse
 	ErrorMsg string        `json:"errorMsg,omitempty"`
-	Errors   ApiErrorsList `json:"errors,omitempty"`
+	Errors   APIErrorsList `json:"errors,omitempty"`
 }
 
-func (e *ApiError) Error() string {
+func (e *APIError) Error() string {
 	return e.ErrorMsg
 }
 
-func (e *ApiError) GetApiErrors() map[string]string {
-	return e.Errors
-}
+func NewAPIError(dataResponse []byte) error {
+	a := &APIError{}
 
-func NewApiError(dataResponse []byte) error {
-	a := &ApiError{}
-
-	if dataResponse[0] == 60 {
+	if dataResponse[0] == ArrowHTML {
 		a.ErrorMsg = "405 Not Allowed"
 		return a
 	}
@@ -42,13 +40,13 @@ func NewApiError(dataResponse []byte) error {
 func ErrorsHandler(errs interface{}) map[string]string {
 	m := make(map[string]string)
 
-	switch errs.(type) {
+	switch e := errs.(type) {
 	case map[string]interface{}:
-		for idx, val := range errs.(map[string]interface{}) {
+		for idx, val := range e {
 			m[idx] = val.(string)
 		}
 	case []interface{}:
-		for idx, val := range errs.([]interface{}) {
+		for idx, val := range e {
 			m[strconv.Itoa(idx)] = val.(string)
 		}
 	}
