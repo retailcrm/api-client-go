@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -4539,7 +4539,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 	}
 
 	data, st, err := c.PostRequest(fmt.Sprintf("/users/%d/status", id), p)
-	if err != nil  {
+	if err != nil {
 		return resp, st, err
 	}
 
