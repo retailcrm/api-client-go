@@ -66,6 +66,10 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 		return res, 0, err
 	}
 
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		return res, resp.StatusCode, NewAPIError(res)
+	}
+
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
@@ -127,6 +131,10 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 	res, err = buildRawResponse(resp)
 	if err != nil {
 		return res, 0, err
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		return res, resp.StatusCode, NewAPIError(res)
 	}
 
 	if c.Debug {

@@ -1,6 +1,7 @@
 package v5
 
 import (
+	"reflect"
 	"testing"
 
 	"golang.org/x/xerrors"
@@ -8,7 +9,7 @@ import (
 
 func TestFailure_ApiErrorsSlice(t *testing.T) {
 	b := []byte(`{"success": false, "errorMsg": "Failed to activate module", "errors": ["Your account has insufficient funds to activate integration module"]}`)
-	expected := map[string]string{
+	expected := APIErrorsList{
 		"0": "Your account has insufficient funds to activate integration module",
 	}
 
@@ -16,7 +17,7 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 	e := NewAPIError(b)
 
 	if xerrors.As(e, &expEr) {
-		if eq := expEr.Errors["0"] == expected["0"]; eq != true {
+		if eq := reflect.DeepEqual(expEr.Errors, expected); eq != true {
 			t.Errorf("%+v", eq)
 		}
 	} else {
@@ -26,7 +27,7 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 
 func TestFailure_ApiErrorsMap(t *testing.T) {
 	b := []byte(`{"success": false, "errorMsg": "Failed to activate module", "errors": {"id": "ID must be an integer"}}`)
-	expected := map[string]string{
+	expected := APIErrorsList{
 		"id": "ID must be an integer",
 	}
 
@@ -34,7 +35,7 @@ func TestFailure_ApiErrorsMap(t *testing.T) {
 	e := NewAPIError(b)
 
 	if xerrors.As(e, &expEr) {
-		if eq := expected["id"] == expEr.Errors["id"]; eq != true {
+		if eq := reflect.DeepEqual(expEr.Errors, expected); eq != true {
 			t.Errorf("%+v", eq)
 		}
 	} else {
