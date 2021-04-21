@@ -19,7 +19,7 @@ func (e *APIError) Error() string {
 func NewAPIError(dataResponse []byte) error {
 	a := &APIError{}
 
-	if dataResponse[0] == '<' {
+	if len(dataResponse) > 0 && dataResponse[0] == '<' {
 		a.ErrorMsg = "Account does not exist."
 		return a
 	}

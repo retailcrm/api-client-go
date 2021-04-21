@@ -112,13 +112,9 @@ func TestClient_ApiVersionsVersions(t *testing.T) {
 		Reply(200).
 		BodyString(`{"success": true, "versions" : ["1.0", "4.0", "3.0", "4.0", "5.0"]}`)
 
-	data, status, err := c.APIVersions()
+	data, _, err := c.APIVersions()
 	if err != nil {
 		t.Errorf("%v", err.Error())
-	}
-
-	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err)
 	}
 
 	if data.Success != true {
@@ -133,16 +129,12 @@ func TestClient_ApiVersionsVersionsBadUrl(t *testing.T) {
 
 	gock.New(badURL).
 		Get("/api/api-versions").
-		Reply(200).
+		Reply(400).
 		BodyString(`{"success": false, "errorMsg" : "Account does not exist"}`)
 
-	data, status, err := c.APIVersions()
+	data, _, err := c.APIVersions()
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status >= http.StatusBadRequest {
-		t.Errorf("%v", err)
 	}
 
 	if data.Success != false {
@@ -160,13 +152,9 @@ func TestClient_ApiCredentialsCredentialsBadKey(t *testing.T) {
 
 	c := client()
 
-	data, status, err := c.APICredentials()
+	data, _, err := c.APICredentials()
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Logf("%v", err)
 	}
 
 	if data.Success != false {
@@ -184,12 +172,8 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 
 	c := client()
 
-	data, status, err := c.APICredentials()
+	data, _, err := c.APICredentials()
 	if err != nil {
-		t.Errorf("%v", err)
-	}
-
-	if status >= http.StatusBadRequest {
 		t.Errorf("%v", err)
 	}
 
@@ -241,7 +225,7 @@ func TestClient_CustomersCustomers_Fail(t *testing.T) {
 
 	c := client()
 
-	data, status, err := c.Customers(CustomersRequest{
+	data, _, err := c.Customers(CustomersRequest{
 		Filter: CustomersFilter{
 			Ids: []string{codeFail},
 		},
@@ -249,10 +233,6 @@ func TestClient_CustomersCustomers_Fail(t *testing.T) {
 
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -360,12 +340,8 @@ func TestClient_CustomerChange(t *testing.T) {
 			}
 		}`)
 
-	data, status, err := c.Customer(f.ExternalID, ByExternalID, "")
+	data, _, err := c.Customer(f.ExternalID, ByExternalID, "")
 	if err != nil {
-		t.Errorf("%v", err)
-	}
-
-	if status >= http.StatusBadRequest {
 		t.Errorf("%v", err)
 	}
 
@@ -449,13 +425,9 @@ func TestClient_CustomerChange_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
-	data, status, err := c.Customer(codeFail, ByExternalID, "")
+	data, _, err := c.Customer(codeFail, ByExternalID, "")
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -524,13 +496,9 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 		Reply(460).
 		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
 
-	data, status, err := c.CustomersUpload(customers)
+	data, _, err := c.CustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -598,13 +566,9 @@ func TestClient_CustomersCombine_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
-	data, status, err := c.CustomersCombine([]Customer{{}, {}}, Customer{})
+	data, _, err := c.CustomersCombine([]Customer{{}, {}}, Customer{})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -669,13 +633,9 @@ func TestClient_CustomersFixExternalIds_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
 
-	data, status, err := c.CustomersFixExternalIds(customers)
+	data, _, err := c.CustomersFixExternalIds(customers)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -732,13 +692,9 @@ func TestClient_CustomersHistory_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
-	data, status, err := c.CustomersHistory(f)
+	data, _, err := c.CustomersHistory(f)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -931,13 +887,9 @@ func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
 
-	data, status, err := c.CorporateCustomersFixExternalIds(customers)
+	data, _, err := c.CorporateCustomersFixExternalIds(customers)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -994,13 +946,9 @@ func TestClient_CorporateCustomersHistory_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
-	data, status, err := c.CorporateCustomersHistory(f)
+	data, _, err := c.CorporateCustomersHistory(f)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -1184,13 +1132,9 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 		Reply(460).
 		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
 
-	data, status, err := c.CorporateCustomersUpload(customers)
+	data, _, err := c.CorporateCustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -1761,15 +1705,11 @@ func TestClient_NotesNotes_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[createdAtFrom]": "This value is not valid."}}`)
 
-	data, status, err := c.CustomerNotes(NotesRequest{
+	data, _, err := c.CustomerNotes(NotesRequest{
 		Filter: NotesFilter{CreatedAtFrom: "2020-13-12"},
 	})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -1865,13 +1805,9 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"customer": "Set one of the following fields: id, externalId"}}`)
 
-	data, status, err := c.CustomerNoteCreate(note)
+	data, _, err := c.CustomerNoteCreate(note)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -1941,13 +1877,9 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[attachments]": "SThis value is not valid."}}`)
 
-	data, status, err := c.Orders(OrdersRequest{Filter: OrdersFilter{Attachments: 7}})
+	data, _, err := c.Orders(OrdersRequest{Filter: OrdersFilter{Attachments: 7}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2156,13 +2088,9 @@ func TestClient_OrderChange_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found map"}`)
 
-	data, status, err := c.OrderEdit(f, ByID)
+	data, _, err := c.OrderEdit(f, ByID)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2240,13 +2168,9 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		Reply(460).
 		BodyString(`{"success": false, "errorMsg": "Orders are loaded with errors"}`)
 
-	data, status, err := c.OrdersUpload(orders)
+	data, _, err := c.OrdersUpload(orders)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2308,12 +2232,9 @@ func TestClient_OrdersCombine_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
-	data, status, err := c.OrdersCombine("ours", Order{}, Order{})
+	data, _, err := c.OrdersCombine("ours", Order{}, Order{})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2376,13 +2297,9 @@ func TestClient_OrdersFixExternalIds_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Invalid input parameters"}`)
 
-	data, status, err := c.OrdersFixExternalIds(orders)
+	data, _, err := c.OrdersFixExternalIds(orders)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2480,13 +2397,9 @@ func TestClient_OrdersHistory_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
 
-	data, status, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
+	data, _, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2610,13 +2523,9 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"order": "Set one of the following fields: id, externalId, number"}}`)
 
-	data, status, err := c.OrderPaymentCreate(f)
+	data, _, err := c.OrderPaymentCreate(f)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2667,10 +2576,6 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 	paymentDeleteResponse, status, err := c.OrderPaymentDelete(iCodeFail)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if paymentDeleteResponse.Success != false {
@@ -2726,13 +2631,9 @@ func TestClient_TasksTasks_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.Tasks(f)
+	data, _, err := c.Tasks(f)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2844,13 +2745,9 @@ func TestClient_TaskChange_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Task is not loaded", "errors": {"performerId": "This value should not be blank."}}`)
 
-	data, status, err := c.TaskEdit(f)
+	data, _, err := c.TaskEdit(f)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2897,13 +2794,9 @@ func TestClient_UsersUsers_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"active": "he value you selected is not a valid choice."}}`)
 
-	data, status, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 3}, Page: 1})
+	data, _, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 3}, Page: 1})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -2946,13 +2839,9 @@ func TestClient_UsersUser_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
-	data, status, err := c.User(iCodeFail)
+	data, _, err := c.User(iCodeFail)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -3031,13 +2920,9 @@ func TestClient_UsersUpdate_Fail(t *testing.T) {
 		Reply(404).
 		BodyString(`{"success": false, "errorMsg": "Not found"}`)
 
-	data, status, err := c.UserStatus(iCodeFail, "busy")
+	data, _, err := c.UserStatus(iCodeFail, "busy")
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -3614,13 +3499,9 @@ func TestClient_CostGroupItemEdit_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.CostGroupEdit(costGroup)
+	data, _, err := c.CostGroupEdit(costGroup)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -4879,10 +4760,6 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		t.Error("Error must be return")
 	}
 
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
-	}
-
 	if s.Success != false {
 		t.Error(successFail)
 	}
@@ -4905,10 +4782,6 @@ func TestClient_PackChange_Fail(t *testing.T) {
 		t.Error("Error must be return")
 	}
 
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
-	}
-
 	if e.Success != false {
 		t.Error(successFail)
 	}
@@ -4922,10 +4795,6 @@ func TestClient_PackChange_Fail(t *testing.T) {
 	d, status, err := c.PackDelete(iCodeFail)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if d.Success != false {
@@ -4974,13 +4843,9 @@ func TestClient_PacksHistory_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
+	data, _, err := c.PacksHistory(PacksHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -5025,13 +4890,9 @@ func TestClient_Packs_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.Packs(PacksRequest{Filter: PacksFilter{ShipmentDateFrom: "2020-13-12"}})
+	data, _, err := c.Packs(PacksRequest{Filter: PacksFilter{ShipmentDateFrom: "2020-13-12"}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -5077,13 +4938,9 @@ func TestClient_Inventories_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Sites: []string{codeFail}}})
+	data, _, err := c.Inventories(InventoriesRequest{Filter: InventoriesFilter{Sites: []string{codeFail}}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -5180,13 +5037,9 @@ func TestClient_Segments_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.Segments(SegmentsRequest{Filter: SegmentsFilter{Active: 3}})
+	data, _, err := c.Segments(SegmentsRequest{Filter: SegmentsFilter{Active: 3}})
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -5310,10 +5163,6 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 	g, status, err := c.IntegrationModule(code)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if g.Success != false {
@@ -5738,13 +5587,9 @@ func TestClient_Cost_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Cost is not loaded"}`)
 
-	data, status, err := c.CostCreate(costRecord)
+	data, _, err := c.CostCreate(costRecord)
 	if err == nil {
 		t.Error("Error must be return")
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if err == nil {
@@ -5784,10 +5629,6 @@ func TestClient_Cost_Fail(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
-	}
-
 	if cost.Success != false {
 		t.Error(successFail)
 	}
@@ -5815,10 +5656,6 @@ func TestClient_Cost_Fail(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
-	}
-
 	if costEdit.Success != false {
 		t.Error(successFail)
 	}
@@ -5838,10 +5675,6 @@ func TestClient_Cost_Fail(t *testing.T) {
 	costDelete, status, err := c.CostDelete(id)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if costDelete.Success != false {
@@ -5962,13 +5795,9 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		Reply(460).
 		BodyString(`{"success": false, "errorMsg": "Costs are loaded with errors"}`)
 
-	data, status, err := c.CostsUpload(costsUpload)
+	data, _, err := c.CostsUpload(costsUpload)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -6175,22 +6004,14 @@ func TestClient_FileDelete(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	data, status, err = c.FileDelete(badRequest)
+	data, _, err = c.FileDelete(badRequest)
 	if err == nil {
 		t.Errorf("%v", err)
 	}
 
-	if status != http.StatusBadRequest {
-		t.Errorf("status should be `%d`, got `%d` instead", http.StatusBadRequest, status)
-	}
-
-	data, status, err = c.FileDelete(notFound)
+	data, _, err = c.FileDelete(notFound)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status != http.StatusNotFound {
-		t.Errorf("status should be `%d`, got `%d` instead", http.StatusNotFound, status)
 	}
 }
 
@@ -6221,9 +6042,9 @@ func TestClient_FileDownload(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
-	fetchedByte, errr := ioutil.ReadAll(data)
-	if errr != nil {
-		t.Error(errr)
+	fetchedByte, err := ioutil.ReadAll(data)
+	if err != nil {
+		t.Error(err)
 	}
 
 	fetched := string(fetchedByte)
@@ -6232,7 +6053,7 @@ func TestClient_FileDownload(t *testing.T) {
 	}
 
 	data, status, err = c.FileDownload(fail)
-	if err != nil {
+	if err == nil {
 		t.Errorf("%v", err)
 	}
 
@@ -6280,9 +6101,9 @@ func TestClient_FileEdit(t *testing.T) {
 		t.Errorf("filename should be `%s`, got `%s` instead", resp.File.Filename, data.File.Filename)
 	}
 
-	data, status, err = c.FileEdit(fail, *resp.File)
-	if status != http.StatusNotFound {
-		t.Errorf("status should be `%d`, got `%d` instead", http.StatusNotFound, status)
+	data, _, err = c.FileEdit(fail, *resp.File)
+	if err == nil {
+		t.Errorf("%v", err)
 	}
 }
 
@@ -6322,13 +6143,9 @@ func TestClient_CustomFields_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.CustomFields(CustomFieldsRequest{Filter: CustomFieldsFilter{Type: codeFail}})
+	data, _, err := c.CustomFields(CustomFieldsRequest{Filter: CustomFieldsFilter{Type: codeFail}})
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -6490,7 +6307,7 @@ func TestClient_CustomDictionariesCreate_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.CustomDictionariesCreate(customDictionary)
+	data, _, err := c.CustomDictionariesCreate(customDictionary)
 	if err == nil {
 		t.Errorf("%v", err)
 	}
@@ -6665,13 +6482,9 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, status, err := c.CustomFieldsCreate(customFields)
+	data, _, err := c.CustomFieldsCreate(customFields)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if data.Success != false {
@@ -6714,10 +6527,6 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 	customFieldEdit, status, err := c.CustomFieldEdit(customFields)
 	if err == nil {
 		t.Errorf("%v", err)
-	}
-
-	if status < http.StatusBadRequest {
-		t.Error(statusFail)
 	}
 
 	if customFieldEdit.Success != false {
