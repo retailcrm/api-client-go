@@ -8,9 +8,15 @@ import (
 )
 
 func TestFailure_ApiErrorsSlice(t *testing.T) {
-	b := []byte(`{"success": false, "errorMsg": "Failed to activate module", "errors": ["Your account has insufficient funds to activate integration module"]}`)
+	b := []byte(`{"success": false,
+				"errorMsg": "Failed to activate module",
+				"errors": [
+					"Your account has insufficient funds to activate integration module",
+					"Test error"
+				]}`)
 	expected := APIErrorsList{
 		"0": "Your account has insufficient funds to activate integration module",
+		"1": "Test error",
 	}
 
 	var expEr *APIError
@@ -26,9 +32,13 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 }
 
 func TestFailure_ApiErrorsMap(t *testing.T) {
-	b := []byte(`{"success": false, "errorMsg": "Failed to activate module", "errors": {"id": "ID must be an integer"}}`)
+	b := []byte(`{"success": false,
+				"errorMsg": "Failed to activate module",
+				"errors": {"id": "ID must be an integer", "test": "Test error"}}`,
+	)
 	expected := APIErrorsList{
-		"id": "ID must be an integer",
+		"id":   "ID must be an integer",
+		"test": "Test error",
 	}
 
 	var expEr *APIError
