@@ -15,10 +15,9 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/retailcrm/api-client-go/errs"
 )
 
-// New initialize client
+// New initialize client.
 func New(url string, key string) *Client {
 	return &Client{
 		URL:        url,
@@ -27,11 +26,11 @@ func New(url string, key string) *Client {
 	}
 }
 
-// GetRequest implements GET Request
-func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, *errs.Failure) {
+// GetRequest implements GET Request.
+func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, error) {
 	var res []byte
 	var prefix = "/api/v5"
-	failure := &errs.Failure{}
+	apiError := &APIError{}
 
 	if len(versioned) > 0 {
 		s := versioned[0]
@@ -43,8 +42,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	req.Header.Set("X-API-KEY", c.Key)
@@ -55,37 +53,43 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		failure.SetApiError(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
-		return res, resp.StatusCode, failure
+		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, apiError
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		failure.SetRuntimeError(err)
+		return res, 0, err
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		return res, resp.StatusCode, NewAPIError(res)
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, failure
+	return res, resp.StatusCode, nil
 }
 
-// PostRequest implements POST Request with generic body data
-func (c *Client) PostRequest(uri string, postData interface{}, contType ...string) ([]byte, int, *errs.Failure) {
+// PostRequest implements POST Request with generic body data.
+func (c *Client) PostRequest(
+	uri string,
+	postData interface{},
+	contType ...string,
+) ([]byte, int, error) {
 	var (
 		res         []byte
 		contentType string
-		reader      io.Reader
 	)
 
 	prefix := "/api/v5"
-	failure := &errs.Failure{}
+	apiError := &APIError{}
 
 	if len(contType) > 0 {
 		contentType = contType[0]
@@ -93,22 +97,14 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 		contentType = "application/x-www-form-urlencoded"
 	}
 
-	switch postData.(type) {
-	case url.Values:
-		reader = strings.NewReader(postData.(url.Values).Encode())
-	default:
-		if i, ok := postData.(io.Reader); ok {
-			reader = i
-		} else {
-			failure.SetRuntimeError(errors.New("postData should be url.Values or implement io.Reader"))
-			return []byte{}, 0, failure
-		}
+	reader, err := getReaderForPostData(postData)
+	if err != nil {
+		return res, 0, err
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	req.Header.Set("Content-Type", contentType)
@@ -120,26 +116,46 @@ func (c *Client) PostRequest(uri string, postData interface{}, contType ...strin
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		failure.SetApiError(fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode))
-		return res, resp.StatusCode, failure
+		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
+		return res, resp.StatusCode, apiError
 	}
 
 	res, err = buildRawResponse(resp)
 	if err != nil {
-		failure.SetRuntimeError(err)
-		return res, 0, failure
+		return res, 0, err
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		return res, resp.StatusCode, NewAPIError(res)
 	}
 
 	if c.Debug {
 		log.Printf("API Response: %s", res)
 	}
 
-	return res, resp.StatusCode, failure
+	return res, resp.StatusCode, nil
+}
+
+func getReaderForPostData(postData interface{}) (io.Reader, error) {
+	var reader io.Reader
+
+	switch d := postData.(type) {
+	case url.Values:
+		reader = strings.NewReader(d.Encode())
+	default:
+		if i, ok := d.(io.Reader); ok {
+			reader = i
+		} else {
+			err := errors.New("postData should be url.Values or implement io.Reader")
+			return nil, err
+		}
+	}
+
+	return reader, nil
 }
 
 func buildRawResponse(resp *http.Response) ([]byte, error) {
@@ -153,17 +169,7 @@ func buildRawResponse(resp *http.Response) ([]byte, error) {
 	return res, nil
 }
 
-func buildErr(data []byte, err *errs.Failure) {
-	resp, e := errs.ErrorResponse(data)
-	err.SetRuntimeError(e)
-	err.SetApiError(resp.ErrorMsg)
-
-	if resp.Errors != nil {
-		err.SetApiErrors(errs.ErrorsHandler(resp.Errors))
-	}
-}
-
-// checkBy select identifier type
+// checkBy select identifier type.
 func checkBy(by string) string {
 	var context = ByID
 
@@ -174,7 +180,7 @@ func checkBy(by string) string {
 	return context
 }
 
-// fillSite add site code to parameters if present
+// fillSite add site code to parameters if present.
 func fillSite(p *url.Values, site []string) {
 	if len(site) > 0 {
 		s := site[0]
@@ -206,20 +212,15 @@ func fillSite(p *url.Values, site []string) {
 // 	for _, value := range data.versions {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
+func (c *Client) APIVersions() (VersionResponse, int, error) {
 	var resp VersionResponse
 
 	data, status, err := c.GetRequest("/api-versions", false)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -245,20 +246,15 @@ func (c *Client) APIVersions() (VersionResponse, int, *errs.Failure) {
 // 	for _, value := range data.credentials {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
+func (c *Client) APICredentials() (CredentialResponse, int, error) {
 	var resp CredentialResponse
 
 	data, status, err := c.GetRequest("/credentials", false)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -289,22 +285,17 @@ func (c *Client) APICredentials() (CredentialResponse, int, *errs.Failure) {
 // 	for _, value := range data.Customers {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int, *errs.Failure) {
+func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int, error) {
 	var resp CustomersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -326,7 +317,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	combineJSONIn, _ := json.Marshal(&customers)
@@ -338,16 +329,11 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	}
 
 	data, status, err := c.PostRequest("/customers/combine", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -383,7 +369,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 
 	customerJSON, _ := json.Marshal(&customer)
@@ -395,16 +381,11 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -429,7 +410,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	customersJSON, _ := json.Marshal(&customers)
@@ -439,16 +420,11 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	}
 
 	data, status, err := c.PostRequest("/customers/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -478,22 +454,17 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (CustomersHistoryResponse, int, *errs.Failure) {
+func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (CustomersHistoryResponse, int, error) {
 	var resp CustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -524,22 +495,17 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 // 	for _, value := range data.Notes {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *errs.Failure) {
+func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, error) {
 	var resp NotesResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/notes?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -571,7 +537,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, *er
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	noteJSON, _ := json.Marshal(&note)
@@ -583,16 +549,11 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/notes/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -613,7 +574,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -621,16 +582,11 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/notes/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -671,7 +627,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Fail
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedCustomers)
 // 	}
-func (c *Client) CustomersUpload(customers []Customer, site ...string) (CustomersUploadResponse, int, *errs.Failure) {
+func (c *Client) CustomersUpload(customers []Customer, site ...string) (CustomersUploadResponse, int, error) {
 	var resp CustomersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&customers)
@@ -683,16 +639,11 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -718,7 +669,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Failure) {
+func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 	var resp CustomerResponse
 	var context = checkBy(by)
 
@@ -726,16 +677,11 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -770,7 +716,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, *errs.Fai
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (CustomerChangeResponse, int, error) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
@@ -789,16 +735,11 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -829,22 +770,17 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 // 	for _, value := range data.CustomersCorporate {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (CorporateCustomersResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (CorporateCustomersResponse, int, error) {
 	var resp CorporateCustomersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -872,7 +808,9 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (CorporateCustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...string) (
+	CorporateCustomerChangeResponse, int, error,
+) {
 	var resp CorporateCustomerChangeResponse
 
 	customerJSON, _ := json.Marshal(&customer)
@@ -884,16 +822,11 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -918,7 +851,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	customersJSON, _ := json.Marshal(&customers)
@@ -928,16 +861,11 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 	}
 
 	data, status, err := c.PostRequest("/customers-corporate/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -967,22 +895,19 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (CorporateCustomersHistoryResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryRequest) (
+	CorporateCustomersHistoryResponse, int, error,
+) {
 	var resp CorporateCustomersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1013,22 +938,19 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 // 	for _, value := range data.Notes {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (CorporateCustomersNotesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesRequest) (
+	CorporateCustomersNotesResponse, int, error,
+) {
 	var resp CorporateCustomersNotesResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/notes?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1059,7 +981,7 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 //	if data.Success == true {
 //		fmt.Printf("%v", err.Id)
 //	}
-func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	noteJSON, _ := json.Marshal(&note)
@@ -1071,16 +993,11 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/notes/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1102,7 +1019,7 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -1110,16 +1027,11 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/notes/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1154,7 +1066,9 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, *
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedCustomers)
 // 	}
-func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ...string) (CorporateCustomersUploadResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomersUpload(
+	customers []CorporateCustomer, site ...string,
+) (CorporateCustomersUploadResponse, int, error) {
 	var resp CorporateCustomersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&customers)
@@ -1166,16 +1080,11 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1201,7 +1110,7 @@ func (c *Client) CorporateCustomersUpload(customers []CorporateCustomer, site ..
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.CorporateCustomer)
 // 	}
-func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerResponse, int, error) {
 	var resp CorporateCustomerResponse
 	var context = checkBy(by)
 
@@ -1209,16 +1118,11 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1252,23 +1156,20 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Addresses)
 // 	}
-func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCustomerAddressesRequest) (CorporateCustomersAddressesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddresses(
+	id string, parameters CorporateCustomerAddressesRequest,
+) (CorporateCustomersAddressesResponse, int, error) {
 	var resp CorporateCustomersAddressesResponse
 
 	parameters.By = checkBy(parameters.By)
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/addresses?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1297,7 +1198,9 @@ func (c *Client) CorporateCustomerAddresses(id string, parameters CorporateCusto
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddressesCreate(
+	id string, by string, address CorporateCustomerAddress, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	addressJSON, _ := json.Marshal(&address)
@@ -1310,16 +1213,11 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1353,7 +1251,9 @@ func (c *Client) CorporateCustomerAddressesCreate(id string, by string, address 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerAddressesEdit(
+	customerID, customerBy, entityBy string, address CorporateCustomerAddress, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1380,16 +1280,11 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/addresses/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1423,23 +1318,20 @@ func (c *Client) CorporateCustomerAddressesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Companies)
 // 	}
-func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPairRequest) (CorporateCustomerCompaniesResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompanies(
+	id string, parameters IdentifiersPairRequest,
+) (CorporateCustomerCompaniesResponse, int, error) {
 	var resp CorporateCustomerCompaniesResponse
 
 	parameters.By = checkBy(parameters.By)
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/companies?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1467,7 +1359,9 @@ func (c *Client) CorporateCustomerCompanies(id string, parameters IdentifiersPai
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompaniesCreate(
+	id string, by string, company Company, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&company)
@@ -1480,16 +1374,11 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1523,7 +1412,9 @@ func (c *Client) CorporateCustomerCompaniesCreate(id string, by string, company 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy string, company Company, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerCompaniesEdit(
+	customerID, customerBy, entityBy string, company Company, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1550,16 +1441,11 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/companies/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1593,23 +1479,20 @@ func (c *Client) CorporateCustomerCompaniesEdit(customerID, customerBy, entityBy
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Contacts)
 // 	}
-func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPairRequest) (CorporateCustomerContactsResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContacts(
+	id string, parameters IdentifiersPairRequest,
+) (CorporateCustomerContactsResponse, int, error) {
 	var resp CorporateCustomerContactsResponse
 
 	parameters.By = checkBy(parameters.By)
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customers-corporate/%s/contacts?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1642,7 +1525,9 @@ func (c *Client) CorporateCustomerContacts(id string, parameters IdentifiersPair
 //	if data.Success == true {
 //		fmt.Printf("%v", data.ID)
 //	}
-func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContactsCreate(
+	id string, by string, contact CorporateCustomerContact, site ...string,
+) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	companyJSON, _ := json.Marshal(&contact)
@@ -1655,16 +1540,11 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/create", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1695,7 +1575,9 @@ func (c *Client) CorporateCustomerContactsCreate(id string, by string, contact C
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerContactsEdit(
+	customerID, customerBy, entityBy string, contact CorporateCustomerContact, site ...string,
+) (CreateResponse, int, error) {
 	var (
 		resp CreateResponse
 		uid  string
@@ -1722,16 +1604,11 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/contacts/%s/edit", customerID, uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1766,7 +1643,9 @@ func (c *Client) CorporateCustomerContactsEdit(customerID, customerBy, entityBy 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Customer)
 // 	}
-func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (CustomerChangeResponse, int, *errs.Failure) {
+func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, site ...string) (
+	CustomerChangeResponse, int, error,
+) {
 	var resp CustomerChangeResponse
 	var uid = strconv.Itoa(customer.ID)
 	var context = checkBy(by)
@@ -1785,16 +1664,11 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/customers-corporate/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1830,7 +1704,9 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
 //
-func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode string) (
+	SuccessfulResponse, int, error,
+) {
 	var resp SuccessfulResponse
 
 	updateJSON, _ := json.Marshal(&parameters)
@@ -1840,16 +1716,11 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/generic/%s/tracking", subcode), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1880,22 +1751,17 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 // 	for _, value := range data.DeliveryShipments {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (DeliveryShipmentsResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (DeliveryShipmentsResponse, int, error) {
 	var resp DeliveryShipmentsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/delivery/shipments?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1931,7 +1797,9 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType string, site ...string) (DeliveryShipmentUpdateResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipmentCreate(
+	shipment DeliveryShipment, deliveryType string, site ...string,
+) (DeliveryShipmentUpdateResponse, int, error) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -1943,16 +1811,11 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/delivery/shipments/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -1978,20 +1841,15 @@ func (c *Client) DeliveryShipmentCreate(shipment DeliveryShipment, deliveryType 
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.DeliveryShipment)
 // 	}
-func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error) {
 	var resp DeliveryShipmentResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/delivery/shipments/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2019,7 +1877,9 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, *errs.
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (DeliveryShipmentUpdateResponse, int, *errs.Failure) {
+func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string) (
+	DeliveryShipmentUpdateResponse, int, error,
+) {
 	var resp DeliveryShipmentUpdateResponse
 	updateJSON, _ := json.Marshal(&shipment)
 
@@ -2030,16 +1890,11 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/shipments/%s/edit", strconv.Itoa(shipment.ID)), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2065,20 +1920,15 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.IntegrationModule)
 // 	}
-func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int, *errs.Failure) {
+func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int, error) {
 	var resp IntegrationModuleResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/integration-modules/%s", code))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2116,23 +1966,20 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.Info)
 //	}
-func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (IntegrationModuleEditResponse, int, *errs.Failure) {
+func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
+	IntegrationModuleEditResponse, int, error,
+) {
 	var resp IntegrationModuleEditResponse
 	updateJSON, _ := json.Marshal(&integrationModule)
 
 	p := url.Values{"integrationModule": {string(updateJSON[:])}}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2158,22 +2005,17 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (Int
 // 	for _, value := range data.Orders {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, *errs.Failure) {
+func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 	var resp OrdersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2195,7 +2037,7 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, *errs.Fa
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, *errs.Failure) {
+func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (OperationResponse, int, error) {
 	var resp OperationResponse
 
 	combineJSONIn, _ := json.Marshal(&order)
@@ -2208,16 +2050,11 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 	}
 
 	data, status, err := c.PostRequest("/orders/combine", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2249,7 +2086,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 // 	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, *errs.Failure) {
+func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, int, error) {
 	var resp OrderCreateResponse
 	orderJSON, _ := json.Marshal(&order)
 
@@ -2260,16 +2097,11 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2298,7 +2130,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.ID)
 //	}
-func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	ordersJSON, _ := json.Marshal(&orders)
@@ -2308,16 +2140,11 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest("/orders/fix-external-ids", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2343,22 +2170,17 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 // 	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryResponse, int, *errs.Failure) {
+func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryResponse, int, error) {
 	var resp OrdersHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2390,7 +2212,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	paymentJSON, _ := json.Marshal(&payment)
@@ -2402,16 +2224,11 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/payments/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2433,7 +2250,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -2441,16 +2258,11 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/payments/%d/delete", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2478,7 +2290,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, *errs.Fail
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(payment.ID)
 	var context = checkBy(by)
@@ -2497,16 +2309,11 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/payments/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2531,22 +2338,17 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, *errs.Failure) {
+func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesResponse, int, error) {
 	var resp OrdersStatusesResponse
 
 	params, _ := query.Values(request)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/statuses?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2587,7 +2389,7 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.UploadedOrders)
 // 	}
-func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadResponse, int, *errs.Failure) {
+func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadResponse, int, error) {
 	var resp OrdersUploadResponse
 
 	uploadJSON, _ := json.Marshal(&orders)
@@ -2599,16 +2401,11 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2634,7 +2431,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Order)
 // 	}
-func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) {
+func (c *Client) Order(id, by, site string) (OrderResponse, int, error) {
 	var resp OrderResponse
 	var context = checkBy(by)
 
@@ -2642,16 +2439,11 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 	params, _ := query.Values(fw)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/%s?%s", id, params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2679,7 +2471,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, *errs.Failure) 
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 	var uid = strconv.Itoa(order.ID)
 	var context = checkBy(by)
@@ -2698,16 +2490,11 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2733,22 +2520,17 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 //	for _, value := range data.Packs {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failure) {
+func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 	var resp PacksResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2778,7 +2560,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
+func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
 	packJSON, _ := json.Marshal(&pack)
 
@@ -2787,16 +2569,11 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
 	}
 
 	data, status, err := c.PostRequest("/orders/packs/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2822,22 +2599,17 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, *errs.Failure) {
 //	for _, value := range data.History {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryResponse, int, *errs.Failure) {
+func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryResponse, int, error) {
 	var resp PacksHistoryResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs/history?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2863,20 +2635,15 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Pack)
 // 	}
-func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
+func (c *Client) Pack(id int) (PackResponse, int, error) {
 	var resp PackResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/orders/packs/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2898,20 +2665,15 @@ func (c *Client) Pack(id int) (PackResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/delete", id), url.Values{})
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2933,7 +2695,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
+func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	packJSON, _ := json.Marshal(&pack)
@@ -2943,16 +2705,11 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/edit", pack.ID), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2960,20 +2717,15 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, *errs.Failure) {
 // Countries returns list of available country codes
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-countries
-func (c *Client) Countries() (CountriesResponse, int, *errs.Failure) {
+func (c *Client) Countries() (CountriesResponse, int, error) {
 	var resp CountriesResponse
 
 	data, status, err := c.GetRequest("/reference/countries")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -2981,20 +2733,15 @@ func (c *Client) Countries() (CountriesResponse, int, *errs.Failure) {
 // CostGroups returns costs groups list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-groups
-func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
+func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	var resp CostGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-groups")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3019,7 +2766,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&costGroup)
@@ -3029,16 +2776,11 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *e
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-groups/%s/edit", costGroup.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3046,20 +2788,15 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, *e
 // CostItems returns costs items list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-items
-func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
+func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	var resp CostItemsResponse
 
 	data, status, err := c.GetRequest("/reference/cost-items")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3084,7 +2821,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&costItem)
@@ -3094,16 +2831,11 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-items/%s/edit", costItem.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3111,20 +2843,15 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, *errs
 // Couriers returns list of couriers
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
-func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
+func (c *Client) Couriers() (CouriersResponse, int, error) {
 	var resp CouriersResponse
 
 	data, status, err := c.GetRequest("/reference/couriers")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3155,7 +2882,7 @@ func (c *Client) Couriers() (CouriersResponse, int, *errs.Failure) {
 // 	if data.Success == true {
 // 		fmt.Printf("%v", data.ID)
 // 	}
-func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	objJSON, _ := json.Marshal(&courier)
@@ -3165,16 +2892,11 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Fail
 	}
 
 	data, status, err := c.PostRequest("/reference/couriers/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3199,7 +2921,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, *errs.Fail
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&courier)
@@ -3209,16 +2931,11 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Fa
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/couriers/%d/edit", courier.ID), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3226,20 +2943,15 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, *errs.Fa
 // DeliveryServices returns list of delivery services
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-services
-func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure) {
+func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	var resp DeliveryServiceResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-services")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3264,7 +2976,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, *errs.Failure
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&deliveryService)
@@ -3274,16 +2986,11 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3291,20 +2998,15 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 // DeliveryTypes returns list of delivery types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-types
-func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
 	data, status, err := c.GetRequest("/reference/delivery-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3331,7 +3033,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&deliveryType)
@@ -3341,16 +3043,11 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3358,20 +3055,15 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 // LegalEntities returns list of legal entities
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-legal-entities
-func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
+func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	var resp LegalEntitiesResponse
 
 	data, status, err := c.GetRequest("/reference/legal-entities")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3396,7 +3088,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&legalEntity)
@@ -3406,16 +3098,11 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/legal-entities/%s/edit", legalEntity.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3423,20 +3110,15 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 // OrderMethods returns list of order methods
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-methods
-func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
+func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	var resp OrderMethodsResponse
 
 	data, status, err := c.GetRequest("/reference/order-methods")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3462,7 +3144,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&orderMethod)
@@ -3472,16 +3154,11 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3489,20 +3166,15 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 // OrderTypes return list of order types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-types
-func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
+func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	var resp OrderTypesResponse
 
 	data, status, err := c.GetRequest("/reference/order-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3528,7 +3200,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&orderType)
@@ -3538,16 +3210,11 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *e
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3555,20 +3222,15 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, *e
 // PaymentStatuses returns list of payment statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-statuses
-func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, *errs.Failure) {
+func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	var resp PaymentStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3576,7 +3238,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, *errs.Failure)
 // PaymentStatusEdit payment status creation/editing
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-statuses-code-edit
-func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&paymentStatus)
@@ -3586,16 +3248,11 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3603,20 +3260,15 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 // PaymentTypes returns list of payment types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-types
-func (c *Client) PaymentTypes() (PaymentTypesResponse, int, *errs.Failure) {
+func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	var resp PaymentTypesResponse
 
 	data, status, err := c.GetRequest("/reference/payment-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3624,7 +3276,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, *errs.Failure) {
 // PaymentTypeEdit payment type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-types-code-edit
-func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&paymentType)
@@ -3634,16 +3286,11 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3651,20 +3298,15 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 // PriceTypes returns list of price types
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-price-types
-func (c *Client) PriceTypes() (PriceTypesResponse, int, *errs.Failure) {
+func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	var resp PriceTypesResponse
 
 	data, status, err := c.GetRequest("/reference/price-types")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3672,7 +3314,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, *errs.Failure) {
 // PriceTypeEdit price type create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-price-types-code-edit
-func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&priceType)
@@ -3682,16 +3324,11 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *e
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3699,20 +3336,15 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, *e
 // ProductStatuses returns list of item statuses in order
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-product-statuses
-func (c *Client) ProductStatuses() (ProductStatusesResponse, int, *errs.Failure) {
+func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	var resp ProductStatusesResponse
 
 	data, status, err := c.GetRequest("/reference/product-statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3720,7 +3352,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, *errs.Failure)
 // ProductStatusEdit order item status create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-product-statuses-code-edit
-func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&productStatus)
@@ -3730,16 +3362,11 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3747,20 +3374,15 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 // Sites returns the sites list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-sites
-func (c *Client) Sites() (SitesResponse, int, *errs.Failure) {
+func (c *Client) Sites() (SitesResponse, int, error) {
 	var resp SitesResponse
 
 	data, status, err := c.GetRequest("/reference/sites")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3768,7 +3390,7 @@ func (c *Client) Sites() (SitesResponse, int, *errs.Failure) {
 // SiteEdit site create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
-func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&site)
@@ -3778,16 +3400,11 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/sites/%s/edit", site.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3795,20 +3412,15 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, *errs.Failure) {
 // StatusGroups returns list of order status groups
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-status-groups
-func (c *Client) StatusGroups() (StatusGroupsResponse, int, *errs.Failure) {
+func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	var resp StatusGroupsResponse
 
 	data, status, err := c.GetRequest("/reference/status-groups")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3816,28 +3428,23 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, *errs.Failure) {
 // Statuses returns list of order statuses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-statuses
-func (c *Client) Statuses() (StatusesResponse, int, *errs.Failure) {
+func (c *Client) Statuses() (StatusesResponse, int, error) {
 	var resp StatusesResponse
 
 	data, status, err := c.GetRequest("/reference/statuses")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
 
 // StatusEdit order status create/edit
 //
-// For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
-func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) {
+// For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit.
+func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&st)
@@ -3847,16 +3454,11 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) 
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/statuses/%s/edit", st.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3864,20 +3466,15 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, *errs.Failure) 
 // Stores returns list of warehouses
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-stores
-func (c *Client) Stores() (StoresResponse, int, *errs.Failure) {
+func (c *Client) Stores() (StoresResponse, int, error) {
 	var resp StoresResponse
 
 	data, status, err := c.GetRequest("/reference/stores")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3885,7 +3482,7 @@ func (c *Client) Stores() (StoresResponse, int, *errs.Failure) {
 // StoreEdit warehouse create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-stores-code-edit
-func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&store)
@@ -3895,16 +3492,11 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure)
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/stores/%s/edit", store.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3912,20 +3504,15 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, *errs.Failure)
 // Units returns units list
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-units
-func (c *Client) Units() (UnitsResponse, int, *errs.Failure) {
+func (c *Client) Units() (UnitsResponse, int, error) {
 	var resp UnitsResponse
 
 	data, status, err := c.GetRequest("/reference/units")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3933,7 +3520,7 @@ func (c *Client) Units() (UnitsResponse, int, *errs.Failure) {
 // UnitEdit unit create/edit
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-units-code-edit
-func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	objJSON, _ := json.Marshal(&unit)
@@ -3943,16 +3530,11 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/units/%s/edit", unit.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -3982,22 +3564,17 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, *errs.Failure) {
 //	for _, value := range data.Segments {
 //		fmt.Printf("%v\n", value)
 //	}
-func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *errs.Failure) {
+func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, error) {
 	var resp SegmentsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/segments?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4021,20 +3598,15 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, *e
 //	}
 //
 //	fmt.Printf("%#v\n", data)
-func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
+func (c *Client) Settings() (SettingsResponse, int, error) {
 	var resp SettingsResponse
 
 	data, status, err := c.GetRequest("/settings")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4060,22 +3632,17 @@ func (c *Client) Settings() (SettingsResponse, int, *errs.Failure) {
 //	for _, value := range data.Offers {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse, int, *errs.Failure) {
+func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse, int, error) {
 	var resp InventoriesResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/inventories?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4118,7 +3685,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
-func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (StoreUploadResponse, int, *errs.Failure) {
+func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
 	uploadJSON, _ := json.Marshal(&inventories)
@@ -4130,16 +3697,11 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/store/inventories/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4174,7 +3736,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 //	}
 //
 //	fmt.Printf("%v\n", data.NotFoundOffers)
-func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, int, *errs.Failure) {
+func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, int, error) {
 	var resp StoreUploadResponse
 
 	uploadJSON, _ := json.Marshal(&prices)
@@ -4184,16 +3746,11 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	}
 
 	data, status, err := c.PostRequest("/store/prices/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4223,22 +3780,17 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 //	for _, value := range data.ProductGroup {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroupsResponse, int, *errs.Failure) {
+func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroupsResponse, int, error) {
 	var resp ProductsGroupsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/product-groups?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4269,22 +3821,17 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 //	for _, value := range data.Products {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *errs.Failure) {
+func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, error) {
 	var resp ProductsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/products?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4314,22 +3861,17 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, *e
 //	for _, value := range data.Properties {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (ProductsPropertiesResponse, int, *errs.Failure) {
+func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (ProductsPropertiesResponse, int, error) {
 	var resp ProductsPropertiesResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/products/properties?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4359,22 +3901,17 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 //	for _, value := range data.Tasks {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failure) {
+func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 	var resp TasksResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/tasks?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4403,7 +3940,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.ID)
 // 	}
-func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 	taskJSON, _ := json.Marshal(&task)
 
@@ -4414,16 +3951,11 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *er
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/tasks/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4449,20 +3981,15 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, *er
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.Task)
 // 	}
-func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
+func (c *Client) Task(id int) (TaskResponse, int, error) {
 	var resp TaskResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/tasks/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4487,7 +4014,7 @@ func (c *Client) Task(id int) (TaskResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(task.ID)
 
@@ -4500,15 +4027,15 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/tasks/%s/edit", uid), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
+		a := NewAPIError(data)
+		return resp, status, a
 	}
 
 	return resp, status, nil
@@ -4535,22 +4062,17 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, *
 //	for _, value := range data.Groups {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, int, *errs.Failure) {
+func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, int, error) {
 	var resp UserGroupsResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/user-groups?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4576,22 +4098,17 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 //	for _, value := range data.Users {
 // 		fmt.Printf("%v\n", value)
 // 	}
-func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failure) {
+func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 	var resp UsersResponse
 
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/users?%s", params.Encode()))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4617,20 +4134,15 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, *errs.Failu
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.User)
 // 	}
-func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
+func (c *Client) User(id int) (UserResponse, int, error) {
 	var resp UserResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/users/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4652,7 +4164,7 @@ func (c *Client) User(id int) (UserResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	p := url.Values{
@@ -4660,15 +4172,14 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *er
 	}
 
 	data, st, err := c.PostRequest(fmt.Sprintf("/users/%d/status", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, st, err
 	}
 
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		buildErr(data, err)
-		return resp, st, err
+		return resp, st, NewAPIError(data)
 	}
 
 	return resp, st, nil
@@ -4677,20 +4188,15 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, *er
 // StaticticsUpdate updates statistics
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-statistic-update
-func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.GetRequest("/statistic/update")
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4721,23 +4227,18 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, *errs.Failure) {
 // 	for _, value := range data.Costs {
 // 		fmt.Printf("%v\n", value.Summ)
 // 	}
-func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
+func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 	var resp CostsResponse
 
 	params, _ := query.Values(costs)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/costs?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4775,7 +4276,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, *errs.Failure) {
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.ID)
 // 	}
-func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -4787,16 +4288,11 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/costs/create", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4822,7 +4318,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 // 	If data.Success == true {
 // 		fmt.Printf("Not removed costs: %v", data.NotRemovedIds)
 // 	}
-func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure) {
+func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	var resp CostsDeleteResponse
 
 	costJSON, _ := json.Marshal(&ids)
@@ -4832,16 +4328,11 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure
 	}
 
 	data, status, err := c.PostRequest("/costs/delete", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4884,7 +4375,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, *errs.Failure
 // 	If data.Success == true {
 // 		fmt.Printf("Uploaded costs: %v", data.UploadedCosts)
 // 	}
-func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs.Failure) {
+func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error) {
 	var resp CostsUploadResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -4894,16 +4385,11 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs
 	}
 
 	data, status, err := c.PostRequest("/costs/upload", p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4929,21 +4415,16 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, *errs
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Cost)
 // 	}
-func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
+func (c *Client) Cost(id int) (CostResponse, int, error) {
 	var resp CostResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/costs/%d", id))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -4965,7 +4446,7 @@ func (c *Client) Cost(id int) (CostResponse, int, *errs.Failure) {
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	costJSON, _ := json.Marshal(&id)
@@ -4976,16 +4457,11 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", id), p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5016,7 +4492,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Id)
 // 	}
-func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, *errs.Failure) {
+func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateResponse, int, error) {
 	var resp CreateResponse
 
 	costJSON, _ := json.Marshal(&cost)
@@ -5028,16 +4504,11 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/edit", id), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5063,7 +4534,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 // 	if status >= http.StatusBadRequest {
 // 		fmt.Printf("%v", err.ApiError())
 // 	}
-func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
+func (c *Client) Files(files FilesRequest) (FilesResponse, int, error) {
 	var resp FilesResponse
 
 	params, _ := query.Values(files)
@@ -5075,11 +4546,6 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5106,7 +4572,7 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Failure) {
+func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, error) {
 	var resp FileUploadResponse
 
 	data, status, err := c.PostRequest("/files/upload", reader, "application/octet-stream")
@@ -5116,11 +4582,6 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Fa
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5146,20 +4607,15 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, *errs.Fa
 //	if data.Success == true {
 // 		fmt.Printf("%v\n", data.File)
 // 	}
-func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
+func (c *Client) File(id int) (FileResponse, int, error) {
 	var resp FileResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d", id))
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5181,7 +4637,7 @@ func (c *Client) File(id int) (FileResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
+func (c *Client) FileDelete(id int) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/delete", id), strings.NewReader(""))
@@ -5191,11 +4647,6 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5217,7 +4668,7 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
+func (c *Client) FileDownload(id int) (io.ReadCloser, int, error) {
 	data, status, err := c.GetRequest(fmt.Sprintf("/files/%d/download", id))
 	if status != http.StatusOK {
 		return nil, status, err
@@ -5244,24 +4695,21 @@ func (c *Client) FileDownload(id int) (io.ReadCloser, int, *errs.Failure) {
 //  if status >= http.StatusBadRequest {
 // 	    fmt.Printf("%v", err.Error())
 //  }
-func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) {
+func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 	var resp FileResponse
 
 	req, _ := json.Marshal(file)
-	data, status, err := c.PostRequest(fmt.Sprintf("/files/%d/edit", id), url.Values{
-		"file": {string(req)},
-	})
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/files/%d/edit", id), url.Values{
+			"file": {string(req)},
+		},
+	)
 
 	if err != nil && err.Error() != "" {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5290,23 +4738,18 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, *errs.Failure) 
 // 	for _, value := range data.CustomFields {
 //		fmt.Printf("%v\n", value)
 //	}
-func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsResponse, int, *errs.Failure) {
+func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsResponse, int, error) {
 	var resp CustomFieldsResponse
 
 	params, _ := query.Values(customFields)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5336,23 +4779,20 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 //	for _, value := range data.CustomDictionaries {
 //		fmt.Printf("%v\n", value.Elements)
 //	}
-func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (CustomDictionariesResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest) (
+	CustomDictionariesResponse, int, error,
+) {
 	var resp CustomDictionariesResponse
 
 	params, _ := query.Values(customDictionaries)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries?%s", params.Encode()))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5391,7 +4831,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 //	If data.Success == true {
 //		fmt.Printf("%v", data.Code)
 //	}
-func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customDictionary)
@@ -5402,16 +4842,11 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 
 	data, status, err := c.PostRequest("/custom-fields/dictionaries/create", p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5437,21 +4872,16 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.CustomDictionary.Name)
 // 	}
-func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, error) {
 	var resp CustomDictionaryResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/dictionaries/%s", code))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5490,7 +4920,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, *
 //	If data.Success == true {
 //		fmt.Printf("%v", data.Code)
 //	}
-func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customDictionary)
@@ -5500,16 +4930,11 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code), p)
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5541,7 +4966,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Code)
 // 	}
-func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customFields)
@@ -5552,16 +4977,11 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity), p)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5587,21 +5007,16 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.CustomField)
 // 	}
-func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *errs.Failure) {
+func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, error) {
 	var resp CustomFieldResponse
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/custom-fields/%s/%s", entity, code))
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
@@ -5631,7 +5046,7 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, *er
 // 	If data.Success == true {
 // 		fmt.Printf("%v", data.Code)
 // 	}
-func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int, *errs.Failure) {
+func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int, error) {
 	var resp CustomResponse
 
 	costJSON, _ := json.Marshal(&customFields)
@@ -5640,18 +5055,15 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 		"customField": {string(costJSON[:])},
 	}
 
-	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p)
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p,
+	)
 
-	if err.Error() != "" {
+	if err != nil {
 		return resp, status, err
 	}
 
 	json.Unmarshal(data, &resp)
-
-	if resp.Success == false {
-		buildErr(data, err)
-		return resp, status, err
-	}
 
 	return resp, status, nil
 }
