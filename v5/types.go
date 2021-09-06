@@ -46,6 +46,7 @@ type Address struct {
 	Floor      int    `json:"floor,omitempty"`
 	Block      int    `json:"block,omitempty"`
 	House      string `json:"house,omitempty"`
+	Housing    string `json:"housing,omitempty"`
 	Metro      string `json:"metro,omitempty"`
 	Notes      string `json:"notes,omitempty"`
 	Text       string `json:"text,omitempty"`
