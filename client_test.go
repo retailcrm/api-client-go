@@ -20,14 +20,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	if os.Getenv("DEVELOPER_NODE") == "1" {
-		err := godotenv.Load("../.env")
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
-
-		os.Exit(m.Run())
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
+
+	os.Exit(m.Run())
 }
 
 func init() {
