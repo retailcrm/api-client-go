@@ -17,3 +17,5 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 gopkg.in/h2non/gentleman.v1 v1.0.4/go.mod h1:JYuHVdFzS4MKOXe0o+chKJ4hCe6tqKKw9XH9YP6WFrg=
 gopkg.in/h2non/gock.v1 v1.0.16 h1:F11k+OafeuFENsjei5t2vMTSTs9L62AdyTe4E1cgdG8=
 gopkg.in/h2non/gock.v1 v1.0.16/go.mod h1:XVuDAssexPLwgxCLMvDTWNU5eqklsydR6I5phZ9oPB8=
+gopkg.in/h2non/gock.v1 v1.1.2 h1:jBbHXgGBK/AoPVfJh5x4r/WxIrElvbLel8TCZkkZJoY=
+gopkg.in/h2non/gock.v1 v1.1.2/go.mod h1:n7UGz/ckNChHiK05rDoiC4MYSunEC/lyaUm2WWaDva0=
