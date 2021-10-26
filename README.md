@@ -13,19 +13,19 @@ This is golang RetailCRM API client.
 ## Install
 
 ```bash
-go get -x github.com/retailcrm/api-client-go
+go get -u github.com/retailcrm/api-client-go/v2
 ```
 
 ## Usage
 
 ```golang
-package main
+package retailcrm
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/retailcrm/api-client-go/v5"
+	"github.com/retailcrm/api-client-go/v2"
 )
 
 func main() {

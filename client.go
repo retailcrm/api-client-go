@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 import (
 	"bytes"
@@ -26,11 +26,26 @@ func New(url string, key string) *Client {
 	}
 }
 
+// WithLogger sets the provided logger instance into the Client.
+func (c *Client) WithLogger(logger BasicLogger) *Client {
+	c.logger = logger
+	return c
+}
+
+// writeLog writes to the log.
+func (c *Client) writeLog(format string, v ...interface{}) {
+	if c.logger != nil {
+		c.logger.Printf(format, v...)
+		return
+	}
+
+	log.Printf(format, v...)
+}
+
 // GetRequest implements GET Request.
 func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte, int, error) {
 	var res []byte
 	var prefix = "/api/v5"
-	apiError := &APIError{}
 
 	if len(versioned) > 0 {
 		s := versioned[0]
@@ -48,7 +63,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	req.Header.Set("X-API-KEY", c.Key)
 
 	if c.Debug {
-		log.Printf("API Request: %s %s", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), c.Key)
+		c.writeLog("API Request: %s %s", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), c.Key)
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -57,8 +72,8 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
-		return res, resp.StatusCode, apiError
+		return res, resp.StatusCode, CreateGenericAPIError(
+			fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 	}
 
 	res, err = buildRawResponse(resp)
@@ -67,11 +82,11 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
-		return res, resp.StatusCode, NewAPIError(res)
+		return res, resp.StatusCode, CreateAPIError(res)
 	}
 
 	if c.Debug {
-		log.Printf("API Response: %s", res)
+		c.writeLog("API Response: %s", res)
 	}
 
 	return res, resp.StatusCode, nil
@@ -89,7 +104,6 @@ func (c *Client) PostRequest(
 	)
 
 	prefix := "/api/v5"
-	apiError := &APIError{}
 
 	if len(contType) > 0 {
 		contentType = contType[0]
@@ -111,7 +125,7 @@ func (c *Client) PostRequest(
 	req.Header.Set("X-API-KEY", c.Key)
 
 	if c.Debug {
-		log.Printf("API Request: %s %s", uri, c.Key)
+		c.writeLog("API Request: %s %s", uri, c.Key)
 	}
 
 	resp, err := c.httpClient.Do(req)
@@ -120,8 +134,8 @@ func (c *Client) PostRequest(
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		apiError.ErrorMsg = fmt.Sprintf("HTTP request error. Status code: %d.\n", resp.StatusCode)
-		return res, resp.StatusCode, apiError
+		return res, resp.StatusCode, CreateGenericAPIError(
+			fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 	}
 
 	res, err = buildRawResponse(resp)
@@ -130,11 +144,11 @@ func (c *Client) PostRequest(
 	}
 
 	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
-		return res, resp.StatusCode, NewAPIError(res)
+		return res, resp.StatusCode, CreateAPIError(res)
 	}
 
 	if c.Debug {
-		log.Printf("API Response: %s", res)
+		c.writeLog("API Response: %s", res)
 	}
 
 	return res, resp.StatusCode, nil
@@ -4034,7 +4048,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		a := NewAPIError(data)
+		a := CreateAPIError(data)
 		return resp, status, a
 	}
 
@@ -4179,7 +4193,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 	json.Unmarshal(data, &resp)
 
 	if resp.Success == false {
-		return resp, st, NewAPIError(data)
+		return resp, st, CreateAPIError(data)
 	}
 
 	return resp, st, nil

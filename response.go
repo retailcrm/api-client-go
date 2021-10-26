@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 // SuccessfulResponse type.
 type SuccessfulResponse struct {
@@ -20,7 +20,7 @@ type OrderCreateResponse struct {
 // OperationResponse type.
 type OperationResponse struct {
 	Success bool              `json:"success"`
-	Errors  map[string]string `json:"errors,omitempty"`
+	Errors  map[string]string `json:"ErrorsList,omitempty"`
 }
 
 // VersionResponse return available API versions.
@@ -31,7 +31,7 @@ type VersionResponse struct {
 
 // CredentialResponse return available API methods.
 type CredentialResponse struct {
-	Success        bool     `json:"success,omitempty"`
+	Success bool `json:"success,omitempty"`
 	// deprecated
 	Credentials    []string `json:"credentials,omitempty"`
 	Scopes         []string `json:"scopes,omitempty"`

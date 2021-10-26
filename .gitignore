@@ -5,6 +5,7 @@
 
 # Folders
 _obj
+vendor
 
 # Architecture specific extensions/prefixes
 *.[568vq]

@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 import (
 	"encoding/json"

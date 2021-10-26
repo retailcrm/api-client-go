@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 import (
 	"encoding/json"
@@ -494,7 +494,7 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
+		BodyString(`{"success": false, "errorMsg": "Customers are loaded with ErrorsList"}`)
 
 	data, _, err := c.CustomersUpload(customers)
 	if err == nil {
@@ -631,7 +631,7 @@ func TestClient_CustomersFixExternalIds_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"id": "ID must be an integer"}}`)
 
 	data, _, err := c.CustomersFixExternalIds(customers)
 	if err == nil {
@@ -690,7 +690,7 @@ func TestClient_CustomersHistory_Fail(t *testing.T) {
 		Get("/customers/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, _, err := c.CustomersHistory(f)
 	if err == nil {
@@ -885,7 +885,7 @@ func TestClient_CorporateCustomersFixExternalIds_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"id": "ID must be an integer"}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"id": "ID must be an integer"}}`)
 
 	data, _, err := c.CorporateCustomersFixExternalIds(customers)
 	if err == nil {
@@ -944,7 +944,7 @@ func TestClient_CorporateCustomersHistory_Fail(t *testing.T) {
 		Get("/customers-corporate/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, _, err := c.CorporateCustomersHistory(f)
 	if err == nil {
@@ -1130,7 +1130,7 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Customers are loaded with errors"}`)
+		BodyString(`{"success": false, "errorMsg": "Customers are loaded with ErrorsList"}`)
 
 	data, _, err := c.CorporateCustomersUpload(customers)
 	if err == nil {
@@ -1703,7 +1703,7 @@ func TestClient_NotesNotes_Fail(t *testing.T) {
 		Get("/customers/notes").
 		MatchParam("filter[createdAtFrom]", "2020-13-12").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[createdAtFrom]": "This value is not valid."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"children[createdAtFrom]": "This value is not valid."}}`)
 
 	data, _, err := c.CustomerNotes(NotesRequest{
 		Filter: NotesFilter{CreatedAtFrom: "2020-13-12"},
@@ -1803,7 +1803,7 @@ func TestClient_NotesCreateDelete_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"customer": "Set one of the following fields: id, externalId"}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "ErrorsList": {"customer": "Set one of the following fields: id, externalId"}}`)
 
 	data, _, err := c.CustomerNoteCreate(note)
 	if err == nil {
@@ -1875,7 +1875,7 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 		Get("/orders").
 		MatchParam("filter[attachments]", "7").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[attachments]": "SThis value is not valid."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"children[attachments]": "SThis value is not valid."}}`)
 
 	data, _, err := c.Orders(OrdersRequest{Filter: OrdersFilter{Attachments: 7}})
 	if err == nil {
@@ -2166,7 +2166,7 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Orders are loaded with errors"}`)
+		BodyString(`{"success": false, "errorMsg": "Orders are loaded with ErrorsList"}`)
 
 	data, _, err := c.OrdersUpload(orders)
 	if err == nil {
@@ -2395,7 +2395,7 @@ func TestClient_OrdersHistory_Fail(t *testing.T) {
 		Get("/orders/history").
 		MatchParam("filter[startDate]", "2020-13-12").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"children[startDate]": "Значение недопустимо."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"children[startDate]": "Значение недопустимо."}}`)
 
 	data, _, err := c.OrdersHistory(OrdersHistoryRequest{Filter: OrdersHistoryFilter{StartDate: "2020-13-12"}})
 	if err == nil {
@@ -2521,7 +2521,7 @@ func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"order": "Set one of the following fields: id, externalId, number"}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "ErrorsList": {"order": "Set one of the following fields: id, externalId, number"}}`)
 
 	data, _, err := c.OrderPaymentCreate(f)
 	if err == nil {
@@ -2743,7 +2743,7 @@ func TestClient_TaskChange_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Task is not loaded", "errors": {"performerId": "This value should not be blank."}}`)
+		BodyString(`{"success": false, "errorMsg": "Task is not loaded", "ErrorsList": {"performerId": "This value should not be blank."}}`)
 
 	data, _, err := c.TaskEdit(f)
 	if err == nil {
@@ -2792,7 +2792,7 @@ func TestClient_UsersUsers_Fail(t *testing.T) {
 		MatchParam("filter[active]", "3").
 		MatchParam("page", "1").
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "errors": {"active": "he value you selected is not a valid choice."}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters", "ErrorsList": {"active": "he value you selected is not a valid choice."}}`)
 
 	data, _, err := c.Users(UsersRequest{Filter: UsersFilter{Active: 3}, Page: 1})
 	if err == nil {
@@ -3629,7 +3629,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(400).
-		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "errors": {"firstName": "Specify the first name"}}`)
+		BodyString(`{"success": false, "errorMsg": "Errors in the entity format", "ErrorsList": {"firstName": "Specify the first name"}}`)
 
 	data, st, err := c.CourierCreate(Courier{})
 	if err == nil {
@@ -5793,7 +5793,7 @@ func TestClient_CostsUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Costs are loaded with errors"}`)
+		BodyString(`{"success": false, "errorMsg": "Costs are loaded with ErrorsList"}`)
 
 	data, _, err := c.CostsUpload(costsUpload)
 	if err == nil {

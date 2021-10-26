@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 // CustomerRequest type.
 type CustomerRequest struct {

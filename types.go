@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 import (
 	"encoding/json"
@@ -19,6 +19,7 @@ type Client struct {
 	Key        string
 	Debug      bool
 	httpClient *http.Client
+	logger     BasicLogger
 }
 
 // Pagination type.

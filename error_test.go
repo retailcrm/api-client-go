@@ -1,10 +1,9 @@
-package v5
+package retailcrm
 
 import (
+	"errors"
 	"reflect"
 	"testing"
-
-	"golang.org/x/xerrors"
 )
 
 func TestFailure_ApiErrorsSlice(t *testing.T) {
@@ -19,15 +18,14 @@ func TestFailure_ApiErrorsSlice(t *testing.T) {
 		"1": "Test error",
 	}
 
-	var expEr *APIError
-	e := NewAPIError(b)
+	e := CreateAPIError(b)
 
-	if xerrors.As(e, &expEr) {
-		if eq := reflect.DeepEqual(expEr.Errors, expected); eq != true {
+	if errors.Is(e, ErrGeneric) {
+		if eq := reflect.DeepEqual(expected, e.(APIError).Errors()); eq != true {
 			t.Errorf("%+v", eq)
 		}
 	} else {
-		t.Errorf("Error must be type of APIError: %v", e)
+		t.Errorf("Error must be type of ErrGeneric: %v", e)
 	}
 }
 
@@ -41,14 +39,12 @@ func TestFailure_ApiErrorsMap(t *testing.T) {
 		"test": "Test error",
 	}
 
-	var expEr *APIError
-	e := NewAPIError(b)
-
-	if xerrors.As(e, &expEr) {
-		if eq := reflect.DeepEqual(expEr.Errors, expected); eq != true {
+	e := CreateAPIError(b)
+	if errors.Is(e, ErrGeneric) {
+		if eq := reflect.DeepEqual(expected, e.(APIError).Errors()); eq != true {
 			t.Errorf("%+v", eq)
 		}
 	} else {
-		t.Errorf("Error must be type of APIError: %v", e)
+		t.Errorf("Error must be type of ErrGeneric: %v", e)
 	}
 }

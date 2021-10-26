@@ -146,7 +146,7 @@ linters-settings:
   gocyclo:
     min-complexity: 25
   goimports:
-    local-prefixes: github.com/retailcrm/api-client-go
+    local-prefixes: github.com/retailcrm/api-client-go/v2
   lll:
     line-length: 120
   maligned:
