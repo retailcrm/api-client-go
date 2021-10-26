@@ -32,7 +32,9 @@ type VersionResponse struct {
 // CredentialResponse return available API methods.
 type CredentialResponse struct {
 	Success        bool     `json:"success,omitempty"`
+	// deprecated
 	Credentials    []string `json:"credentials,omitempty"`
+	Scopes         []string `json:"scopes,omitempty"`
 	SiteAccess     string   `json:"siteAccess,omitempty"`
 	SitesAvailable []string `json:"sitesAvailable,omitempty"`
 }
