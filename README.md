@@ -18,43 +18,43 @@ go get -u github.com/retailcrm/api-client-go/v2
 
 ## Usage
 
-```golang
-package retailcrm
+Example:
+
+```go
+package main
 
 import (
-	"fmt"
-	"net/http"
+	"log"
 
 	"github.com/retailcrm/api-client-go/v2"
 )
 
 func main() {
-	var client = v5.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF")
+	var client = retailcrm.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF")
 
-	data, status, err := client.Orders(v5.OrdersRequest{
-		Filter: v5.OrdersFilter{},
+	data, status, err := client.Orders(retailcrm.OrdersRequest{
+		Filter: retailcrm.OrdersFilter{},
 		Limit: 20,
 		Page: 1,
-	},)
+	})
 	if err != nil {
-		fmt.Printf("%v", err.Error())
-	}
+		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+			log.Fatalf("http status: %d, %s", status, apiErr.String())
+        }
 
-	if status >= http.StatusBadRequest {
-		fmt.Printf("%v", err.ApiError())
+		log.Fatalf("http status: %d, error: %s", status, err)
 	}
 
 	for _, value := range data.Orders {
-		fmt.Printf("%v\n", value.Email)
+		log.Printf("%v\n", value.Email)
 	}
 
-	fmt.Println(data.Orders[1].FirstName)
+	log.Println(data.Orders[1].FirstName)
 
-	idata, status, err := c.InventoriesUpload(
-		[]InventoryUpload{
+	inventories, status, err := client.InventoriesUpload([]retailcrm.InventoryUpload{
 			{
 				XMLID: "pTKIKAeghYzX21HTdzFCe1",
-				Stores: []InventoryUploadStore{
+				Stores: []retailcrm.InventoryUploadStore{
 					{
 						Code: "test-store-v5",
 						Available: 10,
@@ -74,7 +74,7 @@ func main() {
 			},
 			{
 				XMLID: "JQIvcrCtiSpOV3AAfMiQB3",
-				Stores: []InventoryUploadStore{
+				Stores: []retailcrm.InventoryUploadStore{
 					{
 						Code: "test-store-v5",
 						Available: 45,
@@ -95,13 +95,66 @@ func main() {
 		},
 	)
 	if err != nil {
-		fmt.Printf("%v", err.Error())
+		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+			log.Fatalf("http status: %d, %s", status, apiErr.String())
+		}
+
+		log.Fatalf("http status: %d, error: %s", status, err)
 	}
 
-	if status >= http.StatusBadRequest {
-		fmt.Printf("%v", err.ApiError())
+	log.Println(inventories.ProcessedOffersCount)
+}
+```
+
+You can use different error types and `retailcrm.AsAPIError` to process client errors. Example:
+
+```go
+package retailcrm
+
+import (
+	"errors"
+	"log"
+	"os"
+	"strings"
+
+	"github.com/retailcrm/api-client-go/v2"
+)
+
+func main() {
+	var client = retailcrm.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF")
+
+	resp, status, err := client.APICredentials()
+	if err != nil {
+		apiErr, ok := retailcrm.AsAPIError(err)
+		if !ok {
+			log.Fatalf("http status: %d, error: %s", status, err)
+		}
+
+		switch {
+		case errors.Is(apiErr, retailcrm.ErrMissingCredentials):
+			log.Fatalln("No API key provided.")
+		case errors.Is(apiErr, retailcrm.ErrInvalidCredentials):
+			log.Fatalln("Invalid API key.")
+		case errors.Is(apiErr, retailcrm.ErrAccessDenied):
+			log.Fatalln("Access denied. Please check that the provided key has access to the credentials info.")
+		case errors.Is(apiErr, retailcrm.ErrAccountDoesNotExist):
+			log.Fatalln("There is no RetailCRM at the provided URL.")
+		case errors.Is(apiErr, retailcrm.ErrMissingParameter):
+			// retailcrm.APIError in this case will always contain "Name" key in the errors list with the parameter name.
+			log.Fatalln("This parameter should be present:", apiErr.Errors()["Name"])
+		case errors.Is(apiErr, retailcrm.ErrValidation):
+			log.Println("Validation errors from the API:")
+
+			for name, value := range apiErr.Errors() {
+				log.Printf(" - %s: %s\n", name, value)
+			}
+
+			os.Exit(1)
+		case errors.Is(apiErr, retailcrm.ErrGeneric):
+			log.Fatalf("failure from the API. %s", apiErr.String())
+		}
 	}
 
-	fmt.Println(idata.processedOffersCount)
+	log.Println("Available scopes:", strings.Join(resp.Scopes, ", "))
 }
 ```
