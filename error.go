@@ -109,11 +109,11 @@ func unwrapAPIError(err error) APIError {
 		return nil
 	}
 
-	if apiErr, ok := err.(APIError); ok {
+	if apiErr, ok := err.(APIError); ok { // nolint:errorlint
 		return apiErr
 	}
 
-	wrapper, ok := err.(interface {
+	wrapper, ok := err.(interface { // nolint:errorlint
 		Unwrap() error
 	})
 	if ok {
@@ -148,10 +148,10 @@ func (e *apiError) Errors() APIErrorsList {
 	return e.ErrorsList
 }
 
-// String returns string representation of an APIError
+// String returns string representation of an APIError.
 func (e *apiError) String() string {
 	var sb strings.Builder
-	sb.Grow(256)
+	sb.Grow(256) // nolint:gomnd
 	sb.WriteString(fmt.Sprintf(`errorMsg: "%s"`, e.Error()))
 
 	if len(e.Errors()) > 0 {
@@ -177,12 +177,6 @@ func (e *apiError) String() string {
 	}
 
 	return sb.String()
-}
-
-// withError is an ErrorMsg setter.
-func (e *apiError) withError(message string) APIError {
-	e.ErrorMsg = message
-	return e
 }
 
 // withWrapped is a wrapped setter.

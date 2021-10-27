@@ -3548,8 +3548,8 @@ func TestClient_Courier(t *testing.T) {
 	cur := Courier{
 		Active:    true,
 		Email:     fmt.Sprintf("%s@example.com", RandomString(5)),
-		FirstName: fmt.Sprintf("%s", RandomString(5)),
-		LastName:  fmt.Sprintf("%s", RandomString(5)),
+		FirstName: RandomString(5),
+		LastName:  RandomString(5),
 	}
 
 	defer gock.Off()
@@ -3581,7 +3581,7 @@ func TestClient_Courier(t *testing.T) {
 	}
 
 	cur.ID = data.ID
-	cur.Patronymic = fmt.Sprintf("%s", RandomString(5))
+	cur.Patronymic = RandomString(5)
 
 	jr, _ = json.Marshal(&cur)
 
@@ -3642,7 +3642,7 @@ func TestClient_Courier_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 
-	cur := Courier{Patronymic: fmt.Sprintf("%s", RandomString(5))}
+	cur := Courier{Patronymic: RandomString(5)}
 	jr, _ = json.Marshal(&cur)
 
 	p = url.Values{

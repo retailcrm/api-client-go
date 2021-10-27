@@ -382,8 +382,14 @@ type OrderDeliveryData struct {
 // UnmarshalJSON method.
 func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 	var additionalData map[string]interface{}
-	json.Unmarshal(b, &additionalData)
-	json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	err := json.Unmarshal(b, &additionalData)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	if err != nil {
+		return err
+	}
 	object := reflect.TypeOf(v.OrderDeliveryDataBasic)
 
 	for i := 0; i < object.NumField(); i++ {
@@ -405,7 +411,10 @@ func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 func (v OrderDeliveryData) MarshalJSON() ([]byte, error) {
 	result := map[string]interface{}{}
 	data, _ := json.Marshal(v.OrderDeliveryDataBasic)
-	json.Unmarshal(data, &result)
+	err := json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, err
+	}
 
 	for key, value := range v.AdditionalFields {
 		result[key] = value
@@ -591,7 +600,7 @@ type User struct {
 	Phone      string      `json:"phone,omitempty"`
 	Status     string      `json:"status,omitempty"`
 	Groups     []UserGroup `json:"groups,omitempty"`
-	MgUserId   uint64      `json:"mgUserId,omitempty"`
+	MGUserID   uint64      `json:"mgUserId,omitempty"`
 }
 
 // UserGroup type.
@@ -1058,7 +1067,7 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
-	WebhookUrl string `json:"webhookUrl,omitempty"`
+	WebhookURL string `json:"webhookUrl,omitempty"`
 }
 
 // MgBot type.
@@ -1076,7 +1085,7 @@ type CostRecord struct {
 	DateTo   string   `json:"dateTo,omitempty"`
 	Summ     float32  `json:"summ,omitempty"`
 	CostItem string   `json:"costItem,omitempty"`
-	UserId   int      `json:"userId,omitempty"`
+	UserID   int      `json:"userId,omitempty"`
 	Order    *Order   `json:"order,omitempty"`
 	Sites    []string `json:"sites,omitempty"`
 }
@@ -1093,7 +1102,7 @@ type Cost struct {
 	CreatedAt string   `json:"createdAt,omitempty"`
 	CreatedBy string   `json:"createdBy,omitempty"`
 	Order     *Order   `json:"order,omitempty"`
-	UserId    int      `json:"userId,omitempty"`
+	UserID    int      `json:"userId,omitempty"`
 	Sites     []string `json:"sites,omitempty"`
 }
 

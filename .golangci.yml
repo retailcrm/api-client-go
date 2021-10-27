@@ -148,7 +148,7 @@ linters-settings:
   goimports:
     local-prefixes: github.com/retailcrm/api-client-go/v2
   lll:
-    line-length: 120
+    line-length: 160
   maligned:
     suggest-new: true
   misspell:
@@ -180,6 +180,9 @@ issues:
         - gocognit
         - gocyclo
         - godot
+        - gocritic
+        - gosec
+        - staticcheck
   exclude-use-default: true
   exclude-case-sensitive: false
   max-issues-per-linter: 0

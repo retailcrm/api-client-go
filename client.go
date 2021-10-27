@@ -48,9 +48,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	var prefix = "/api/v5"
 
 	if len(versioned) > 0 {
-		s := versioned[0]
-
-		if s == false {
+		if !versioned[0] {
 			prefix = "/api"
 		}
 	}
@@ -347,8 +345,8 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 	combineJSONOut, _ := json.Marshal(&resultCustomer)
 
 	p := url.Values{
-		"customers":      {string(combineJSONIn[:])},
-		"resultCustomer": {string(combineJSONOut[:])},
+		"customers":      {string(combineJSONIn)},
+		"resultCustomer": {string(combineJSONOut)},
 	}
 
 	data, status, err := c.PostRequest("/customers/combine", p)
@@ -401,7 +399,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 	customerJSON, _ := json.Marshal(&customer)
 
 	p := url.Values{
-		"customer": {string(customerJSON[:])},
+		"customer": {string(customerJSON)},
 	}
 
 	fillSite(&p, site)
@@ -445,7 +443,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 	customersJSON, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customers": {string(customersJSON[:])},
+		"customers": {string(customersJSON)},
 	}
 
 	data, status, err := c.PostRequest("/customers/fix-external-ids", p)
@@ -581,7 +579,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 	noteJSON, _ := json.Marshal(&note)
 
 	p := url.Values{
-		"note": {string(noteJSON[:])},
+		"note": {string(noteJSON)},
 	}
 
 	fillSite(&p, site)
@@ -677,7 +675,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	uploadJSON, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customers": {string(uploadJSON[:])},
+		"customers": {string(uploadJSON)},
 	}
 
 	fillSite(&p, site)
@@ -779,7 +777,7 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 
 	p := url.Values{
 		"by":       {context},
-		"customer": {string(customerJSON[:])},
+		"customer": {string(customerJSON)},
 	}
 
 	fillSite(&p, site)
@@ -872,7 +870,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 	customerJSON, _ := json.Marshal(&customer)
 
 	p := url.Values{
-		"customerCorporate": {string(customerJSON[:])},
+		"customerCorporate": {string(customerJSON)},
 	}
 
 	fillSite(&p, site)
@@ -892,7 +890,7 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 
 // CorporateCustomersFixExternalIds will fix corporate customers external ID's
 //
-// For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-fix-external-ids
+// For more information see  http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-fix-external-ids
 //
 // Example:
 //
@@ -916,7 +914,7 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 	customersJSON, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customersCorporate": {string(customersJSON[:])},
+		"customersCorporate": {string(customersJSON)},
 	}
 
 	data, status, err := c.PostRequest("/customers-corporate/fix-external-ids", p)
@@ -1055,7 +1053,7 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 	noteJSON, _ := json.Marshal(&note)
 
 	p := url.Values{
-		"note": {string(noteJSON[:])},
+		"note": {string(noteJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1148,7 +1146,7 @@ func (c *Client) CorporateCustomersUpload(
 	uploadJSON, _ := json.Marshal(&customers)
 
 	p := url.Values{
-		"customersCorporate": {string(uploadJSON[:])},
+		"customersCorporate": {string(uploadJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1289,7 +1287,7 @@ func (c *Client) CorporateCustomerAddressesCreate(
 	addressJSON, _ := json.Marshal(&address)
 
 	p := url.Values{
-		"address": {string(addressJSON[:])},
+		"address": {string(addressJSON)},
 		"by":      {checkBy(by)},
 	}
 
@@ -1349,9 +1347,9 @@ func (c *Client) CorporateCustomerAddressesEdit(
 	entityBy = checkBy(entityBy)
 
 	switch entityBy {
-	case "id":
+	case ByID:
 		uid = strconv.Itoa(address.ID)
-	case "externalId":
+	case ByExternalID:
 		uid = address.ExternalID
 	}
 
@@ -1360,7 +1358,7 @@ func (c *Client) CorporateCustomerAddressesEdit(
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"address":  {string(addressJSON[:])},
+		"address":  {string(addressJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1459,7 +1457,7 @@ func (c *Client) CorporateCustomerCompaniesCreate(
 	companyJSON, _ := json.Marshal(&company)
 
 	p := url.Values{
-		"company": {string(companyJSON[:])},
+		"company": {string(companyJSON)},
 		"by":      {checkBy(by)},
 	}
 
@@ -1519,9 +1517,9 @@ func (c *Client) CorporateCustomerCompaniesEdit(
 	entityBy = checkBy(entityBy)
 
 	switch entityBy {
-	case "id":
+	case ByID:
 		uid = strconv.Itoa(company.ID)
-	case "externalId":
+	case ByExternalID:
 		uid = company.ExternalID
 	}
 
@@ -1530,7 +1528,7 @@ func (c *Client) CorporateCustomerCompaniesEdit(
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"company":  {string(addressJSON[:])},
+		"company":  {string(addressJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1634,7 +1632,7 @@ func (c *Client) CorporateCustomerContactsCreate(
 	companyJSON, _ := json.Marshal(&contact)
 
 	p := url.Values{
-		"contact": {string(companyJSON[:])},
+		"contact": {string(companyJSON)},
 		"by":      {checkBy(by)},
 	}
 
@@ -1691,9 +1689,9 @@ func (c *Client) CorporateCustomerContactsEdit(
 	entityBy = checkBy(entityBy)
 
 	switch entityBy {
-	case "id":
+	case ByID:
 		uid = strconv.Itoa(contact.Customer.ID)
-	case "externalId":
+	case ByExternalID:
 		uid = contact.Customer.ExternalID
 	}
 
@@ -1702,7 +1700,7 @@ func (c *Client) CorporateCustomerContactsEdit(
 	p := url.Values{
 		"by":       {customerBy},
 		"entityBy": {entityBy},
-		"contact":  {string(addressJSON[:])},
+		"contact":  {string(addressJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1765,7 +1763,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 
 	p := url.Values{
 		"by":                {context},
-		"customerCorporate": {string(customerJSON[:])},
+		"customerCorporate": {string(customerJSON)},
 	}
 
 	fillSite(&p, site)
@@ -1822,7 +1820,7 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 	updateJSON, _ := json.Marshal(&parameters)
 
 	p := url.Values{
-		"statusUpdate": {string(updateJSON[:])},
+		"statusUpdate": {string(updateJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/delivery/generic/%s/tracking", subcode), p)
@@ -1921,7 +1919,7 @@ func (c *Client) DeliveryShipmentCreate(
 
 	p := url.Values{
 		"deliveryType":     {deliveryType},
-		"deliveryShipment": {string(updateJSON[:])},
+		"deliveryShipment": {string(updateJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2006,7 +2004,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 	updateJSON, _ := json.Marshal(&shipment)
 
 	p := url.Values{
-		"deliveryShipment": {string(updateJSON[:])},
+		"deliveryShipment": {string(updateJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2100,7 +2098,7 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 	var resp IntegrationModuleEditResponse
 	updateJSON, _ := json.Marshal(&integrationModule)
 
-	p := url.Values{"integrationModule": {string(updateJSON[:])}}
+	p := url.Values{"integrationModule": {string(updateJSON)}}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/integration-modules/%s/edit", integrationModule.Code), p)
 	if err != nil {
@@ -2179,8 +2177,8 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 
 	p := url.Values{
 		"technique":   {technique},
-		"order":       {string(combineJSONIn[:])},
-		"resultOrder": {string(combineJSONOut[:])},
+		"order":       {string(combineJSONIn)},
+		"resultOrder": {string(combineJSONOut)},
 	}
 
 	data, status, err := c.PostRequest("/orders/combine", p)
@@ -2228,7 +2226,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 	orderJSON, _ := json.Marshal(&order)
 
 	p := url.Values{
-		"order": {string(orderJSON[:])},
+		"order": {string(orderJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2276,7 +2274,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 	ordersJSON, _ := json.Marshal(&orders)
 
 	p := url.Values{
-		"orders": {string(ordersJSON[:])},
+		"orders": {string(ordersJSON)},
 	}
 
 	data, status, err := c.PostRequest("/orders/fix-external-ids", p)
@@ -2364,7 +2362,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 	paymentJSON, _ := json.Marshal(&payment)
 
 	p := url.Values{
-		"payment": {string(paymentJSON[:])},
+		"payment": {string(paymentJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2455,7 +2453,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 
 	p := url.Values{
 		"by":      {context},
-		"payment": {string(paymentJSON[:])},
+		"payment": {string(paymentJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2553,7 +2551,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	uploadJSON, _ := json.Marshal(&orders)
 
 	p := url.Values{
-		"orders": {string(uploadJSON[:])},
+		"orders": {string(uploadJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2648,7 +2646,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 
 	p := url.Values{
 		"by":    {context},
-		"order": {string(orderJSON[:])},
+		"order": {string(orderJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2735,7 +2733,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 	packJSON, _ := json.Marshal(&pack)
 
 	p := url.Values{
-		"pack": {string(packJSON[:])},
+		"pack": {string(packJSON)},
 	}
 
 	data, status, err := c.PostRequest("/orders/packs/create", p)
@@ -2883,7 +2881,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 	packJSON, _ := json.Marshal(&pack)
 
 	p := url.Values{
-		"pack": {string(packJSON[:])},
+		"pack": {string(packJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/orders/packs/%d/edit", pack.ID), p)
@@ -2963,7 +2961,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 	objJSON, _ := json.Marshal(&costGroup)
 
 	p := url.Values{
-		"costGroup": {string(objJSON[:])},
+		"costGroup": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-groups/%s/edit", costGroup.Code), p)
@@ -3024,7 +3022,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 	objJSON, _ := json.Marshal(&costItem)
 
 	p := url.Values{
-		"costItem": {string(objJSON[:])},
+		"costItem": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/cost-items/%s/edit", costItem.Code), p)
@@ -3091,7 +3089,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 	objJSON, _ := json.Marshal(&courier)
 
 	p := url.Values{
-		"courier": {string(objJSON[:])},
+		"courier": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest("/reference/couriers/create", p)
@@ -3133,7 +3131,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 	objJSON, _ := json.Marshal(&courier)
 
 	p := url.Values{
-		"courier": {string(objJSON[:])},
+		"courier": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/couriers/%d/edit", courier.ID), p)
@@ -3194,7 +3192,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 	objJSON, _ := json.Marshal(&deliveryService)
 
 	p := url.Values{
-		"deliveryService": {string(objJSON[:])},
+		"deliveryService": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-services/%s/edit", deliveryService.Code), p)
@@ -3257,7 +3255,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 	objJSON, _ := json.Marshal(&deliveryType)
 
 	p := url.Values{
-		"deliveryType": {string(objJSON[:])},
+		"deliveryType": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/delivery-types/%s/edit", deliveryType.Code), p)
@@ -3318,7 +3316,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	objJSON, _ := json.Marshal(&legalEntity)
 
 	p := url.Values{
-		"legalEntity": {string(objJSON[:])},
+		"legalEntity": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/legal-entities/%s/edit", legalEntity.Code), p)
@@ -3380,7 +3378,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 	objJSON, _ := json.Marshal(&orderMethod)
 
 	p := url.Values{
-		"orderMethod": {string(objJSON[:])},
+		"orderMethod": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-methods/%s/edit", orderMethod.Code), p)
@@ -3442,7 +3440,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 	objJSON, _ := json.Marshal(&orderType)
 
 	p := url.Values{
-		"orderType": {string(objJSON[:])},
+		"orderType": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/order-types/%s/edit", orderType.Code), p)
@@ -3486,7 +3484,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 	objJSON, _ := json.Marshal(&paymentStatus)
 
 	p := url.Values{
-		"paymentStatus": {string(objJSON[:])},
+		"paymentStatus": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-statuses/%s/edit", paymentStatus.Code), p)
@@ -3530,7 +3528,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 	objJSON, _ := json.Marshal(&paymentType)
 
 	p := url.Values{
-		"paymentType": {string(objJSON[:])},
+		"paymentType": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/payment-types/%s/edit", paymentType.Code), p)
@@ -3574,7 +3572,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 	objJSON, _ := json.Marshal(&priceType)
 
 	p := url.Values{
-		"priceType": {string(objJSON[:])},
+		"priceType": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/price-types/%s/edit", priceType.Code), p)
@@ -3618,7 +3616,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 	objJSON, _ := json.Marshal(&productStatus)
 
 	p := url.Values{
-		"productStatus": {string(objJSON[:])},
+		"productStatus": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/product-statuses/%s/edit", productStatus.Code), p)
@@ -3662,7 +3660,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	objJSON, _ := json.Marshal(&site)
 
 	p := url.Values{
-		"site": {string(objJSON[:])},
+		"site": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/sites/%s/edit", site.Code), p)
@@ -3725,7 +3723,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 	objJSON, _ := json.Marshal(&st)
 
 	p := url.Values{
-		"status": {string(objJSON[:])},
+		"status": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/statuses/%s/edit", st.Code), p)
@@ -3769,7 +3767,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	objJSON, _ := json.Marshal(&store)
 
 	p := url.Values{
-		"store": {string(objJSON[:])},
+		"store": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/stores/%s/edit", store.Code), p)
@@ -3813,7 +3811,7 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	objJSON, _ := json.Marshal(&unit)
 
 	p := url.Values{
-		"unit": {string(objJSON[:])},
+		"unit": {string(objJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/reference/units/%s/edit", unit.Code), p)
@@ -3990,7 +3988,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 	uploadJSON, _ := json.Marshal(&inventories)
 
 	p := url.Values{
-		"offers": {string(uploadJSON[:])},
+		"offers": {string(uploadJSON)},
 	}
 
 	fillSite(&p, site)
@@ -4044,7 +4042,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 	uploadJSON, _ := json.Marshal(&prices)
 
 	p := url.Values{
-		"prices": {string(uploadJSON[:])},
+		"prices": {string(uploadJSON)},
 	}
 
 	data, status, err := c.PostRequest("/store/prices/upload", p)
@@ -4262,7 +4260,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 	taskJSON, _ := json.Marshal(&task)
 
 	p := url.Values{
-		"task": {string(taskJSON[:])},
+		"task": {string(taskJSON)},
 	}
 
 	fillSite(&p, site)
@@ -4344,7 +4342,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 	taskJSON, _ := json.Marshal(&task)
 
 	p := url.Values{
-		"task": {string(taskJSON[:])},
+		"task": {string(taskJSON)},
 	}
 
 	fillSite(&p, site)
@@ -4359,7 +4357,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 		return resp, status, err
 	}
 
-	if resp.Success == false {
+	if !resp.Success {
 		a := CreateAPIError(data)
 		return resp, status, a
 	}
@@ -4516,7 +4514,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 		return resp, st, err
 	}
 
-	if resp.Success == false {
+	if !resp.Success {
 		return resp, st, CreateAPIError(data)
 	}
 
@@ -4626,7 +4624,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 	costJSON, _ := json.Marshal(&cost)
 
 	p := url.Values{
-		"cost": {string(costJSON[:])},
+		"cost": {string(costJSON)},
 	}
 
 	fillSite(&p, site)
@@ -4671,7 +4669,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 	costJSON, _ := json.Marshal(&ids)
 
 	p := url.Values{
-		"ids": {string(costJSON[:])},
+		"ids": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest("/costs/delete", p)
@@ -4731,7 +4729,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error
 	costJSON, _ := json.Marshal(&cost)
 
 	p := url.Values{
-		"costs": {string(costJSON[:])},
+		"costs": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest("/costs/upload", p)
@@ -4808,7 +4806,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 	costJSON, _ := json.Marshal(&id)
 
 	p := url.Values{
-		"costs": {string(costJSON[:])},
+		"costs": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/costs/%d/delete", id), p)
@@ -4857,7 +4855,7 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 	costJSON, _ := json.Marshal(&cost)
 
 	p := url.Values{
-		"cost": {string(costJSON[:])},
+		"cost": {string(costJSON)},
 	}
 
 	fillSite(&p, site)
@@ -5220,7 +5218,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 	costJSON, _ := json.Marshal(&customDictionary)
 
 	p := url.Values{
-		"customDictionary": {string(costJSON[:])},
+		"customDictionary": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest("/custom-fields/dictionaries/create", p)
@@ -5315,7 +5313,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 	costJSON, _ := json.Marshal(&customDictionary)
 
 	p := url.Values{
-		"customDictionary": {string(costJSON[:])},
+		"customDictionary": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/dictionaries/%s/edit", customDictionary.Code), p)
@@ -5364,7 +5362,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 	costJSON, _ := json.Marshal(&customFields)
 
 	p := url.Values{
-		"customField": {string(costJSON[:])},
+		"customField": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest(fmt.Sprintf("/custom-fields/%s/create", customFields.Entity), p)
@@ -5450,7 +5448,7 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 	costJSON, _ := json.Marshal(&customFields)
 
 	p := url.Values{
-		"customField": {string(costJSON[:])},
+		"customField": {string(costJSON)},
 	}
 
 	data, status, err := c.PostRequest(

@@ -409,7 +409,7 @@ type ResponseInfo struct {
 
 // MgInfo type.
 type MgInfo struct {
-	EndpointUrl string `json:"endpointUrl"`
+	EndpointURL string `json:"endpointUrl"`
 	Token       string `json:"token"`
 }
 
