@@ -2,7 +2,9 @@ package retailcrm
 
 import (
 	"encoding/json"
+	"fmt"
 	"regexp"
+	"strings"
 )
 
 var missingParameterMatcher = regexp.MustCompile(`^Parameter \'([\w\]\[\_\-]+)\' is missing$`)
@@ -30,6 +32,7 @@ type APIErrorsList map[string]string
 // APIError returns when an API error was occurred.
 type APIError interface {
 	error
+	fmt.Stringer
 	withWrapped(error) APIError
 	withErrors(APIErrorsList) APIError
 	Unwrap() error
@@ -94,7 +97,33 @@ func NewAPIError(message string) APIError {
 	return &apiError{ErrorMsg: message}
 }
 
-// asMissingParameterErr returns true if "Parameter {{}} is missing" error message is provided.
+// AsAPIError returns APIError and true if provided error is an APIError or contains wrapped APIError.
+// Returns (nil, false) otherwise.
+func AsAPIError(err error) (APIError, bool) {
+	apiErr := unwrapAPIError(err)
+	return apiErr, apiErr != nil
+}
+
+func unwrapAPIError(err error) APIError {
+	if err == nil {
+		return nil
+	}
+
+	if apiErr, ok := err.(APIError); ok {
+		return apiErr
+	}
+
+	wrapper, ok := err.(interface {
+		Unwrap() error
+	})
+	if ok {
+		return unwrapAPIError(wrapper.Unwrap())
+	}
+
+	return nil
+}
+
+// asMissingParameterErr returns true if "Parameter 'name' is missing" error message is provided.
 func asMissingParameterErr(message string) (string, bool) {
 	matches := missingParameterMatcher.FindAllStringSubmatch(message, -1)
 	if len(matches) == 1 && len(matches[0]) == 2 {
@@ -117,6 +146,37 @@ func (e *apiError) Unwrap() error {
 // Errors returns errors field from the response.
 func (e *apiError) Errors() APIErrorsList {
 	return e.ErrorsList
+}
+
+// String returns string representation of an APIError
+func (e *apiError) String() string {
+	var sb strings.Builder
+	sb.Grow(256)
+	sb.WriteString(fmt.Sprintf(`errorMsg: "%s"`, e.Error()))
+
+	if len(e.Errors()) > 0 {
+		i := 0
+		useIndex := true
+		errorList := make([]string, len(e.Errors()))
+
+		for index, errText := range e.Errors() {
+			if i == 0 && index == "0" {
+				useIndex = false
+			}
+
+			if useIndex {
+				errorList[i] = fmt.Sprintf(`%s: "%s"`, index, errText)
+			} else {
+				errorList[i] = errText
+			}
+
+			i++
+		}
+
+		sb.WriteString(", errors: [" + strings.Join(errorList, ", ") + "]")
+	}
+
+	return sb.String()
 }
 
 // withError is an ErrorMsg setter.
