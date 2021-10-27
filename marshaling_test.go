@@ -41,7 +41,7 @@ func TestAPIErrorsList_UnmarshalJSON(t *testing.T) {
 }
 
 func TestCustomFieldsList_UnmarshalJSON(t *testing.T) {
-	var list CustomFieldsList
+	var list StringMap
 
 	require.NoError(t, json.Unmarshal([]byte(`["first", "second"]`), &list))
 	assert.Len(t, list, 2)

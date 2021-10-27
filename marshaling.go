@@ -34,21 +34,21 @@ func (a *APIErrorsList) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (l *CustomFieldsList) UnmarshalJSON(data []byte) error {
+func (l *StringMap) UnmarshalJSON(data []byte) error {
 	var i interface{}
-	var m CustomFieldsList
+	var m StringMap
 	if err := json.Unmarshal(data, &i); err != nil {
 		return err
 	}
 
 	switch e := i.(type) {
 	case map[string]interface{}:
-		m = make(CustomFieldsList, len(e))
+		m = make(StringMap, len(e))
 		for idx, val := range e {
 			m[idx] = fmt.Sprint(val)
 		}
 	case []interface{}:
-		m = make(CustomFieldsList, len(e))
+		m = make(StringMap, len(e))
 		for idx, val := range e {
 			m[strconv.Itoa(idx)] = fmt.Sprint(val)
 		}
