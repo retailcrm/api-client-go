@@ -69,15 +69,34 @@ func (p *OrderPayments) UnmarshalJSON(data []byte) error {
 	case map[string]interface{}:
 		m = make(OrderPayments, len(e))
 		for idx, val := range e {
-			m[idx] = val.(OrderPayment)
+			var res OrderPayment
+			err := unmarshalMap(val.(map[string]interface{}), &res)
+			if err != nil {
+				return err
+			}
+			m[idx] = res
 		}
 	case []interface{}:
 		m = make(OrderPayments, len(e))
 		for idx, val := range e {
-			m[strconv.Itoa(idx)] = val.(OrderPayment)
+			var res OrderPayment
+			err := unmarshalMap(val.(map[string]interface{}), &res)
+			if err != nil {
+				return err
+			}
+			m[strconv.Itoa(idx)] = res
 		}
 	}
 
 	*p = m
 	return nil
+}
+
+func unmarshalMap(m map[string]interface{}, v interface{}) (err error) {
+	var data []byte
+	data, err = json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(data, v)
 }
