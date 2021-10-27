@@ -234,7 +234,10 @@ func (c *Client) APIVersions() (VersionResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -268,7 +271,10 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -309,7 +315,10 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -347,7 +356,10 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -399,7 +411,10 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -438,7 +453,10 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -478,7 +496,10 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -519,7 +540,10 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -567,7 +591,10 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -600,7 +627,10 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -657,7 +687,10 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -695,7 +728,10 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -753,7 +789,10 @@ func (c *Client) CustomerEdit(customer Customer, by string, site ...string) (Cus
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -794,7 +833,10 @@ func (c *Client) CorporateCustomers(parameters CorporateCustomersRequest) (Corpo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -840,7 +882,10 @@ func (c *Client) CorporateCustomerCreate(customer CorporateCustomer, site ...str
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -879,7 +924,10 @@ func (c *Client) CorporateCustomersFixExternalIds(customers []IdentifiersPair) (
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -921,7 +969,10 @@ func (c *Client) CorporateCustomersHistory(parameters CorporateCustomersHistoryR
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -964,7 +1015,10 @@ func (c *Client) CorporateCustomersNotes(parameters CorporateCustomersNotesReque
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1011,7 +1065,10 @@ func (c *Client) CorporateCustomerNoteCreate(note CorporateCustomerNote, site ..
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1045,7 +1102,10 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, e
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1098,7 +1158,10 @@ func (c *Client) CorporateCustomersUpload(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1136,7 +1199,10 @@ func (c *Client) CorporateCustomer(id, by, site string) (CorporateCustomerRespon
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1183,7 +1249,10 @@ func (c *Client) CorporateCustomerAddresses(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1231,7 +1300,10 @@ func (c *Client) CorporateCustomerAddressesCreate(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1298,7 +1370,10 @@ func (c *Client) CorporateCustomerAddressesEdit(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1345,7 +1420,10 @@ func (c *Client) CorporateCustomerCompanies(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1392,7 +1470,10 @@ func (c *Client) CorporateCustomerCompaniesCreate(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1459,7 +1540,10 @@ func (c *Client) CorporateCustomerCompaniesEdit(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1506,7 +1590,10 @@ func (c *Client) CorporateCustomerContacts(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1558,7 +1645,10 @@ func (c *Client) CorporateCustomerContactsCreate(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1622,7 +1712,10 @@ func (c *Client) CorporateCustomerContactsEdit(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1682,7 +1775,10 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1734,7 +1830,10 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1775,7 +1874,10 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1829,7 +1931,10 @@ func (c *Client) DeliveryShipmentCreate(
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1863,7 +1968,10 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error)
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1908,7 +2016,10 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1942,7 +2053,10 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -1993,7 +2107,10 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2029,7 +2146,10 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2068,7 +2188,10 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2115,7 +2238,10 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2158,7 +2284,10 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2194,7 +2323,10 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2242,7 +2374,10 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2276,7 +2411,10 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2327,7 +2465,10 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2362,7 +2503,10 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2419,7 +2563,10 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2457,7 +2604,10 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2508,7 +2658,10 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2544,7 +2697,10 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2587,7 +2743,10 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2623,7 +2782,10 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2657,7 +2819,10 @@ func (c *Client) Pack(id int) (PackResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2687,7 +2852,10 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2723,7 +2891,10 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2739,7 +2910,10 @@ func (c *Client) Countries() (CountriesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2755,7 +2929,10 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2794,7 +2971,10 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2810,7 +2990,10 @@ func (c *Client) CostItems() (CostItemsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2849,7 +3032,10 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2865,7 +3051,10 @@ func (c *Client) Couriers() (CouriersResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2910,7 +3099,10 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2949,7 +3141,10 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -2965,7 +3160,10 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3004,7 +3202,10 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3020,7 +3221,10 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3061,7 +3265,10 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3077,7 +3284,10 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3116,7 +3326,10 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3132,7 +3345,10 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3172,7 +3388,10 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3188,7 +3407,10 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3228,7 +3450,10 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3244,7 +3469,10 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3266,7 +3494,10 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3282,7 +3513,10 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3304,7 +3538,10 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3320,7 +3557,10 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3342,7 +3582,10 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3358,7 +3601,10 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3380,7 +3626,10 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3396,7 +3645,10 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3418,7 +3670,10 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3434,7 +3689,10 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3450,7 +3708,10 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3472,7 +3733,10 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3488,7 +3752,10 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3510,7 +3777,10 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3526,7 +3796,10 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3548,7 +3821,10 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3588,7 +3864,10 @@ func (c *Client) Segments(parameters SegmentsRequest) (SegmentsResponse, int, er
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3620,7 +3899,10 @@ func (c *Client) Settings() (SettingsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3656,7 +3938,10 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3715,7 +4000,10 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3764,7 +4052,10 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3804,7 +4095,10 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3845,7 +4139,10 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3885,7 +4182,10 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3925,7 +4225,10 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -3969,7 +4272,10 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4003,7 +4309,10 @@ func (c *Client) Task(id int) (TaskResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4045,7 +4354,10 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	if resp.Success == false {
 		a := CreateAPIError(data)
@@ -4086,7 +4398,10 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4122,7 +4437,10 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4156,7 +4474,10 @@ func (c *Client) User(id int) (UserResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4190,7 +4511,10 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 		return resp, st, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, st, err
+	}
 
 	if resp.Success == false {
 		return resp, st, CreateAPIError(data)
@@ -4210,7 +4534,10 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4252,7 +4579,10 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4306,7 +4636,10 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4346,7 +4679,10 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4403,7 +4739,10 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4438,7 +4777,10 @@ func (c *Client) Cost(id int) (CostResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4475,7 +4817,10 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4522,7 +4867,10 @@ func (c *Client) CostEdit(id int, cost CostRecord, site ...string) (CreateRespon
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4559,7 +4907,10 @@ func (c *Client) Files(files FilesRequest) (FilesResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4595,7 +4946,10 @@ func (c *Client) FileUpload(reader io.Reader) (FileUploadResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4629,7 +4983,10 @@ func (c *Client) File(id int) (FileResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4660,7 +5017,10 @@ func (c *Client) FileDelete(id int) (SuccessfulResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4723,7 +5083,10 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4763,7 +5126,10 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4806,7 +5172,10 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4860,7 +5229,10 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4895,7 +5267,10 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4948,7 +5323,10 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -4995,7 +5373,10 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -5030,7 +5411,10 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, err
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
@@ -5077,7 +5461,10 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 		return resp, status, err
 	}
 
-	json.Unmarshal(data, &resp)
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
 
 	return resp, status, nil
 }
