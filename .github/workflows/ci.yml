@@ -9,7 +9,6 @@ on:
   pull_request:
 
 env:
-  DEVELOPER_NODE: 1
   RETAILCRM_URL: https://test.retailcrm.pro
   RETAILCRM_KEY: key
 
@@ -41,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.11', '1.12', '1.13', '1.14', '1.15', '1.16', '1.17']
+        go-version: ['1.13', '1.14', '1.15', '1.16', '1.17']
         include:
           - go-version: '1.17'
             coverage: 1

@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 import (
 	"encoding/json"
@@ -19,6 +19,7 @@ type Client struct {
 	Key        string
 	Debug      bool
 	httpClient *http.Client
+	logger     BasicLogger
 }
 
 // Pagination type.
@@ -121,41 +122,41 @@ Customer related types
 
 // Customer type.
 type Customer struct {
-	ID                           int               `json:"id,omitempty"`
-	ExternalID                   string            `json:"externalId,omitempty"`
-	FirstName                    string            `json:"firstName,omitempty"`
-	LastName                     string            `json:"lastName,omitempty"`
-	Patronymic                   string            `json:"patronymic,omitempty"`
-	Sex                          string            `json:"sex,omitempty"`
-	Email                        string            `json:"email,omitempty"`
-	Phones                       []Phone           `json:"phones,omitempty"`
-	Address                      *Address          `json:"address,omitempty"`
-	CreatedAt                    string            `json:"createdAt,omitempty"`
-	Birthday                     string            `json:"birthday,omitempty"`
-	ManagerID                    int               `json:"managerId,omitempty"`
-	Vip                          bool              `json:"vip,omitempty"`
-	Bad                          bool              `json:"bad,omitempty"`
-	Site                         string            `json:"site,omitempty"`
-	Source                       *Source           `json:"source,omitempty"`
-	Contragent                   *Contragent       `json:"contragent,omitempty"`
-	PersonalDiscount             float32           `json:"personalDiscount,omitempty"`
-	CumulativeDiscount           float32           `json:"cumulativeDiscount,omitempty"`
-	DiscountCardNumber           string            `json:"discountCardNumber,omitempty"`
-	EmailMarketingUnsubscribedAt string            `json:"emailMarketingUnsubscribedAt,omitempty"`
-	AvgMarginSumm                float32           `json:"avgMarginSumm,omitempty"`
-	MarginSumm                   float32           `json:"marginSumm,omitempty"`
-	TotalSumm                    float32           `json:"totalSumm,omitempty"`
-	AverageSumm                  float32           `json:"averageSumm,omitempty"`
-	OrdersCount                  int               `json:"ordersCount,omitempty"`
-	CostSumm                     float32           `json:"costSumm,omitempty"`
-	MaturationTime               int               `json:"maturationTime,omitempty"`
-	FirstClientID                string            `json:"firstClientId,omitempty"`
-	LastClientID                 string            `json:"lastClientId,omitempty"`
-	BrowserID                    string            `json:"browserId,omitempty"`
-	MgCustomerID                 string            `json:"mgCustomerId,omitempty"`
-	PhotoURL                     string            `json:"photoUrl,omitempty"`
-	CustomFields                 map[string]string `json:"customFields,omitempty"`
-	Tags                         []Tag             `json:"tags,omitempty"`
+	ID                           int              `json:"id,omitempty"`
+	ExternalID                   string           `json:"externalId,omitempty"`
+	FirstName                    string           `json:"firstName,omitempty"`
+	LastName                     string           `json:"lastName,omitempty"`
+	Patronymic                   string           `json:"patronymic,omitempty"`
+	Sex                          string           `json:"sex,omitempty"`
+	Email                        string           `json:"email,omitempty"`
+	Phones                       []Phone          `json:"phones,omitempty"`
+	Address                      *Address         `json:"address,omitempty"`
+	CreatedAt                    string           `json:"createdAt,omitempty"`
+	Birthday                     string           `json:"birthday,omitempty"`
+	ManagerID                    int              `json:"managerId,omitempty"`
+	Vip                          bool             `json:"vip,omitempty"`
+	Bad                          bool             `json:"bad,omitempty"`
+	Site                         string           `json:"site,omitempty"`
+	Source                       *Source          `json:"source,omitempty"`
+	Contragent                   *Contragent      `json:"contragent,omitempty"`
+	PersonalDiscount             float32          `json:"personalDiscount,omitempty"`
+	CumulativeDiscount           float32          `json:"cumulativeDiscount,omitempty"`
+	DiscountCardNumber           string           `json:"discountCardNumber,omitempty"`
+	EmailMarketingUnsubscribedAt string           `json:"emailMarketingUnsubscribedAt,omitempty"`
+	AvgMarginSumm                float32          `json:"avgMarginSumm,omitempty"`
+	MarginSumm                   float32          `json:"marginSumm,omitempty"`
+	TotalSumm                    float32          `json:"totalSumm,omitempty"`
+	AverageSumm                  float32          `json:"averageSumm,omitempty"`
+	OrdersCount                  int              `json:"ordersCount,omitempty"`
+	CostSumm                     float32          `json:"costSumm,omitempty"`
+	MaturationTime               int              `json:"maturationTime,omitempty"`
+	FirstClientID                string           `json:"firstClientId,omitempty"`
+	LastClientID                 string           `json:"lastClientId,omitempty"`
+	BrowserID                    string           `json:"browserId,omitempty"`
+	MgCustomerID                 string           `json:"mgCustomerId,omitempty"`
+	PhotoURL                     string           `json:"photoUrl,omitempty"`
+	CustomFields                 CustomFieldsList `json:"customFields,omitempty"`
+	Tags                         []Tag            `json:"tags,omitempty"`
 }
 
 // CorporateCustomer type.
@@ -166,7 +167,7 @@ type CorporateCustomer struct {
 	CreatedAt          string                     `json:"createdAt,omitempty"`
 	Vip                bool                       `json:"vip,omitempty"`
 	Bad                bool                       `json:"bad,omitempty"`
-	CustomFields       map[string]string          `json:"customFields,omitempty"`
+	CustomFields       CustomFieldsList           `json:"customFields,omitempty"`
 	PersonalDiscount   float32                    `json:"personalDiscount,omitempty"`
 	DiscountCardNumber string                     `json:"discountCardNumber,omitempty"`
 	ManagerID          int                        `json:"managerId,omitempty"`
@@ -217,17 +218,17 @@ type CorporateCustomerContactCustomer struct {
 }
 
 type Company struct {
-	ID           int               `json:"id,omitempty"`
-	IsMain       bool              `json:"isMain,omitempty"`
-	ExternalID   string            `json:"externalId,omitempty"`
-	Active       bool              `json:"active,omitempty"`
-	Name         string            `json:"name,omitempty"`
-	Brand        string            `json:"brand,omitempty"`
-	Site         string            `json:"site,omitempty"`
-	CreatedAt    string            `json:"createdAt,omitempty"`
-	Contragent   *Contragent       `json:"contragent,omitempty"`
-	Address      *IdentifiersPair  `json:"address,omitempty"`
-	CustomFields map[string]string `json:"customFields,omitempty"`
+	ID           int              `json:"id,omitempty"`
+	IsMain       bool             `json:"isMain,omitempty"`
+	ExternalID   string           `json:"externalId,omitempty"`
+	Active       bool             `json:"active,omitempty"`
+	Name         string           `json:"name,omitempty"`
+	Brand        string           `json:"brand,omitempty"`
+	Site         string           `json:"site,omitempty"`
+	CreatedAt    string           `json:"createdAt,omitempty"`
+	Contragent   *Contragent      `json:"contragent,omitempty"`
+	Address      *IdentifiersPair `json:"address,omitempty"`
+	CustomFields CustomFieldsList `json:"customFields,omitempty"`
 }
 
 // CorporateCustomerNote type.
@@ -272,57 +273,60 @@ type CorporateCustomerHistoryRecord struct {
 Order related types
 */
 
+type OrderPayments map[string]OrderPayment
+type CustomFieldsList map[string]string
+
 // Order type.
 type Order struct {
-	ID                            int                     `json:"id,omitempty"`
-	ExternalID                    string                  `json:"externalId,omitempty"`
-	Number                        string                  `json:"number,omitempty"`
-	FirstName                     string                  `json:"firstName,omitempty"`
-	LastName                      string                  `json:"lastName,omitempty"`
-	Patronymic                    string                  `json:"patronymic,omitempty"`
-	Email                         string                  `json:"email,omitempty"`
-	Phone                         string                  `json:"phone,omitempty"`
-	AdditionalPhone               string                  `json:"additionalPhone,omitempty"`
-	CreatedAt                     string                  `json:"createdAt,omitempty"`
-	StatusUpdatedAt               string                  `json:"statusUpdatedAt,omitempty"`
-	ManagerID                     int                     `json:"managerId,omitempty"`
-	Mark                          int                     `json:"mark,omitempty"`
-	Call                          bool                    `json:"call,omitempty"`
-	Expired                       bool                    `json:"expired,omitempty"`
-	FromAPI                       bool                    `json:"fromApi,omitempty"`
-	MarkDatetime                  string                  `json:"markDatetime,omitempty"`
-	CustomerComment               string                  `json:"customerComment,omitempty"`
-	ManagerComment                string                  `json:"managerComment,omitempty"`
-	Status                        string                  `json:"status,omitempty"`
-	StatusComment                 string                  `json:"statusComment,omitempty"`
-	FullPaidAt                    string                  `json:"fullPaidAt,omitempty"`
-	Site                          string                  `json:"site,omitempty"`
-	OrderType                     string                  `json:"orderType,omitempty"`
-	OrderMethod                   string                  `json:"orderMethod,omitempty"`
-	CountryIso                    string                  `json:"countryIso,omitempty"`
-	Summ                          float32                 `json:"summ,omitempty"`
-	TotalSumm                     float32                 `json:"totalSumm,omitempty"`
-	PrepaySum                     float32                 `json:"prepaySum,omitempty"`
-	PurchaseSumm                  float32                 `json:"purchaseSumm,omitempty"`
-	DiscountManualAmount          float32                 `json:"discountManualAmount,omitempty"`
-	DiscountManualPercent         float32                 `json:"discountManualPercent,omitempty"`
-	Weight                        float32                 `json:"weight,omitempty"`
-	Length                        int                     `json:"length,omitempty"`
-	Width                         int                     `json:"width,omitempty"`
-	Height                        int                     `json:"height,omitempty"`
-	ShipmentStore                 string                  `json:"shipmentStore,omitempty"`
-	ShipmentDate                  string                  `json:"shipmentDate,omitempty"`
-	ClientID                      string                  `json:"clientId,omitempty"`
-	Shipped                       bool                    `json:"shipped,omitempty"`
-	UploadedToExternalStoreSystem bool                    `json:"uploadedToExternalStoreSystem,omitempty"`
-	Source                        *Source                 `json:"source,omitempty"`
-	Contragent                    *Contragent             `json:"contragent,omitempty"`
-	Customer                      *Customer               `json:"customer,omitempty"`
-	Delivery                      *OrderDelivery          `json:"delivery,omitempty"`
-	Marketplace                   *OrderMarketplace       `json:"marketplace,omitempty"`
-	Items                         []OrderItem             `json:"items,omitempty"`
-	CustomFields                  map[string]string       `json:"customFields,omitempty"`
-	Payments                      map[string]OrderPayment `json:"payments,omitempty"`
+	ID                            int               `json:"id,omitempty"`
+	ExternalID                    string            `json:"externalId,omitempty"`
+	Number                        string            `json:"number,omitempty"`
+	FirstName                     string            `json:"firstName,omitempty"`
+	LastName                      string            `json:"lastName,omitempty"`
+	Patronymic                    string            `json:"patronymic,omitempty"`
+	Email                         string            `json:"email,omitempty"`
+	Phone                         string            `json:"phone,omitempty"`
+	AdditionalPhone               string            `json:"additionalPhone,omitempty"`
+	CreatedAt                     string            `json:"createdAt,omitempty"`
+	StatusUpdatedAt               string            `json:"statusUpdatedAt,omitempty"`
+	ManagerID                     int               `json:"managerId,omitempty"`
+	Mark                          int               `json:"mark,omitempty"`
+	Call                          bool              `json:"call,omitempty"`
+	Expired                       bool              `json:"expired,omitempty"`
+	FromAPI                       bool              `json:"fromApi,omitempty"`
+	MarkDatetime                  string            `json:"markDatetime,omitempty"`
+	CustomerComment               string            `json:"customerComment,omitempty"`
+	ManagerComment                string            `json:"managerComment,omitempty"`
+	Status                        string            `json:"status,omitempty"`
+	StatusComment                 string            `json:"statusComment,omitempty"`
+	FullPaidAt                    string            `json:"fullPaidAt,omitempty"`
+	Site                          string            `json:"site,omitempty"`
+	OrderType                     string            `json:"orderType,omitempty"`
+	OrderMethod                   string            `json:"orderMethod,omitempty"`
+	CountryIso                    string            `json:"countryIso,omitempty"`
+	Summ                          float32           `json:"summ,omitempty"`
+	TotalSumm                     float32           `json:"totalSumm,omitempty"`
+	PrepaySum                     float32           `json:"prepaySum,omitempty"`
+	PurchaseSumm                  float32           `json:"purchaseSumm,omitempty"`
+	DiscountManualAmount          float32           `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent         float32           `json:"discountManualPercent,omitempty"`
+	Weight                        float32           `json:"weight,omitempty"`
+	Length                        int               `json:"length,omitempty"`
+	Width                         int               `json:"width,omitempty"`
+	Height                        int               `json:"height,omitempty"`
+	ShipmentStore                 string            `json:"shipmentStore,omitempty"`
+	ShipmentDate                  string            `json:"shipmentDate,omitempty"`
+	ClientID                      string            `json:"clientId,omitempty"`
+	Shipped                       bool              `json:"shipped,omitempty"`
+	UploadedToExternalStoreSystem bool              `json:"uploadedToExternalStoreSystem,omitempty"`
+	Source                        *Source           `json:"source,omitempty"`
+	Contragent                    *Contragent       `json:"contragent,omitempty"`
+	Customer                      *Customer         `json:"customer,omitempty"`
+	Delivery                      *OrderDelivery    `json:"delivery,omitempty"`
+	Marketplace                   *OrderMarketplace `json:"marketplace,omitempty"`
+	Items                         []OrderItem       `json:"items,omitempty"`
+	CustomFields                  CustomFieldsList  `json:"customFields,omitempty"`
+	Payments                      OrderPayments     `json:"payments,omitempty"`
 }
 
 // OrdersStatus type.
@@ -378,8 +382,14 @@ type OrderDeliveryData struct {
 // UnmarshalJSON method.
 func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 	var additionalData map[string]interface{}
-	json.Unmarshal(b, &additionalData)
-	json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	err := json.Unmarshal(b, &additionalData)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, &v.OrderDeliveryDataBasic)
+	if err != nil {
+		return err
+	}
 	object := reflect.TypeOf(v.OrderDeliveryDataBasic)
 
 	for i := 0; i < object.NumField(); i++ {
@@ -401,7 +411,10 @@ func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 func (v OrderDeliveryData) MarshalJSON() ([]byte, error) {
 	result := map[string]interface{}{}
 	data, _ := json.Marshal(v.OrderDeliveryDataBasic)
-	json.Unmarshal(data, &result)
+	err := json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, err
+	}
 
 	for key, value := range v.AdditionalFields {
 		result[key] = value
@@ -587,7 +600,7 @@ type User struct {
 	Phone      string      `json:"phone,omitempty"`
 	Status     string      `json:"status,omitempty"`
 	Groups     []UserGroup `json:"groups,omitempty"`
-	MgUserId   uint64      `json:"mgUserId,omitempty"`
+	MGUserID   uint64      `json:"mgUserId,omitempty"`
 }
 
 // UserGroup type.
@@ -1054,7 +1067,7 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
-	WebhookUrl string `json:"webhookUrl,omitempty"`
+	WebhookURL string `json:"webhookUrl,omitempty"`
 }
 
 // MgBot type.
@@ -1072,7 +1085,7 @@ type CostRecord struct {
 	DateTo   string   `json:"dateTo,omitempty"`
 	Summ     float32  `json:"summ,omitempty"`
 	CostItem string   `json:"costItem,omitempty"`
-	UserId   int      `json:"userId,omitempty"`
+	UserID   int      `json:"userId,omitempty"`
 	Order    *Order   `json:"order,omitempty"`
 	Sites    []string `json:"sites,omitempty"`
 }
@@ -1089,7 +1102,7 @@ type Cost struct {
 	CreatedAt string   `json:"createdAt,omitempty"`
 	CreatedBy string   `json:"createdBy,omitempty"`
 	Order     *Order   `json:"order,omitempty"`
-	UserId    int      `json:"userId,omitempty"`
+	UserID    int      `json:"userId,omitempty"`
 	Sites     []string `json:"sites,omitempty"`
 }
 

@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 // CustomersFilter type.
 type CustomersFilter struct {

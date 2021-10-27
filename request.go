@@ -1,4 +1,4 @@
-package v5
+package retailcrm
 
 // CustomerRequest type.
 type CustomerRequest struct {
@@ -177,8 +177,8 @@ type ProductsPropertiesRequest struct {
 type DeliveryTrackingRequest struct {
 	DeliveryID  string                  `json:"deliveryId,omitempty"`
 	TrackNumber string                  `json:"trackNumber,omitempty"`
-	History     []DeliveryHistoryRecord `json:"history,omitempty,brackets"`
-	ExtraData   map[string]string       `json:"extraData,omitempty,brackets"`
+	History     []DeliveryHistoryRecord `json:"history,omitempty"`
+	ExtraData   map[string]string       `json:"extraData,omitempty"`
 }
 
 // DeliveryShipmentsRequest type.
