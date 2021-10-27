@@ -10,7 +10,7 @@
 
 This is golang RetailCRM API client.
 
-## Install
+## Installation
 
 ```bash
 go get -u github.com/retailcrm/api-client-go/v2
@@ -158,3 +158,7 @@ func main() {
 	log.Println("Available scopes:", strings.Join(resp.Scopes, ", "))
 }
 ```
+
+## Upgrading
+
+Please check the [UPGRADING.md](UPGRADING.md) to learn how to upgrade to the new version.
