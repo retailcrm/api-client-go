@@ -275,6 +275,7 @@ Order related types
 
 type OrderPayments map[string]OrderPayment
 type StringMap map[string]string
+type Properties map[string]Property
 
 // Order type.
 type Order struct {
@@ -442,22 +443,22 @@ type OrderPayment struct {
 
 // OrderItem type.
 type OrderItem struct {
-	ID                    int                 `json:"id,omitempty"`
-	InitialPrice          float32             `json:"initialPrice,omitempty"`
-	PurchasePrice         float32             `json:"purchasePrice,omitempty"`
-	DiscountTotal         float32             `json:"discountTotal,omitempty"`
-	DiscountManualAmount  float32             `json:"discountManualAmount,omitempty"`
-	DiscountManualPercent float32             `json:"discountManualPercent,omitempty"`
-	ProductName           string              `json:"productName,omitempty"`
-	VatRate               string              `json:"vatRate,omitempty"`
-	CreatedAt             string              `json:"createdAt,omitempty"`
-	Quantity              float32             `json:"quantity,omitempty"`
-	Status                string              `json:"status,omitempty"`
-	Comment               string              `json:"comment,omitempty"`
-	IsCanceled            bool                `json:"isCanceled,omitempty"`
-	Offer                 Offer               `json:"offer,omitempty"`
-	Properties            map[string]Property `json:"properties,omitempty"`
-	PriceType             *PriceType          `json:"priceType,omitempty"`
+	ID                    int        `json:"id,omitempty"`
+	InitialPrice          float32    `json:"initialPrice,omitempty"`
+	PurchasePrice         float32    `json:"purchasePrice,omitempty"`
+	DiscountTotal         float32    `json:"discountTotal,omitempty"`
+	DiscountManualAmount  float32    `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent float32    `json:"discountManualPercent,omitempty"`
+	ProductName           string     `json:"productName,omitempty"`
+	VatRate               string     `json:"vatRate,omitempty"`
+	CreatedAt             string     `json:"createdAt,omitempty"`
+	Quantity              float32    `json:"quantity,omitempty"`
+	Status                string     `json:"status,omitempty"`
+	Comment               string     `json:"comment,omitempty"`
+	IsCanceled            bool       `json:"isCanceled,omitempty"`
+	Offer                 Offer      `json:"offer,omitempty"`
+	Properties            Properties `json:"properties,omitempty"`
+	PriceType             *PriceType `json:"priceType,omitempty"`
 }
 
 // OrdersHistoryRecord type.

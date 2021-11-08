@@ -92,6 +92,40 @@ func (p *OrderPayments) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (p *Properties) UnmarshalJSON(data []byte) error {
+	var i interface{}
+	var m Properties
+	if err := json.Unmarshal(data, &i); err != nil {
+		return err
+	}
+
+	switch e := i.(type) {
+	case map[string]interface{}:
+		m = make(Properties, len(e))
+		for idx, val := range e {
+			var res Property
+			err := unmarshalMap(val.(map[string]interface{}), &res)
+			if err != nil {
+				return err
+			}
+			m[idx] = res
+		}
+	case []interface{}:
+		m = make(Properties, len(e))
+		for idx, val := range e {
+			var res Property
+			err := unmarshalMap(val.(map[string]interface{}), &res)
+			if err != nil {
+				return err
+			}
+			m[strconv.Itoa(idx)] = res
+		}
+	}
+
+	*p = m
+	return nil
+}
+
 func unmarshalMap(m map[string]interface{}, v interface{}) (err error) {
 	var data []byte
 	data, err = json.Marshal(m)

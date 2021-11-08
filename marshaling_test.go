@@ -38,6 +38,9 @@ func TestAPIErrorsList_UnmarshalJSON(t *testing.T) {
 	assert.Len(t, list, 2)
 	assert.Equal(t, list["a"], "first")
 	assert.Equal(t, list["b"], "second")
+
+	require.NoError(t, json.Unmarshal([]byte(`[]`), &list))
+	assert.Len(t, list, 0)
 }
 
 func TestCustomFieldsList_UnmarshalJSON(t *testing.T) {
@@ -52,6 +55,9 @@ func TestCustomFieldsList_UnmarshalJSON(t *testing.T) {
 	assert.Len(t, list, 2)
 	assert.Equal(t, list["a"], "first")
 	assert.Equal(t, list["b"], "second")
+
+	require.NoError(t, json.Unmarshal([]byte(`[]`), &list))
+	assert.Len(t, list, 0)
 }
 
 func TestOrderPayments_UnmarshalJSON(t *testing.T) {
@@ -66,4 +72,24 @@ func TestOrderPayments_UnmarshalJSON(t *testing.T) {
 	assert.Len(t, list, 2)
 	assert.Equal(t, list["a"], OrderPayment{ID: 1})
 	assert.Equal(t, list["b"], OrderPayment{ID: 2})
+
+	require.NoError(t, json.Unmarshal([]byte(`[]`), &list))
+	assert.Len(t, list, 0)
+}
+
+func TestProperties_UnmarshalJSON(t *testing.T) {
+	var list Properties
+
+	require.NoError(t, json.Unmarshal([]byte(`[{"code": "first"}, {"code": "second"}]`), &list))
+	assert.Len(t, list, 2)
+	assert.Equal(t, list["0"], Property{Code: "first"})
+	assert.Equal(t, list["1"], Property{Code: "second"})
+
+	require.NoError(t, json.Unmarshal([]byte(`{"a": {"code": "first"}, "b": {"code": "second"}}`), &list))
+	assert.Len(t, list, 2)
+	assert.Equal(t, list["a"], Property{Code: "first"})
+	assert.Equal(t, list["b"], Property{Code: "second"})
+
+	require.NoError(t, json.Unmarshal([]byte(`[]`), &list))
+	assert.Len(t, list, 0)
 }
