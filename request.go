@@ -1,5 +1,11 @@
 package retailcrm
 
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+)
+
 // CustomerRequest type.
 type CustomerRequest struct {
 	By   string `url:"by,omitempty"`
@@ -214,4 +220,36 @@ type CustomDictionariesRequest struct {
 	Filter CustomDictionariesFilter `url:"filter,omitempty"`
 	Limit  int                      `url:"limit,omitempty"`
 	Page   int                      `url:"page,omitempty"`
+}
+
+// ConnectRequest contains information about the system connection that is requested to be created.
+type ConnectRequest struct {
+	// Token is used to verify the request. Do not use directly; use Verify instead.
+	Token string `json:"token"`
+	// APIKey that was generated for the module.
+	APIKey string `json:"apiKey"`
+	// URL of the system. Do not use directly; use SystemURL instead.
+	URL string `json:"systemUrl"`
+}
+
+// SystemURL returns system URL from the connection request without trailing slash.
+func (r ConnectRequest) SystemURL() string {
+	if r.URL == "" {
+		return ""
+	}
+
+	if r.URL[len(r.URL)-1:] == "/" {
+		return r.URL[:len(r.URL)-1]
+	}
+
+	return r.URL
+}
+
+// Verify returns true if connection request is legitimate. Application secret should be provided to this method.
+func (r ConnectRequest) Verify(secret string) bool {
+	mac := hmac.New(sha256.New, []byte(secret))
+	if _, err := mac.Write([]byte(r.APIKey)); err != nil {
+		panic(err)
+	}
+	return hmac.Equal([]byte(r.Token), []byte(hex.EncodeToString(mac.Sum(nil))))
 }

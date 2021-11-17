@@ -495,3 +495,30 @@ type UnitsResponse struct {
 	Success bool    `json:"success"`
 	Units   *[]Unit `json:"units,omitempty"`
 }
+
+// ErrorResponse should be returned to the one-step connection request in case of failure.
+type ErrorResponse struct {
+	SuccessfulResponse
+	ErrorMessage string `json:"errorMsg"`
+}
+
+// ConnectResponse should be returned to the one-step connection request in case of successful connection.
+type ConnectResponse struct {
+	SuccessfulResponse
+	AccountURL string `json:"accountUrl"`
+}
+
+// ConnectionConfigResponse contains connection configuration for one-step connection.
+type ConnectionConfigResponse struct {
+	SuccessfulResponse
+	Scopes      []string `json:"scopes"`
+	RegisterURL string   `json:"registerUrl"`
+}
+
+// NewConnectResponse returns ConnectResponse with the provided account URL.
+func NewConnectResponse(accountURL string) ConnectResponse {
+	return ConnectResponse{
+		SuccessfulResponse: SuccessfulResponse{Success: true},
+		AccountURL:         accountURL,
+	}
+}
