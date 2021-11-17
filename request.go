@@ -248,8 +248,8 @@ func (r ConnectRequest) SystemURL() string {
 // Verify returns true if connection request is legitimate. Application secret should be provided to this method.
 func (r ConnectRequest) Verify(secret string) bool {
 	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(r.APIKey))
-	expected := mac.Sum(nil)
-
-	return hmac.Equal([]byte(r.Token), []byte(hex.EncodeToString(expected)))
+	if _, err := mac.Write([]byte(r.APIKey)); err != nil {
+		panic(err)
+	}
+	return hmac.Equal([]byte(r.Token), []byte(hex.EncodeToString(mac.Sum(nil))))
 }

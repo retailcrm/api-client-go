@@ -36,6 +36,8 @@ func (t *ConnectRequestTest) Test_Verify() {
 
 func createConnectToken(apiKey, secret string) string {
 	mac := hmac.New(sha256.New, []byte(secret))
-	mac.Write([]byte(apiKey))
+	if _, err := mac.Write([]byte(apiKey)); err != nil {
+		panic(err)
+	}
 	return hex.EncodeToString(mac.Sum(nil))
 }

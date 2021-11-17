@@ -8,7 +8,7 @@ import (
 
 func TestNewConnectResponse(t *testing.T) {
 	assert.Equal(t, ConnectResponse{
-		Response: Response{
+		SuccessfulResponse: SuccessfulResponse{
 			Success: true,
 		},
 		AccountURL: "https://example.com",
