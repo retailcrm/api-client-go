@@ -403,8 +403,22 @@ type IntegrationModuleEditResponse struct {
 
 // ResponseInfo type.
 type ResponseInfo struct {
-	MgTransportInfo MgInfo `json:"mgTransport,omitempty"`
-	MgBotInfo       MgInfo `json:"mgBot,omitempty"`
+	MgTransportInfo MgInfo       `json:"mgTransport,omitempty"`
+	MgBotInfo       MgInfo       `json:"mgBot,omitempty"`
+	BillingInfo     *BillingInfo `json:"billingInfo,omitempty"`
+}
+
+type BillingInfo struct {
+	Price             float64              `json:"price,omitempty"`
+	PriceWithDiscount float64              `json:"priceWithDiscount,omitempty"`
+	BillingType       string               `json:"billingType,omitempty"`
+	Currency          *BillingInfoCurrency `json:"currency,omitempty"`
+}
+
+type BillingInfoCurrency struct {
+	Name      string `json:"name,omitempty"`
+	ShortName string `json:"shortName,omitempty"`
+	Code      string `json:"code,omitempty"`
 }
 
 // MgInfo type.
