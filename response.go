@@ -39,6 +39,7 @@ type CredentialResponse struct {
 	SitesAvailable []string `json:"sitesAvailable,omitempty"`
 }
 
+// SystemInfoResponse return system info.
 type SystemInfoResponse struct {
 	Success       bool   `json:"success,omitempty"`
 	SystemVersion string `json:"systemVersion,omitempty"`

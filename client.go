@@ -279,6 +279,8 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 
 // APISystemInfo get info about system
 //
+// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-system-info
+//
 // Example:
 //
 // 	var client = retailcrm.New("https://demo.url", "09jIJ")
