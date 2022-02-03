@@ -39,6 +39,13 @@ type CredentialResponse struct {
 	SitesAvailable []string `json:"sitesAvailable,omitempty"`
 }
 
+type SystemInfoResponse struct {
+	Success       bool   `json:"success,omitempty"`
+	SystemVersion string `json:"systemVersion,omitempty"`
+	PublicURL     string `json:"publicUrl,omitempty"`
+	TechnicalURL  string `json:"technicalUrl,omitempty"`
+}
+
 // CustomerResponse type.
 type CustomerResponse struct {
 	Success  bool      `json:"success"`

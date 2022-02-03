@@ -277,6 +277,39 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 	return resp, status, nil
 }
 
+// APISystemInfo get info about system
+//
+// Example:
+//
+// 	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.APISystemInfo()
+//
+// 	if err != nil {
+// 		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+// 			log.Fatalf("http status: %d, %s", status, apiErr.String())
+// 		}
+//
+// 		log.Fatalf("http status: %d, error: %s", status, err)
+// 	}
+//
+// 	log.Printf("%v\n", data)
+func (c *Client) APISystemInfo() (SystemInfoResponse, int, error) {
+	var resp SystemInfoResponse
+
+	data, status, err := c.GetRequest("/system-info", false)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // Customers returns list of customers matched the specified filter
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers

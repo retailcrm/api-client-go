@@ -15,6 +15,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/joho/godotenv"
 	gock "gopkg.in/h2non/gock.v1"
 )
@@ -178,6 +180,37 @@ func TestClient_ApiCredentialsCredentials(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+}
+
+func TestClient_APISystemInfo(t *testing.T) {
+	defer gock.Off()
+
+	r := SystemInfoResponse{
+		Success:       true,
+		SystemVersion: "8.7.77",
+		PublicURL:     crmURL,
+		TechnicalURL:  fmt.Sprintf("https://%s.io", RandomString(30)),
+	}
+
+	data, err := json.Marshal(r)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	gock.New(crmURL).
+		Get("/api/system-info").
+		Reply(200).
+		BodyString(string(data))
+
+	c := client()
+	res, s, e := c.APISystemInfo()
+	if e != nil {
+		t.Errorf("%v", e)
+	}
+
+	assert.Equal(t, s, 200)
+	assert.Equal(t, crmURL, res.PublicURL)
+	assert.Contains(t, res.TechnicalURL, ".io")
 }
 
 func TestClient_CustomersCustomers(t *testing.T) {
