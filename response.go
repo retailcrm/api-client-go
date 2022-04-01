@@ -403,6 +403,12 @@ type IntegrationModuleResponse struct {
 	IntegrationModule *IntegrationModule `json:"integrationModule,omitempty"`
 }
 
+// UpdateScopesResponse update scopes response.
+type UpdateScopesResponse struct {
+	ErrorResponse
+	APIKey string `json:"apiKey"`
+}
+
 // IntegrationModuleEditResponse type.
 type IntegrationModuleEditResponse struct {
 	Success bool         `json:"success"`
