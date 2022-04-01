@@ -406,7 +406,7 @@ type IntegrationModuleResponse struct {
 // UpdateScopesResponse update scopes response.
 type UpdateScopesResponse struct {
 	ErrorResponse
-	APIKey string `json:"api_key"`
+	APIKey string `json:"apiKey"`
 }
 
 // IntegrationModuleEditResponse type.
