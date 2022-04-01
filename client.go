@@ -2156,11 +2156,8 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	requires := "MS"
-//	code := "moysklad3"
-//
-//	data, status, err := client.IntegrationModuleEdit(retailcrm.UpdateScopesRequest{
-//		Requires:            retailcrm.ScopesRequired{Scopes: ["scope1", "scope2]},
+//	data, status, err := client.UpdateScopes("moysklad3", retailcrm.UpdateScopesRequest{
+//		Requires: retailcrm.ScopesRequired{Scopes: []string{"scope1", "scope2"}}},
 //	})
 //
 //	if err.Error() != "" {
