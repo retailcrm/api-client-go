@@ -976,6 +976,15 @@ type IntegrationModule struct {
 	Integrations       *Integrations `json:"integrations,omitempty"`
 }
 
+// UpdateScopesRequest type.
+type UpdateScopesRequest struct {
+	Requires ScopesRequired `json:"requires"`
+}
+
+type ScopesRequired struct {
+	Scopes []string
+}
+
 // Integrations type.
 type Integrations struct {
 	Telephony   *Telephony   `json:"telephony,omitempty"`

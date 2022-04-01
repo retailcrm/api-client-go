@@ -2148,6 +2148,51 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 	return resp, status, nil
 }
 
+// UpdateScopes updates permissions for the API key
+//
+// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-integration-modules-code-update-scopes
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	requires := "MS"
+//	code := "moysklad3"
+//
+//	data, status, err := client.IntegrationModuleEdit(retailcrm.UpdateScopesRequest{
+//		Requires:            retailcrm.ScopesRequired{Scopes: ["scope1", "scope2]},
+//	})
+//
+//	if err.Error() != "" {
+//		fmt.Printf("%v", err.Error())
+//	}
+//
+//	if status >= http.StatusBadRequest {
+//		fmt.Printf("%v", err.Error())
+//	}
+//
+//	if data.Success == true {
+//		fmt.Printf("%v\n", data.APIKey)
+//	}
+func (c *Client) UpdateScopes(code string, request UpdateScopesRequest) (UpdateScopesResponse, int, error) {
+	var resp UpdateScopesResponse
+	updateJSON, _ := json.Marshal(&request)
+
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/integration-modules/%s/update-scopes", code),
+		bytes.NewBuffer(updateJSON))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // Orders returns list of orders matched the specified filters
 //
 // For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders

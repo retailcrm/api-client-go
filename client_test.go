@@ -6564,3 +6564,65 @@ func TestClient_CustomFieldsCreate_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 }
+
+func TestClient_UpdateScopes(t *testing.T) {
+	c := client()
+
+	code := RandomString(8)
+
+	defer gock.Off()
+
+	request := UpdateScopesRequest{Requires: ScopesRequired{Scopes: []string{"scope1", "scope2"}}}
+
+	jr, _ := json.Marshal(&request)
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/integration-modules/%s/update-scopes", code)).
+		BodyString(string(jr[:])).
+		Reply(200).
+		BodyString(`{"success": true, "apiKey": "newApiKey"}`)
+
+	m, status, err := c.UpdateScopes(code, request)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err)
+	}
+
+	if m.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_UpdateScopes_Fail(t *testing.T) {
+	c := client()
+
+	code := RandomString(8)
+
+	defer gock.Off()
+
+	request := UpdateScopesRequest{Requires: ScopesRequired{Scopes: []string{"scope1", "scope2"}}}
+
+	jr, _ := json.Marshal(&request)
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/integration-modules/%s/update-scopes", code)).
+		BodyString(string(jr[:])).
+		Reply(400).
+		BodyString(`{"success": false, "errorMsg": "Not enabled simple connection"}`)
+
+	m, status, err := c.UpdateScopes(code, request)
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if status != http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if m.Success != false {
+		t.Error(successFail)
+	}
+}
