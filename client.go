@@ -2171,13 +2171,16 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 //	if data.Success == true {
 //		fmt.Printf("%v\n", data.APIKey)
 //	}
-func (c *Client) UpdateScopes(code string, request UpdateScopesRequest) (UpdateScopesResponse, int, error) {
+func (c *Client) UpdateScopes(code string, request ScopesRequired) (UpdateScopesResponse, int, error) {
 	var resp UpdateScopesResponse
 	updateJSON, _ := json.Marshal(&request)
 
+	p := url.Values{
+		"requires": {string(updateJSON)},
+	}
+
 	data, status, err := c.PostRequest(
-		fmt.Sprintf("/integration-modules/%s/update-scopes", code),
-		bytes.NewBuffer(updateJSON))
+		fmt.Sprintf("/integration-modules/%s/update-scopes", code), p)
 	if err != nil {
 		return resp, status, err
 	}

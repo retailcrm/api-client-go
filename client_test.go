@@ -6572,13 +6572,14 @@ func TestClient_UpdateScopes(t *testing.T) {
 
 	defer gock.Off()
 
-	request := UpdateScopesRequest{Requires: ScopesRequired{Scopes: []string{"scope1", "scope2"}}}
-
+	request := ScopesRequired{Scopes: []string{"scope1", "scope2"}}
 	jr, _ := json.Marshal(&request)
 
 	gock.New(crmURL).
 		Post(fmt.Sprintf("/integration-modules/%s/update-scopes", code)).
-		BodyString(string(jr[:])).
+		BodyString((url.Values{
+			"requires": {string(jr)},
+		}).Encode()).
 		Reply(200).
 		BodyString(`{"success": true, "apiKey": "newApiKey"}`)
 
@@ -6603,13 +6604,14 @@ func TestClient_UpdateScopes_Fail(t *testing.T) {
 
 	defer gock.Off()
 
-	request := UpdateScopesRequest{Requires: ScopesRequired{Scopes: []string{"scope1", "scope2"}}}
-
+	request := ScopesRequired{Scopes: []string{"scope1", "scope2"}}
 	jr, _ := json.Marshal(&request)
 
 	gock.New(crmURL).
 		Post(fmt.Sprintf("/integration-modules/%s/update-scopes", code)).
-		BodyString(string(jr[:])).
+		BodyString((url.Values{
+			"requires": {string(jr)},
+		}).Encode()).
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Not enabled simple connection"}`)
 
