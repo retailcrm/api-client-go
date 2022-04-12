@@ -32,7 +32,7 @@ linters:
     - gocyclo
     - godot
     - goimports
-    - golint
+    - revive
     - gomnd
     - gosec
     - ifshort
