@@ -6573,6 +6573,7 @@ func TestClient_UpdateScopes(t *testing.T) {
 	defer gock.Off()
 
 	request := ScopesRequired{Scopes: []string{"scope1", "scope2"}}
+
 	jr, _ := json.Marshal(&request)
 
 	gock.New(crmURL).
@@ -6605,6 +6606,7 @@ func TestClient_UpdateScopes_Fail(t *testing.T) {
 	defer gock.Off()
 
 	request := ScopesRequired{Scopes: []string{"scope1", "scope2"}}
+
 	jr, _ := json.Marshal(&request)
 
 	gock.New(crmURL).
