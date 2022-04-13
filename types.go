@@ -977,7 +977,7 @@ type IntegrationModule struct {
 }
 
 type ScopesRequired struct {
-	Scopes []string
+	Scopes []string `json:"scopes"`
 }
 
 // Integrations type.
