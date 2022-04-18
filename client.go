@@ -20,7 +20,7 @@ import (
 // New initialize client.
 func New(url string, key string) *Client {
 	return &Client{
-		URL:        url,
+		URL:        strings.TrimRight(url, "/"),
 		Key:        key,
 		httpClient: &http.Client{Timeout: time.Minute},
 	}
