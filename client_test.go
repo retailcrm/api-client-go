@@ -68,6 +68,15 @@ func badurlclient() *Client {
 	return New(badURL, os.Getenv("RETAILCRM_KEY"))
 }
 
+func TestBaseURLTrimmed(t *testing.T) {
+	c1 := New("https://test.retailcrm.pro", "key")
+	c2 := New("https://test.retailcrm.pro/", "key")
+	c3 := New("https://test.retailcrm.pro////", "key")
+
+	assert.Equal(t, c1.URL, c2.URL)
+	assert.Equal(t, c1.URL, c3.URL)
+}
+
 func TestGetRequest(t *testing.T) {
 	c := client()
 
