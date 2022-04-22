@@ -183,6 +183,7 @@ issues:
         - gocritic
         - gosec
         - staticcheck
+        - unused
   exclude-use-default: true
   exclude-case-sensitive: false
   max-issues-per-linter: 0
