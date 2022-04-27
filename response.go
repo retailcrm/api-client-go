@@ -2,7 +2,7 @@ package retailcrm
 
 // SuccessfulResponse type.
 type SuccessfulResponse struct {
-	Success bool `json:"success,omitempty"`
+	Success bool `json:"success"`
 }
 
 // CreateResponse type.
