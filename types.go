@@ -886,6 +886,7 @@ type Site struct {
 	CatalogUpdatedAt string       `json:"catalogUpdatedAt,omitempty"`
 	CatalogLoadingAt string       `json:"catalogLoadingAt,omitempty"`
 	Contragent       *LegalEntity `json:"contragent,omitempty"`
+	DefaultForCRM    bool         `json:"defaultForCrm,omitempty"`
 }
 
 // Store type.
