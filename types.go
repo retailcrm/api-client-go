@@ -694,11 +694,21 @@ type SettingsNode struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+// WorkTime type.
+type WorkTime struct {
+	DayType        string `json:"day_type"`
+	StartTime      string `json:"start_time"`
+	EndTime        string `json:"end_time"`
+	LunchStartTime string `json:"lunch_start_time"`
+	LunchEndTime   string `json:"lunch_end_time"`
+}
+
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
 	DefaultCurrency SettingsNode `json:"default_currency"`
 	SystemLanguage  SettingsNode `json:"system_language"`
 	Timezone        SettingsNode `json:"timezone"`
+	WorkTimes       []WorkTime   `json:"work_times"`
 }
 
 /**
