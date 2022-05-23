@@ -897,6 +897,7 @@ type Site struct {
 	CatalogLoadingAt string       `json:"catalogLoadingAt,omitempty"`
 	Contragent       *LegalEntity `json:"contragent,omitempty"`
 	DefaultForCRM    bool         `json:"defaultForCrm,omitempty"`
+	Ordering         int          `json:"ordering,omitempty"`
 }
 
 // Store type.
