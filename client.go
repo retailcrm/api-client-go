@@ -205,7 +205,7 @@ func fillSite(p *url.Values, site []string) {
 
 // APIVersions get all available API versions for exact account
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-api-versions
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-api-versions
 //
 // Example:
 //
@@ -242,7 +242,7 @@ func (c *Client) APIVersions() (VersionResponse, int, error) {
 
 // APICredentials get all available API methods for exact account
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-api-versions
+// For more information see https://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-credentials
 //
 // Example:
 //
@@ -279,7 +279,7 @@ func (c *Client) APICredentials() (CredentialResponse, int, error) {
 
 // APISystemInfo get info about system
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-system-info
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-system-info
 //
 // Example:
 //
@@ -314,7 +314,7 @@ func (c *Client) APISystemInfo() (SystemInfoResponse, int, error) {
 
 // Customers returns list of customers matched the specified filter
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-customers
 //
 // Example:
 //
@@ -358,7 +358,7 @@ func (c *Client) Customers(parameters CustomersRequest) (CustomersResponse, int,
 
 // CustomersCombine combine given customers
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-combine
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-combine
 //
 // Example:
 //
@@ -399,7 +399,7 @@ func (c *Client) CustomersCombine(customers []Customer, resultCustomer Customer)
 
 // CustomerCreate creates customer
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-create
 //
 // Example:
 //
@@ -454,7 +454,7 @@ func (c *Client) CustomerCreate(customer Customer, site ...string) (CustomerChan
 
 // CustomersFixExternalIds customers external ID
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-fix-external-ids
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-fix-external-ids
 //
 // Example:
 //
@@ -496,7 +496,7 @@ func (c *Client) CustomersFixExternalIds(customers []IdentifiersPair) (Successfu
 
 // CustomersHistory returns customer's history
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-history
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-customers-history
 //
 // Example:
 //
@@ -539,7 +539,7 @@ func (c *Client) CustomersHistory(parameters CustomersHistoryRequest) (Customers
 
 // CustomerNotes returns customer related notes
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-notes
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-customers-notes
 //
 // Example:
 //
@@ -583,7 +583,7 @@ func (c *Client) CustomerNotes(parameters NotesRequest) (NotesResponse, int, err
 
 // CustomerNoteCreate note creation
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-notes-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-notes-create
 //
 // Example:
 //
@@ -634,7 +634,7 @@ func (c *Client) CustomerNoteCreate(note Note, site ...string) (CreateResponse, 
 
 // CustomerNoteDelete remove customer related note
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-notes-id-delete
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-notes-id-delete
 //
 // Example:
 //
@@ -670,7 +670,7 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 
 // CustomersUpload customers batch upload
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-upload
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-upload
 //
 // Example:
 //
@@ -730,7 +730,7 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 
 // Customer returns information about customer
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-customers-externalId
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-customers-externalId
 //
 // Example:
 //
@@ -771,7 +771,7 @@ func (c *Client) Customer(id, by, site string) (CustomerResponse, int, error) {
 
 // CustomerEdit edit exact customer
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-customers-externalId-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-externalId-edit
 //
 // Example:
 //
@@ -1818,7 +1818,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 
 // DeliveryTracking updates tracking data
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-generic-subcode-tracking
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-delivery-generic-subcode-tracking
 //
 // Example:
 //
@@ -1873,7 +1873,7 @@ func (c *Client) DeliveryTracking(parameters []DeliveryTrackingRequest, subcode 
 
 // DeliveryShipments returns list of shipments
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-delivery-shipments
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-delivery-shipments
 //
 // Example:
 //
@@ -1917,7 +1917,7 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 
 // DeliveryShipmentCreate creates shipment
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-shipments-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-delivery-shipments-create
 //
 // Example:
 //
@@ -1974,7 +1974,7 @@ func (c *Client) DeliveryShipmentCreate(
 
 // DeliveryShipment get information about shipment
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-delivery-shipments-id
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-delivery-shipments-id
 //
 // Example:
 //
@@ -2011,7 +2011,7 @@ func (c *Client) DeliveryShipment(id int) (DeliveryShipmentResponse, int, error)
 
 // DeliveryShipmentEdit shipment editing
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-delivery-shipments-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-delivery-shipments-id-edit
 //
 // Example:
 //
@@ -2059,7 +2059,7 @@ func (c *Client) DeliveryShipmentEdit(shipment DeliveryShipment, site ...string)
 
 // IntegrationModule returns integration module
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-integration-modules-code
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-integration-modules-code
 //
 // Example:
 //
@@ -2096,7 +2096,7 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 
 // IntegrationModuleEdit integration module create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-integration-modules-code
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-integration-modules-code
 //
 // Example:
 //
@@ -2150,7 +2150,7 @@ func (c *Client) IntegrationModuleEdit(integrationModule IntegrationModule) (
 
 // UpdateScopes updates permissions for the API key
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-integration-modules-code-update-scopes
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-integration-modules-code-update-scopes
 //
 // Example:
 //
@@ -2194,7 +2194,7 @@ func (c *Client) UpdateScopes(code string, request ScopesRequired) (UpdateScopes
 
 // Orders returns list of orders matched the specified filters
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders
 //
 // Example:
 //
@@ -2233,7 +2233,7 @@ func (c *Client) Orders(parameters OrdersRequest) (OrdersResponse, int, error) {
 
 // OrdersCombine combines given orders
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-combine
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-combine
 //
 // Example:
 //
@@ -2275,7 +2275,7 @@ func (c *Client) OrdersCombine(technique string, order, resultOrder Order) (Oper
 
 // OrderCreate creates an order
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-create
 //
 // Example:
 //
@@ -2325,7 +2325,7 @@ func (c *Client) OrderCreate(order Order, site ...string) (OrderCreateResponse, 
 
 // OrdersFixExternalIds set order external ID
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-fix-external-ids
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-fix-external-ids
 //
 // Example:
 //
@@ -2371,7 +2371,7 @@ func (c *Client) OrdersFixExternalIds(orders []IdentifiersPair) (SuccessfulRespo
 
 // OrdersHistory returns orders history
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-history
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-history
 //
 // Example:
 //
@@ -2410,7 +2410,7 @@ func (c *Client) OrdersHistory(parameters OrdersHistoryRequest) (OrdersHistoryRe
 
 // OrderPaymentCreate creates payment
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-payments-create
 //
 // Example:
 //
@@ -2461,7 +2461,7 @@ func (c *Client) OrderPaymentCreate(payment Payment, site ...string) (CreateResp
 
 // OrderPaymentDelete payment removing
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-id-delete
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-payments-id-delete
 //
 // Example:
 //
@@ -2498,7 +2498,7 @@ func (c *Client) OrderPaymentDelete(id int) (SuccessfulResponse, int, error) {
 
 // OrderPaymentEdit edit payment
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-payments-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-payments-id-edit
 //
 // Example:
 //
@@ -2552,7 +2552,7 @@ func (c *Client) OrderPaymentEdit(payment Payment, by string, site ...string) (S
 
 // OrdersStatuses returns orders statuses
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-statuses
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-statuses
 //
 // Example:
 //
@@ -2590,7 +2590,7 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 
 // OrdersUpload batch orders uploading
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-upload
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-upload
 //
 // Example:
 //
@@ -2650,7 +2650,7 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 
 // Order returns information about order
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-externalId
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-externalId
 //
 // Example:
 //
@@ -2691,7 +2691,7 @@ func (c *Client) Order(id, by, site string) (OrderResponse, int, error) {
 
 // OrderEdit edit an order
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-externalId-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-externalId-edit
 //
 // Example:
 //
@@ -2745,7 +2745,7 @@ func (c *Client) OrderEdit(order Order, by string, site ...string) (CreateRespon
 
 // Packs returns list of packs matched the specified filters
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-packs
 //
 // Example:
 //
@@ -2784,7 +2784,7 @@ func (c *Client) Packs(parameters PacksRequest) (PacksResponse, int, error) {
 
 // PackCreate creates a pack
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-packs-create
 //
 // Example:
 //
@@ -2830,7 +2830,7 @@ func (c *Client) PackCreate(pack Pack) (CreateResponse, int, error) {
 
 // PacksHistory returns a history of order packing
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs-history
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-packs-history
 //
 // Example:
 //
@@ -2869,7 +2869,7 @@ func (c *Client) PacksHistory(parameters PacksHistoryRequest) (PacksHistoryRespo
 
 // Pack returns a pack info
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-orders-packs-id
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders-packs-id
 //
 // Example:
 //
@@ -2906,7 +2906,7 @@ func (c *Client) Pack(id int) (PackResponse, int, error) {
 
 // PackDelete removes a pack
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-id-delete
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-packs-id-delete
 //
 // Example:
 //
@@ -2939,7 +2939,7 @@ func (c *Client) PackDelete(id int) (SuccessfulResponse, int, error) {
 
 // PackEdit edit a pack
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-orders-packs-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-packs-id-edit
 //
 // Example:
 //
@@ -2978,7 +2978,7 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 
 // Countries returns list of available country codes
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-countries
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-countries
 func (c *Client) Countries() (CountriesResponse, int, error) {
 	var resp CountriesResponse
 
@@ -2997,7 +2997,7 @@ func (c *Client) Countries() (CountriesResponse, int, error) {
 
 // CostGroups returns costs groups list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-groups
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-cost-groups
 func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	var resp CostGroupsResponse
 
@@ -3016,7 +3016,7 @@ func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 
 // CostGroupEdit edit costs groups
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-cost-groups-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-cost-groups-code-edit
 //
 // Example:
 //
@@ -3058,7 +3058,7 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 
 // CostItems returns costs items list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-cost-items
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-cost-items
 func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	var resp CostItemsResponse
 
@@ -3077,7 +3077,7 @@ func (c *Client) CostItems() (CostItemsResponse, int, error) {
 
 // CostItemEdit edit costs items
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-cost-items-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-cost-items-code-edit
 //
 // Example:
 //
@@ -3119,7 +3119,7 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 
 // Couriers returns list of couriers
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-couriers
 func (c *Client) Couriers() (CouriersResponse, int, error) {
 	var resp CouriersResponse
 
@@ -3138,7 +3138,7 @@ func (c *Client) Couriers() (CouriersResponse, int, error) {
 
 // CourierCreate creates a courier
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-couriers
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-couriers
 //
 // Example:
 //
@@ -3186,7 +3186,7 @@ func (c *Client) CourierCreate(courier Courier) (CreateResponse, int, error) {
 
 // CourierEdit edit a courier
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-couriers-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-couriers-id-edit
 //
 // Example:
 //
@@ -3228,7 +3228,7 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 
 // DeliveryServices returns list of delivery services
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-services
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-delivery-services
 func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	var resp DeliveryServiceResponse
 
@@ -3247,7 +3247,7 @@ func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 
 // DeliveryServiceEdit delivery service create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-delivery-services-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-delivery-services-code-edit
 //
 // Example:
 //
@@ -3289,7 +3289,7 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 
 // DeliveryTypes returns list of delivery types
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-delivery-types
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-delivery-types
 func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
@@ -3308,7 +3308,7 @@ func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 
 // DeliveryTypeEdit delivery type create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-delivery-types-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-delivery-types-code-edit
 //
 // Example:
 //
@@ -3352,7 +3352,7 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 
 // LegalEntities returns list of legal entities
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-legal-entities
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-legal-entities
 func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	var resp LegalEntitiesResponse
 
@@ -3371,7 +3371,7 @@ func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 
 // LegalEntityEdit change information about legal entity
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-legal-entities-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-legal-entities-code-edit
 //
 // Example:
 //
@@ -3413,7 +3413,7 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 
 // OrderMethods returns list of order methods
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-methods
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-order-methods
 func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	var resp OrderMethodsResponse
 
@@ -3432,7 +3432,7 @@ func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 
 // OrderMethodEdit order method create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-order-methods-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-order-methods-code-edit
 //
 // Example:
 //
@@ -3475,7 +3475,7 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 
 // OrderTypes return list of order types
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-order-types
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-order-types
 func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	var resp OrderTypesResponse
 
@@ -3494,7 +3494,7 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 
 // OrderTypeEdit create/edit order type
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-order-methods-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-order-methods-code-edit
 //
 // Example:
 //
@@ -3537,7 +3537,7 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 
 // PaymentStatuses returns list of payment statuses
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-statuses
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-payment-statuses
 func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	var resp PaymentStatusesResponse
 
@@ -3556,7 +3556,7 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 
 // PaymentStatusEdit payment status creation/editing
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-statuses-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-payment-statuses-code-edit
 func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3581,7 +3581,7 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 
 // PaymentTypes returns list of payment types
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-payment-types
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-payment-types
 func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	var resp PaymentTypesResponse
 
@@ -3600,7 +3600,7 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 
 // PaymentTypeEdit payment type create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-payment-types-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-payment-types-code-edit
 func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3625,7 +3625,7 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 
 // PriceTypes returns list of price types
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-price-types
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-price-types
 func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	var resp PriceTypesResponse
 
@@ -3644,7 +3644,7 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 
 // PriceTypeEdit price type create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-price-types-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-price-types-code-edit
 func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3669,7 +3669,7 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 
 // ProductStatuses returns list of item statuses in order
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-product-statuses
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-product-statuses
 func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	var resp ProductStatusesResponse
 
@@ -3688,7 +3688,7 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 
 // ProductStatusEdit order item status create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-product-statuses-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-product-statuses-code-edit
 func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3713,7 +3713,7 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 
 // Sites returns the sites list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-sites
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-sites
 func (c *Client) Sites() (SitesResponse, int, error) {
 	var resp SitesResponse
 
@@ -3732,7 +3732,7 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 
 // SiteEdit site create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-sites-code-edit
 func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3757,7 +3757,7 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 
 // StatusGroups returns list of order status groups
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-status-groups
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-status-groups
 func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	var resp StatusGroupsResponse
 
@@ -3776,7 +3776,7 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 
 // Statuses returns list of order statuses
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-statuses
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-statuses
 func (c *Client) Statuses() (StatusesResponse, int, error) {
 	var resp StatusesResponse
 
@@ -3820,7 +3820,7 @@ func (c *Client) StatusEdit(st Status) (SuccessfulResponse, int, error) {
 
 // Stores returns list of warehouses
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-stores
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-stores
 func (c *Client) Stores() (StoresResponse, int, error) {
 	var resp StoresResponse
 
@@ -3839,7 +3839,7 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 
 // StoreEdit warehouse create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-stores-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-stores-code-edit
 func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3864,7 +3864,7 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 
 // Units returns units list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-reference-units
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-units
 func (c *Client) Units() (UnitsResponse, int, error) {
 	var resp UnitsResponse
 
@@ -3883,7 +3883,7 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 
 // UnitEdit unit create/edit
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-units-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-units-code-edit
 func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -3908,7 +3908,7 @@ func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 
 // Segments returns segments
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-segments
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-segments
 //
 // Example:
 //
@@ -3986,7 +3986,7 @@ func (c *Client) Settings() (SettingsResponse, int, error) {
 
 // Inventories returns leftover stocks and purchasing prices
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-inventories
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-store-inventories
 //
 // Example:
 //
@@ -4025,7 +4025,7 @@ func (c *Client) Inventories(parameters InventoriesRequest) (InventoriesResponse
 
 // InventoriesUpload updates the leftover stocks and purchasing prices
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-store-inventories-upload
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-store-inventories-upload
 //
 // Example:
 //
@@ -4087,7 +4087,7 @@ func (c *Client) InventoriesUpload(inventories []InventoryUpload, site ...string
 
 // PricesUpload updates prices
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-store-prices-upload
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-store-prices-upload
 //
 // Example:
 //
@@ -4139,7 +4139,7 @@ func (c *Client) PricesUpload(prices []OfferPriceUpload) (StoreUploadResponse, i
 
 // ProductsGroup returns list of product groups
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-product-groups
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-store-product-groups
 //
 // Example:
 //
@@ -4182,7 +4182,7 @@ func (c *Client) ProductsGroup(parameters ProductsGroupsRequest) (ProductsGroups
 
 // Products returns list of products and SKU
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-products
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-store-products
 //
 // Example:
 //
@@ -4226,7 +4226,7 @@ func (c *Client) Products(parameters ProductsRequest) (ProductsResponse, int, er
 
 // ProductsProperties returns list of item properties, matching the specified filters
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-store-products-properties
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-store-products-properties
 //
 // Example:
 //
@@ -4269,7 +4269,7 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 
 // Tasks returns task list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-tasks
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-tasks
 //
 // Example:
 //
@@ -4312,7 +4312,7 @@ func (c *Client) Tasks(parameters TasksRequest) (TasksResponse, int, error) {
 
 // TaskCreate create a task
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-tasks-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-tasks-create
 //
 // Example:
 //
@@ -4359,7 +4359,7 @@ func (c *Client) TaskCreate(task Task, site ...string) (CreateResponse, int, err
 
 // Task returns task
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-tasks-id
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-tasks-id
 //
 // Example:
 //
@@ -4396,7 +4396,7 @@ func (c *Client) Task(id int) (TaskResponse, int, error) {
 
 // TaskEdit edit a task
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-tasks-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-tasks-id-edit
 //
 // Example:
 //
@@ -4446,7 +4446,7 @@ func (c *Client) TaskEdit(task Task, site ...string) (SuccessfulResponse, int, e
 
 // UserGroups returns list of user groups
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-user-groups
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-user-groups
 //
 // Example:
 //
@@ -4485,7 +4485,7 @@ func (c *Client) UserGroups(parameters UserGroupsRequest) (UserGroupsResponse, i
 
 // Users returns list of users matched the specified filters
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-users
 //
 // Example:
 //
@@ -4524,7 +4524,7 @@ func (c *Client) Users(parameters UsersRequest) (UsersResponse, int, error) {
 
 // User returns information about user
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users-id
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-users-id
 //
 // Example:
 //
@@ -4561,7 +4561,7 @@ func (c *Client) User(id int) (UserResponse, int, error) {
 
 // UserStatus change user status
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-users
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-users
 //
 // Example:
 //
@@ -4602,7 +4602,7 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 
 // StaticticsUpdate updates statistics
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-statistic-update
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-statistic-update
 func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4621,7 +4621,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 
 // Costs returns costs list
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-costs
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-costs
 //
 // Example:
 //
@@ -4666,7 +4666,7 @@ func (c *Client) Costs(costs CostsRequest) (CostsResponse, int, error) {
 
 // CostCreate create the cost
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-costs-create
 //
 // Example:
 //
@@ -4723,7 +4723,7 @@ func (c *Client) CostCreate(cost CostRecord, site ...string) (CreateResponse, in
 
 // CostsDelete removes a cost
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-delete
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-costs-delete
 //
 // Example:
 //
@@ -4766,7 +4766,7 @@ func (c *Client) CostsDelete(ids []int) (CostsDeleteResponse, int, error) {
 
 // CostsUpload batch costs upload
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-upload
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-costs-upload
 //
 // Example:
 //
@@ -4826,7 +4826,7 @@ func (c *Client) CostsUpload(cost []CostRecord) (CostsUploadResponse, int, error
 
 // Cost returns information about specified cost
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-costs-id
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-costs-id
 //
 // Example:
 //
@@ -4864,7 +4864,7 @@ func (c *Client) Cost(id int) (CostResponse, int, error) {
 
 // CostDelete removes cost
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-id-delete
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-costs-id-delete
 //
 // Example:
 //
@@ -4904,7 +4904,7 @@ func (c *Client) CostDelete(id int) (SuccessfulResponse, int, error) {
 
 // CostEdit edit a cost
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-costs-id-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-costs-id-edit
 //
 // Example:
 //
@@ -5170,7 +5170,7 @@ func (c *Client) FileEdit(id int, file File) (FileResponse, int, error) {
 
 // CustomFields returns list of custom fields
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-custom-fields
 //
 // Example:
 //
@@ -5213,7 +5213,7 @@ func (c *Client) CustomFields(customFields CustomFieldsRequest) (CustomFieldsRes
 
 // CustomDictionaries returns list of custom directory
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-dictionaries
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-custom-fields-dictionaries
 //
 // Example:
 //
@@ -5259,7 +5259,7 @@ func (c *Client) CustomDictionaries(customDictionaries CustomDictionariesRequest
 
 // CustomDictionariesCreate creates a custom dictionary
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-dictionaries-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-custom-fields-dictionaries-create
 //
 // Example:
 //
@@ -5316,7 +5316,7 @@ func (c *Client) CustomDictionariesCreate(customDictionary CustomDictionary) (Cu
 
 // CustomDictionary returns information about dictionary
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-entity-code
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-custom-fields-entity-code
 //
 // Example:
 //
@@ -5354,7 +5354,7 @@ func (c *Client) CustomDictionary(code string) (CustomDictionaryResponse, int, e
 
 // CustomDictionaryEdit edit custom dictionary
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-dictionaries-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-custom-fields-dictionaries-code-edit
 //
 // Example:
 //
@@ -5410,7 +5410,7 @@ func (c *Client) CustomDictionaryEdit(customDictionary CustomDictionary) (Custom
 
 // CustomFieldsCreate creates custom field
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-entity-create
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-custom-fields-entity-create
 //
 // Example:
 //
@@ -5460,7 +5460,7 @@ func (c *Client) CustomFieldsCreate(customFields CustomFields) (CustomResponse, 
 
 // CustomField returns information about custom fields
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#get--api-v5-custom-fields-entity-code
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-custom-fields-entity-code
 //
 // Example:
 //
@@ -5498,7 +5498,7 @@ func (c *Client) CustomField(entity, code string) (CustomFieldResponse, int, err
 
 // CustomFieldEdit list method
 //
-// For more information see http://www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-custom-fields-entity-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-custom-fields-entity-code-edit
 //
 // Example:
 //
@@ -5533,6 +5533,104 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 	data, status, err := c.PostRequest(
 		fmt.Sprintf("/custom-fields/%s/%s/edit", customFields.Entity, customFields.Code), p,
 	)
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// BonusOperations returns history of the bonus account for all participations
+//
+// For more information see https://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-bonus-operations
+//
+// Example:
+//
+// 	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.BonusOperations(retailcrm.BonusOperationsRequest{
+//		Filter: BonusOperationsFilter{
+//			LoyaltyId: []int{123, 456},
+//		},
+//		Limit: 20,
+//		Cursor: "123456",
+//	})
+//
+// 	if err != nil {
+// 		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+// 			log.Fatalf("http status: %d, %s", status, apiErr.String())
+// 		}
+//
+// 		log.Fatalf("http status: %d, error: %s", status, err)
+// 	}
+//
+// 	for _, value := range data.BonusOperations {
+// 		log.Printf("%v\n", value)
+// 	}
+func (c *Client) BonusOperations(parameters BonusOperationsRequest) (BonusOperationsResponse, int, error) {
+	var resp BonusOperationsResponse
+
+	params, _ := query.Values(parameters)
+	data, status, err := c.GetRequest(fmt.Sprintf("/loyalty/bonus/operations?%s", params.Encode()))
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// AccountBonusOperations returns history of the bonus account for a specific participation
+//
+// For more information see https://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-account-id-bonus-operations
+//
+// Example:
+//
+// 	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.AccountBonusOperations(retailcrm.AccountBonusOperationsRequest{
+//		Filter: AccountBonusOperationsFilter{
+//			CreatedAtFrom: "2012-12-12",
+//			CreatedAtTo: "2012-12-13",
+//		},
+//		Limit: 20,
+//		Page: 3,
+//	})
+//
+// 	if err != nil {
+// 		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+// 			log.Fatalf("http status: %d, %s", status, apiErr.String())
+// 		}
+//
+// 		log.Fatalf("http status: %d, error: %s", status, err)
+// 	}
+//
+// 	for _, value := range data.BonusOperations {
+// 		log.Printf("%v\n", value)
+// 	}
+func (c *Client) AccountBonusOperations(id int, parameters AccountBonusOperationsRequest) (BonusOperationsResponse, int, error) {
+	var resp BonusOperationsResponse
+
+	if id == 0 {
+		c.writeLog("cannot get loyalty bonus operations for user with id %d", id)
+	}
+
+	params, _ := query.Values(parameters)
+	data, status, err := c.GetRequest(fmt.Sprintf(
+		"/loyalty/account/%d/bonus/operations?%s",
+		id, params.Encode(),
+	))
 
 	if err != nil {
 		return resp, status, err

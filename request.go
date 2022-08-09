@@ -232,6 +232,20 @@ type ConnectRequest struct {
 	URL string `json:"systemUrl"`
 }
 
+// BonusOperationsRequest type.
+type BonusOperationsRequest struct {
+	Filter BonusOperationsFilter `url:"filter,omitempty"`
+	Limit  int                   `url:"limit,omitempty"`
+	Cursor string                `url:"cursor,omitempty"`
+}
+
+// AccountBonusOperationsRequest type.
+type AccountBonusOperationsRequest struct {
+	Filter AccountBonusOperationsFilter `url:"filter,omitempty"`
+	Limit  int                          `url:"limit,omitempty"`
+	Page   int                          `url:"page,omitempty"`
+}
+
 // SystemURL returns system URL from the connection request without trailing slash.
 func (r ConnectRequest) SystemURL() string {
 	if r.URL == "" {

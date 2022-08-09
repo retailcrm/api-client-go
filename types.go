@@ -1186,3 +1186,47 @@ type Tag struct {
 	Color    string `json:"color,omitempty"`
 	Attached bool   `json:"attached,omitempty"`
 }
+
+// BonusOperation struct.
+type BonusOperation struct {
+	Type           string                  `json:"type,omitempty"`
+	CreatedAt      string                  `json:"createdAt,omitempty"`
+	Amount         float32                 `json:"amount,omitempty"`
+	Order          OperationOrder          `json:"order"`
+	Bonus          OperationBonus          `json:"bonus"`
+	Event          OperationEvent          `json:"event"`
+	LoyaltyAccount OperationLoyaltyAccount `json:"loyaltyAccount"`
+	Loyalty        OperationLoyalty        `json:"loyalty"`
+}
+
+// OperationOrder struct.
+type OperationOrder struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+}
+
+// OperationBonus struct.
+type OperationBonus struct {
+	ActivationDate string `json:"activationDate,omitempty"`
+}
+
+// OperationEvent struct.
+type OperationEvent struct {
+	ID   int    `json:"id,omitempty"`
+	Type string `json:"type,omitempty"`
+}
+
+// OperationLoyaltyAccount struct.
+type OperationLoyaltyAccount struct {
+	ID int `json:"id,omitempty"`
+}
+
+// OperationLoyalty struct.
+type OperationLoyalty struct {
+	ID int `json:"id,omitempty"`
+}
+
+// CursorPagination type.
+type CursorPagination struct {
+	NextCursor string `json:"nextCursor,omitempty"`
+}

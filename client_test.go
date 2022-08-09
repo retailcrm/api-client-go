@@ -6659,3 +6659,137 @@ func TestClient_UpdateScopes_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 }
+
+func TestClient_BonusOperations(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/loyalty/bonus/operations").
+		MatchParam("filter[loyalties][]", "1").
+		MatchParam("filter[loyalties][]", "3").
+		MatchParam("cursor", "qwe").
+		MatchParam("limit", "3").
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	c := client()
+
+	data, status, err := c.BonusOperations(BonusOperationsRequest{
+		Filter: BonusOperationsFilter{
+			Loyalties: []int{1, 3},
+		},
+		Cursor: "qwe",
+		Limit:  3,
+	})
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Logf("%v", err)
+	}
+
+	if data.Success != true {
+		t.Logf("%v", err)
+	}
+}
+
+func TestClient_BonusOperations_Fail(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/loyalty/bonus/operations").
+		MatchParam("filter[loyalties][]", "1").
+		MatchParam("filter[loyalties][]", "3").
+		MatchParam("cursor", "qwe").
+		MatchParam("limit", "3").
+		Reply(400).
+		BodyString(`{"success": false,"errorMsg": "Internal Server Error"}`)
+
+	c := client()
+
+	data, _, err := c.BonusOperations(BonusOperationsRequest{
+		Filter: BonusOperationsFilter{
+			Loyalties: []int{1, 3},
+		},
+		Cursor: "qwe",
+		Limit:  3,
+	})
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_AccountBonusOperations(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/loyalty/account/123/bonus/operations").
+		MatchParam("filter[createdAtFrom]", "2012-12-12").
+		MatchParam("filter[createdAtTo]", "2012-12-13").
+		MatchParam("page", "3").
+		MatchParam("limit", "10").
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	c := client()
+
+	data, status, err := c.AccountBonusOperations(123, AccountBonusOperationsRequest{
+		Filter: AccountBonusOperationsFilter{
+			CreatedAtFrom: "2012-12-12",
+			CreatedAtTo:   "2012-12-13",
+		},
+		Page:  3,
+		Limit: 10,
+	})
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Logf("%v", err)
+	}
+
+	if data.Success != true {
+		t.Logf("%v", err)
+	}
+}
+
+func TestClient_AccountBonusOperations_Fail(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/api/v5/loyalty/account/123/bonus/operations").
+		MatchParam("filter[createdAtFrom]", "2012-12-12").
+		MatchParam("filter[createdAtTo]", "2012-12-13").
+		MatchParam("page", "3").
+		MatchParam("limit", "10").
+		Reply(400).
+		BodyString(`{"success": false,"errorMsg": "Internal Server Error"}`)
+
+	c := client()
+
+	data, _, err := c.AccountBonusOperations(123, AccountBonusOperationsRequest{
+		Filter: AccountBonusOperationsFilter{
+			CreatedAtFrom: "2012-12-12",
+			CreatedAtTo:   "2012-12-13",
+		},
+		Page:  3,
+		Limit: 10,
+	})
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
