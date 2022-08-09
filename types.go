@@ -1225,3 +1225,8 @@ type OperationLoyaltyAccount struct {
 type OperationLoyalty struct {
 	ID int `json:"id,omitempty"`
 }
+
+// CursorPagination type.
+type CursorPagination struct {
+	NextCursor string `json:"nextCursor,omitempty"`
+}

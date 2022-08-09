@@ -553,6 +553,13 @@ func NewConnectResponse(accountURL string) ConnectResponse {
 
 // BonusOperationsResponse type.
 type BonusOperationsResponse struct {
+	Success         bool              `json:"success"`
+	Pagination      *CursorPagination `json:"pagination,omitempty"`
+	BonusOperations []BonusOperation  `json:"bonusOperations,omitempty"`
+}
+
+// AccountBonusOperationsResponse type.
+type AccountBonusOperationsResponse struct {
 	Success         bool             `json:"success"`
 	Pagination      *Pagination      `json:"pagination,omitempty"`
 	BonusOperations []BonusOperation `json:"bonusOperations,omitempty"`
