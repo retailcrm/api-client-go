@@ -5545,3 +5545,97 @@ func (c *Client) CustomFieldEdit(customFields CustomFields) (CustomResponse, int
 
 	return resp, status, nil
 }
+
+// BonusOperations returns history of the bonus account for all participations
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-bonus-operations
+//
+// Example:
+//
+// 	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.BonusOperations(retailcrm.BonusOperationsRequest{
+//		Filter: BonusOperationsFilter{
+//			LoyaltyId: []int{123, 456},
+//		},
+//		Limit: 10,
+//		Cursor: "123456",
+//	})
+//
+// 	if err != nil {
+// 		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+// 			log.Fatalf("http status: %d, %s", status, apiErr.String())
+// 		}
+//
+// 		log.Fatalf("http status: %d, error: %s", status, err)
+// 	}
+//
+// 	for _, value := range data.Customers {
+// 		log.Printf("%v\n", value)
+// 	}
+func (c *Client) BonusOperations(parameters BonusOperationsRequest) (BonusOperationsResponse, int, error) {
+	var resp BonusOperationsResponse
+
+	params, _ := query.Values(parameters)
+	data, status, err := c.GetRequest(fmt.Sprintf("/loyalty/bonus/operations?%s", params.Encode()))
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// AccountBonusOperations returns history of the bonus account for a specific participation
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-account-id-bonus-operations
+//
+// Example:
+//
+// 	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// 	data, status, err := client.AccountBonusOperations(retailcrm.AccountBonusOperationsRequest{
+//		Filter: AccountBonusOperationsFilter{
+//			CreatedAtFrom: "2012-12-12",
+//			CreatedAtTo: "2012-12-13",
+//		},
+//		Limit: 10,
+//		Page: 3,
+//	})
+//
+// 	if err != nil {
+// 		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+// 			log.Fatalf("http status: %d, %s", status, apiErr.String())
+// 		}
+//
+// 		log.Fatalf("http status: %d, error: %s", status, err)
+// 	}
+//
+// 	for _, value := range data.Customers {
+// 		log.Printf("%v\n", value)
+// 	}
+func (c *Client) AccountBonusOperations(id int, parameters AccountBonusOperationsRequest) (BonusOperationsResponse, int, error) {
+	var resp BonusOperationsResponse
+
+	params, _ := query.Values(parameters)
+	data, status, err := c.GetRequest(fmt.Sprintf(
+		"/loyalty/account/%v/bonus/operations?%s",
+		id, params.Encode(),
+	))
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}

@@ -427,3 +427,13 @@ type CustomDictionariesFilter struct {
 	Name string `url:"name,omitempty"`
 	Code string `url:"code,omitempty"`
 }
+
+// BonusOperationsFilter type.
+type BonusOperationsFilter struct {
+	Loyalties []int `url:"loyalties,omitempty,brackets"`
+}
+
+type AccountBonusOperationsFilter struct {
+	CreatedAtFrom string `url:"createdAtFrom,omitempty"`
+	CreatedAtTo   string `url:"createdAtTo,omitempty"`
+}
