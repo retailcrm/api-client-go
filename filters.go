@@ -207,8 +207,8 @@ type OrdersFilter struct {
 	Sites                          []string          `url:"sites,omitempty,brackets"`
 	CreatedAtFrom                  string            `url:"createdAtFrom,omitempty"`
 	CreatedAtTo                    string            `url:"createdAtTo,omitempty"`
-	PaidAtFrom                     string            `url:"paidAtFrom, omitempty"`
-	PaidAtTo                       string            `url:"paidAtTo, omitempty"`
+	PaidAtFrom                     string            `url:"paidAtFrom,omitempty"`
+	PaidAtTo                       string            `url:"paidAtTo,omitempty"`
 	FullPaidAtFrom                 string            `url:"fullPaidAtFrom,omitempty"`
 	FullPaidAtTo                   string            `url:"fullPaidAtTo,omitempty"`
 	DeliveryDateFrom               string            `url:"deliveryDateFrom,omitempty"`
