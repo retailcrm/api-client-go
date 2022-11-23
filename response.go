@@ -370,6 +370,23 @@ type ProductsResponse struct {
 	Products   []Product   `json:"products,omitempty"`
 }
 
+type ProductEditNotFoundResponse struct {
+	ID         string `json:"id"`
+	ExternalID string `json:"externalId,omitempty"`
+}
+
+type ProductsBatchEditResponse struct {
+	Success                bool                          `json:"success"`
+	ProcessedProductsCount int                           `json:"processedProductsCount,omitempty"`
+	NotFoundProducts       []ProductEditNotFoundResponse `json:"notFoundProducts,omitempty"`
+}
+
+type ProductsBatchCreateResponse struct {
+	Success                bool  `json:"success"`
+	ProcessedProductsCount int   `json:"processedProductsCount,omitempty"`
+	AddedProducts          []int `json:"addedProducts,omitempty"`
+}
+
 // ProductsPropertiesResponse type.
 type ProductsPropertiesResponse struct {
 	Success    bool        `json:"success"`

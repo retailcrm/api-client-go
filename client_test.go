@@ -6802,3 +6802,35 @@ func TestClient_AccountBonusOperations_Fail(t *testing.T) {
 		t.Error(successFail)
 	}
 }
+
+// TODO Проверить реально запросы
+func TestClient_ProductsBatchCreate(t *testing.T) {
+	defer gock.Off()
+
+	products := getProductsCreate()
+	productsJSON, err := json.Marshal(getProductsCreate())
+	assert.NoError(t, err)
+
+	p := url.Values{"products": {string(productsJSON)}}
+
+	gock.New(crmURL).
+		Post("/store/products/batch/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getProductsCreateResponse())
+
+
+	resp, status, err := client().ProductsBatchCreate(products)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != true {
+		t.Errorf("%v", err)
+	}
+}

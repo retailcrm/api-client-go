@@ -5643,3 +5643,48 @@ func (c *Client) AccountBonusOperations(id int, parameters AccountBonusOperation
 
 	return resp, status, nil
 }
+
+func (c *Client) ProductsBatchEdit(products []ProductEdit) (ProductsBatchEditResponse, int, error) {
+	var resp ProductsBatchEditResponse
+
+	productsEditJSON, _ := json.Marshal(products)
+	p := url.Values{
+		"products": {string(productsEditJSON)},
+	}
+
+	data, status, err := c.PostRequest("/store/products/batch/edit", p)
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+func (c *Client) ProductsBatchCreate(products []ProductCreate) (ProductsBatchEditResponse, int, error) {
+	var resp ProductsBatchEditResponse
+
+	productsEditJSON, _ := json.Marshal(products)
+	p := url.Values{
+		"products": {string(productsEditJSON)},
+	}
+
+	data, status, err := c.PostRequest("/store/products/batch/create", p)
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+

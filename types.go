@@ -924,27 +924,47 @@ type ProductGroup struct {
 	Active   bool   `json:"active,omitempty"`
 }
 
-// Product type.
-type Product struct {
-	ID           int            `json:"id,omitempty"`
-	MaxPrice     float32        `json:"maxPrice,omitempty"`
-	MinPrice     float32        `json:"minPrice,omitempty"`
+// BaseProduct type.
+type BaseProduct struct {
 	Name         string         `json:"name,omitempty"`
 	URL          string         `json:"url,omitempty"`
 	Article      string         `json:"article,omitempty"`
 	ExternalID   string         `json:"externalId,omitempty"`
 	Manufacturer string         `json:"manufacturer,omitempty"`
-	ImageURL     string         `json:"imageUrl,omitempty"`
 	Description  string         `json:"description,omitempty"`
 	Popular      bool           `json:"popular,omitempty"`
 	Stock        bool           `json:"stock,omitempty"`
 	Novelty      bool           `json:"novelty,omitempty"`
 	Recommended  bool           `json:"recommended,omitempty"`
 	Active       bool           `json:"active,omitempty"`
-	Quantity     float32        `json:"quantity,omitempty"`
-	Offers       []Offer        `json:"offers,omitempty"`
 	Groups       []ProductGroup `json:"groups,omitempty"`
-	Properties   StringMap      `json:"properties,omitempty"`
+	Markable  bool   `json:"markable,omitempty"`
+}
+
+// Product type.
+type Product struct {
+	BaseProduct
+	ID         int       `json:"id,omitempty"`
+	MaxPrice   float32   `json:"maxPrice,omitempty"`
+	MinPrice   float32   `json:"minPrice,omitempty"`
+	ImageURL   string    `json:"imageUrl,omitempty"`
+	Quantity   float32   `json:"quantity,omitempty"`
+	Offers     []Offer   `json:"offers,omitempty"`
+	Properties StringMap `json:"properties,omitempty"`
+}
+
+// ProductEdit type.
+type ProductEdit struct {
+	BaseProduct
+	ID        int    `json:"id,omitempty"`
+	CatalogID int    `json:"catalogId,omitempty"`
+	Site      string `json:"site,omitempty"`
+}
+
+// ProductCreate type.
+type ProductCreate struct {
+	BaseProduct
+	CatalogID int `json:"catalogId,omitempty"`
 }
 
 // DeliveryHistoryRecord type.
