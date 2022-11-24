@@ -703,6 +703,21 @@ type WorkTime struct {
 	LunchEndTime   string `json:"lunch_end_time"`
 }
 
+type SerializedBaseLoyaltyAccount struct {
+	PhoneNumber  string   `json:"phoneNumber,omitempty"`
+	CardNumber   string   `json:"cardNumber,omitempty"`
+	CustomFields []string `json:"customFields,omitempty"`
+}
+
+type SerializedCreateLoyaltyAccount struct {
+	SerializedBaseLoyaltyAccount
+	Customer SerializedEntityCustomer `json:"customer"`
+}
+
+type SerializedEditLoyaltyAccount struct {
+	SerializedBaseLoyaltyAccount
+}
+
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
 	DefaultCurrency SettingsNode `json:"default_currency"`
@@ -791,6 +806,11 @@ type LegalEntity struct {
 	BankAddress       string `json:"bankAddress,omitempty"`
 	CorrAccount       string `json:"corrAccount,omitempty"`
 	BankAccount       string `json:"bankAccount,omitempty"`
+}
+
+type SerializedEntityCustomer struct {
+	ID         int `json:"id,omitempty"`
+	ExternalID int `json:"externalId,omitempty"`
 }
 
 // OrderMethod type.
@@ -926,45 +946,53 @@ type ProductGroup struct {
 
 // BaseProduct type.
 type BaseProduct struct {
-	Name         string         `json:"name,omitempty"`
-	URL          string         `json:"url,omitempty"`
-	Article      string         `json:"article,omitempty"`
-	ExternalID   string         `json:"externalId,omitempty"`
-	Manufacturer string         `json:"manufacturer,omitempty"`
-	Description  string         `json:"description,omitempty"`
-	Popular      bool           `json:"popular,omitempty"`
-	Stock        bool           `json:"stock,omitempty"`
-	Novelty      bool           `json:"novelty,omitempty"`
-	Recommended  bool           `json:"recommended,omitempty"`
-	Active       bool           `json:"active,omitempty"`
-	Groups       []ProductGroup `json:"groups,omitempty"`
-	Markable  bool   `json:"markable,omitempty"`
+	Name         string `json:"name,omitempty"`
+	URL          string `json:"url,omitempty"`
+	Article      string `json:"article,omitempty"`
+	ExternalID   string `json:"externalId,omitempty"`
+	Manufacturer string `json:"manufacturer,omitempty"`
+	Description  string `json:"description,omitempty"`
+	Popular      bool   `json:"popular,omitempty"`
+	Stock        bool   `json:"stock,omitempty"`
+	Novelty      bool   `json:"novelty,omitempty"`
+	Recommended  bool   `json:"recommended,omitempty"`
+	Active       bool   `json:"active,omitempty"`
+	Markable     bool   `json:"markable,omitempty"`
 }
 
 // Product type.
 type Product struct {
 	BaseProduct
-	ID         int       `json:"id,omitempty"`
-	MaxPrice   float32   `json:"maxPrice,omitempty"`
-	MinPrice   float32   `json:"minPrice,omitempty"`
-	ImageURL   string    `json:"imageUrl,omitempty"`
-	Quantity   float32   `json:"quantity,omitempty"`
-	Offers     []Offer   `json:"offers,omitempty"`
-	Properties StringMap `json:"properties,omitempty"`
+	ID         int            `json:"id,omitempty"`
+	MaxPrice   float32        `json:"maxPrice,omitempty"`
+	MinPrice   float32        `json:"minPrice,omitempty"`
+	ImageURL   string         `json:"imageUrl,omitempty"`
+	Quantity   float32        `json:"quantity,omitempty"`
+	Offers     []Offer        `json:"offers,omitempty"`
+	Properties StringMap      `json:"properties,omitempty"`
+	Groups     []ProductGroup `json:"groups,omitempty"`
 }
 
-// ProductEdit type.
-type ProductEdit struct {
-	BaseProduct
-	ID        int    `json:"id,omitempty"`
-	CatalogID int    `json:"catalogId,omitempty"`
-	Site      string `json:"site,omitempty"`
+// ProductEditGroupInput type.
+type ProductEditGroupInput struct {
+	ID         int `json:"id"`
+	ExternalID int `json:"externalId,omitempty"`
 }
 
 // ProductCreate type.
 type ProductCreate struct {
 	BaseProduct
-	CatalogID int `json:"catalogId,omitempty"`
+	Groups    []ProductEditGroupInput `json:"groups,omitempty"`
+	CatalogID int                     `json:"catalogId,omitempty"`
+}
+
+// ProductEdit type.
+type ProductEdit struct {
+	BaseProduct
+	ID        int                     `json:"id,omitempty"`
+	CatalogID int                     `json:"catalogId,omitempty"`
+	Site      string                  `json:"site,omitempty"`
+	Groups    []ProductEditGroupInput `json:"groups,omitempty"`
 }
 
 // DeliveryHistoryRecord type.
@@ -1042,9 +1070,11 @@ type Delivery struct {
 
 // DeliveryStatus type.
 type DeliveryStatus struct {
-	Code       string `json:"code,omitempty"`
-	Name       string `json:"name,omitempty"`
-	IsEditable bool   `json:"isEditable,omitempty"`
+	Code            string `json:"code,omitempty"`
+	Name            string `json:"name,omitempty"`
+	IsEditable      bool   `json:"isEditable,omitempty"`
+	IsError         bool   `json:"isError,omitempty"`
+	IsPreprocessing bool   `json:"isPreprocessing,omitempty"`
 }
 
 // Plate type.
@@ -1249,4 +1279,63 @@ type OperationLoyalty struct {
 // CursorPagination type.
 type CursorPagination struct {
 	NextCursor string `json:"nextCursor,omitempty"`
+}
+
+// DeliveryTypeInfo type.
+type DeliveryTypeInfo struct {
+	ID   int    `json:"id"`
+	Code string `json:"code"`
+}
+
+// LoyaltyAccount type.
+type LoyaltyAccount struct {
+	Active           bool         `json:"active"`
+	ID               int          `json:"id"`
+	PhoneNumber      string       `json:"phoneNumber,omitempty"`
+	CardNumber       string       `json:"cardNumber,omitempty"`
+	Amount           float64      `json:"amount,omitempty"`
+	LoyaltyLevel     LoyaltyLevel `json:"level"`
+	CreatedAt        string       `json:"createdAt,omitempty"`
+	ActivatedAt      string       `json:"activatedAt,omitempty"`
+	ConfirmedPhoneAt string       `json:"confirmedPhoneAt,omitempty"`
+	LastCheckID      int          `json:"lastCheckId,omitempty"`
+	CustomFields     []string     `json:"customFields,omitempty"`
+	Loyalty          Loyalty      `json:"loyalty,omitempty"`
+	Customer         Customer     `json:"customer,omitempty"`
+	Status           string       `json:"status,omitempty"`
+	OrderSum         float64      `json:"orderSum,omitempty"`
+	NextLevelSum     float64      `json:"nextLevelSum,omitempty"`
+}
+
+// Loyalty type.
+type Loyalty struct {
+	ID int `json:"id"`
+}
+
+// LoyaltyLevel type.
+type LoyaltyLevel struct {
+	ID                 int     `json:"id"`
+	Name               string  `json:"name"`
+	Type               string  `json:"type,omitempty"`
+	Sum                float64 `json:"sum,omitempty"`
+	PrivilegeSize      float64 `json:"privilegeSize,omitempty"`
+	PrivilegeSizePromo float64 `json:"privilegeSizePromo,omitempty"`
+}
+
+type SmsVerification struct {
+	CreatedAt  string `json:"createdAt"`
+	ExpiredAt  string `json:"expiredAt"`
+	VerifiedAt string `json:"verifiedAt"`
+	CheckID    string `json:"checkId"`
+	ActionType string `json:"actionType"`
+}
+
+type LoyaltyBonus struct {
+	Amount         float64 `json:"amount"`
+	ActivationDate string  `json:"activationDate"`
+	ExpiredDate    string  `json:"expiredDate,omitempty"`
+}
+
+type LoyaltyBonusApiFilterType struct {
+	Date string `url:"date,omitempty"`
 }

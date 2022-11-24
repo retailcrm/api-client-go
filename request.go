@@ -246,6 +246,19 @@ type AccountBonusOperationsRequest struct {
 	Page   int                          `url:"page,omitempty"`
 }
 
+type LoyaltyBonusCreditRequest struct {
+	Amount         float64 `url:"amount"`
+	ActivationDate string  `url:"activationDate,omitempty"`
+	ExpiredDate    string  `url:"expiredDate,omitempty"`
+	Comment        string  `url:"comment,omitempty"`
+}
+
+type LoyaltyBonusStatusDetailsRequest struct {
+	Limit  int                       `url:"limit,omitempty"`
+	Page   int                       `url:"page,omitempty"`
+	Filter LoyaltyBonusApiFilterType `url:"filter,omitempty"`
+}
+
 // SystemURL returns system URL from the connection request without trailing slash.
 func (r ConnectRequest) SystemURL() string {
 	if r.URL == "" {

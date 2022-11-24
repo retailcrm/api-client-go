@@ -5,6 +5,17 @@ type SuccessfulResponse struct {
 	Success bool `json:"success"`
 }
 
+type CreateLoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount LoyaltyAccount `json:"loyaltyAccount,omitempty"`
+	Warnings       []string       `json:"warnings,omitempty"`
+}
+
+type EditLoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount LoyaltyAccount `json:"loyaltyAccount,omitempty"`
+}
+
 // CreateResponse type.
 type CreateResponse struct {
 	Success bool `json:"success"`
@@ -376,13 +387,13 @@ type ProductEditNotFoundResponse struct {
 }
 
 type ProductsBatchEditResponse struct {
-	Success                bool                          `json:"success"`
+	SuccessfulResponse
 	ProcessedProductsCount int                           `json:"processedProductsCount,omitempty"`
 	NotFoundProducts       []ProductEditNotFoundResponse `json:"notFoundProducts,omitempty"`
 }
 
 type ProductsBatchCreateResponse struct {
-	Success                bool  `json:"success"`
+	SuccessfulResponse
 	ProcessedProductsCount int   `json:"processedProductsCount,omitempty"`
 	AddedProducts          []int `json:"addedProducts,omitempty"`
 }
@@ -434,9 +445,10 @@ type IntegrationModuleEditResponse struct {
 
 // ResponseInfo type.
 type ResponseInfo struct {
-	MgTransportInfo MgInfo       `json:"mgTransport,omitempty"`
-	MgBotInfo       MgInfo       `json:"mgBot,omitempty"`
-	BillingInfo     *BillingInfo `json:"billingInfo,omitempty"`
+	MgTransportInfo  MgInfo           `json:"mgTransport,omitempty"`
+	MgBotInfo        MgInfo           `json:"mgBot,omitempty"`
+	BillingInfo      *BillingInfo     `json:"billingInfo,omitempty"`
+	DeliveryTypeInfo DeliveryTypeInfo `json:"deliveryType,omitempty"`
 }
 
 type BillingInfo struct {
@@ -580,4 +592,36 @@ type AccountBonusOperationsResponse struct {
 	Success         bool             `json:"success"`
 	Pagination      *Pagination      `json:"pagination,omitempty"`
 	BonusOperations []BonusOperation `json:"bonusOperations,omitempty"`
+}
+
+type LoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount `json:"loyaltyAccount"`
+}
+
+type LoyaltyAccountActivateResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount `json:"loyaltyAccount"`
+	Verification   SmsVerification `json:"verification,omitempty"`
+}
+
+type LoyaltyBonusCreditResponse struct {
+	SuccessfulResponse
+	LoyaltyBonus LoyaltyBonus `json:"loyaltyBonus"`
+}
+
+type LoyaltyBonusDetailsResponse struct {
+	SuccessfulResponse
+	Pagination `json:"pagination"`
+	Statistic  LoyaltyBonusStatisticResponse `json:"statistic"`
+	Bonuses    []BonusDetail                 `json:"bonuses"`
+}
+
+type LoyaltyBonusStatisticResponse struct {
+	TotalAmount float64 `json:"totalAmount"`
+}
+
+type BonusDetail struct {
+	Date   string  `json:"date"`
+	Amount float64 `json:"amount"`
 }
