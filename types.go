@@ -975,7 +975,7 @@ type DeliveryShipment struct {
 type IntegrationModule struct {
 	Code               string        `json:"code,omitempty"`
 	IntegrationCode    string        `json:"integrationCode,omitempty"`
-	Active             bool          `json:"active"`
+	Active             *bool         `json:"active,omitempty"`
 	Freeze             bool          `json:"freeze,omitempty"`
 	Native             bool          `json:"native,omitempty"`
 	Name               string        `json:"name,omitempty"`
