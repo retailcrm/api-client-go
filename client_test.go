@@ -7270,3 +7270,47 @@ func TestClient_LoyaltyBonusStatusDetails(t *testing.T) {
 	assert.NotEmpty(t, res.Bonuses)
 	assert.NotEmpty(t, res.Statistic.TotalAmount)
 }
+
+func TestClient_LoyaltyAccounts(t *testing.T) {
+	req := LoyaltyAccountsRequest{
+		Filter: LoyaltyAccountApiFilter{
+			Status:      "activated",
+			PhoneNumber: "89185556363",
+			Ids:         []int{14},
+			Level:       5,
+			Loyalties:   []int{2},
+			CustomerId:  "109",
+		},
+	}
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/accounts").
+		MatchParams(map[string]string{
+			"filter[phoneNumber]": "89185556363",
+			"filter[status]":      "activated",
+			"filter[level]":       "5",
+			"filter[customerId]":  "109",
+		}).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyAccountsResponse())
+
+	res, status, err := client().LoyaltyAccounts(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, req.Filter.Ids[0], res.LoyaltyAccounts[0].ID)
+	assert.Equal(t, req.Filter.Loyalties[0], res.LoyaltyAccounts[0].Loyalty.ID)
+	assert.True(t, res.LoyaltyAccounts[0].Active)
+	assert.Equal(t, req.Filter.PhoneNumber, res.LoyaltyAccounts[0].PhoneNumber)
+	assert.Equal(t, req.Filter.Status, res.LoyaltyAccounts[0].Status)
+}

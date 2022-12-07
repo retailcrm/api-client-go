@@ -328,6 +328,7 @@ type Order struct {
 	Items                         []OrderItem       `json:"items,omitempty"`
 	CustomFields                  StringMap         `json:"customFields,omitempty"`
 	Payments                      OrderPayments     `json:"payments,omitempty"`
+	ApplyRound                    *bool             `json:"applyRound,omitempty"`
 }
 
 // OrdersStatus type.
@@ -1294,7 +1295,7 @@ type LoyaltyAccount struct {
 	PhoneNumber      string       `json:"phoneNumber,omitempty"`
 	CardNumber       string       `json:"cardNumber,omitempty"`
 	Amount           float64      `json:"amount,omitempty"`
-	LoyaltyLevel     LoyaltyLevel `json:"level"`
+	LoyaltyLevel     LoyaltyLevel `json:"level,omitempty"`
 	CreatedAt        string       `json:"createdAt,omitempty"`
 	ActivatedAt      string       `json:"activatedAt,omitempty"`
 	ConfirmedPhoneAt string       `json:"confirmedPhoneAt,omitempty"`
@@ -1336,6 +1337,58 @@ type LoyaltyBonus struct {
 	ExpiredDate    string  `json:"expiredDate,omitempty"`
 }
 
+type BonusDetail struct {
+	Date   string  `json:"date"`
+	Amount float64 `json:"amount"`
+}
+
 type LoyaltyBonusApiFilterType struct {
 	Date string `url:"date,omitempty"`
+}
+
+type LoyaltyAccountApiFilter struct {
+	ID                 string   `url:"id,omitempty"`
+	Status             string   `url:"status,,omitempty"`
+	Customer           string   `url:"customer,omitempty"`
+	MinOrderSum        string   `url:"minOrderSum,omitempty"`
+	MaxOrderSum        string   `url:"maxOrderSum,omitempty"`
+	MinAmount          string   `url:"minAmount,omitempty"`
+	MaxAmount          string   `url:"maxAmount,omitempty"`
+	PhoneNumber        string   `url:"phoneNumber,omitempty"`
+	CardNumber         string   `url:"cardNumber,omitempty"`
+	Ids                []int    `url:"ids,omitempty,brackets"`
+	Loyalties          []int    `url:"loyalties,omitempty,brackets"`
+	Sites              []string `url:"sites,omitempty,brackets"`
+	Level              int      `url:"level,omitempty"`
+	CreatedAtFrom      string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo        string   `url:"createdAtTo,omitempty"`
+	BurnDateFrom       string   `url:"burnDateFrom,omitempty"`
+	BurnDateTo         string   `url:"burnDateTo,omitempty"`
+	CustomFields       []string `url:"customFields,omitempty,brackets"`
+	CustomerId         string   `url:"customerId,omitempty"`
+	CustomerExternalId string   `url:"customerExternalId,omitempty"`
+}
+
+type SerializedLoyaltyOrder struct {
+	BonusesCreditTotal      float64              `json:"bonusesCreditTotal,omitempty"`
+	BonusesChargeTotal      float64              `json:"bonusesChargeTotal,omitempty"`
+	PrivilegeType           string               `json:"privilegeType,omitempty"`
+	TotalSumm               float64              `json:"totalSumm,omitempty"`
+	PersonalDiscountPercent float64              `json:"personalDiscountPercent,omitempty"`
+	LoyaltyAccount          LoyaltyAccount       `json:"loyaltyAccount"`
+	LoyaltyEventDiscount    LoyaltyEventDiscount `json:"loyaltyEventDiscount,omitempty"`
+	Customer                Customer             `json:"customer"`
+	Delivery                Delivery             `json:"delivery,omitempty"`
+	Site                    string               `json:"site,omitempty"`
+	Items                   []OrderItem          `json:"items,omitempty"`
+}
+
+type LoyaltyEventDiscount struct {
+	ID int `json:"id"`
+}
+
+type LoyaltyItems struct {
+	BonusesChargeTotal float64 `json:"bonusesChargeTotal,omitempty"`
+	BonusesCreditTotal float64 `json:"bonusesCreditTotal,omitempty"`
+	ID                 int     `json:"id,omitempty"`
 }

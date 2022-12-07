@@ -179,3 +179,44 @@ func getBonusDetailsResponse() string {
 		]
 	}`
 }
+
+func getLoyaltyAccountsResponse() string {
+	return `{
+		"success": true,
+		"pagination": {
+			"limit": 20,
+			"totalCount": 1,
+			"currentPage": 1,
+			"totalPageCount": 1
+		},
+		"loyaltyAccounts": [
+			{
+				"active": true,
+				"id": 14,
+				"loyalty": {
+					"id": 2
+				},
+				"customer": {
+					"id": 109,
+					"firstName": "Казимир",
+					"lastName": "Эльбрусов"
+				},
+				"phoneNumber": "89185556363",
+				"amount": 0,
+				"ordersSum": 0,
+				"nextLevelSum": 10000,
+				"level": {
+					"type": "bonus_percent",
+					"id": 5,
+					"name": "Новичок",
+					"sum": 0,
+					"privilegeSize": 5,
+					"privilegeSizePromo": 3
+				},
+				"createdAt": "2022-12-07 15:27:04",
+				"activatedAt": "2022-12-07 15:27:04",
+				"status": "activated"
+			}
+		]
+	}`
+}

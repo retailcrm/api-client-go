@@ -621,7 +621,15 @@ type LoyaltyBonusStatisticResponse struct {
 	TotalAmount float64 `json:"totalAmount"`
 }
 
-type BonusDetail struct {
-	Date   string  `json:"date"`
-	Amount float64 `json:"amount"`
+type LoyaltyAccountsResponse struct {
+	SuccessfulResponse
+	Pagination      *Pagination      `json:"pagination,omitempty"`
+	LoyaltyAccounts []LoyaltyAccount `json:"loyaltyAccounts,omitempty"`
+}
+
+type LoyaltyCalculateResponse struct {
+	SuccessfulResponse
+	Order        SerializedLoyaltyOrder `json:"order,omitempty"`
+	Calculations []LoyaltyCalculation   `json:"calculations,omitempty"`
+	Loyalty      Loyalty                `json:"loyalty,omitempty"`
 }

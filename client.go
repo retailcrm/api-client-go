@@ -6030,3 +6030,57 @@ func (c *Client) LoyaltyBonusStatusDetails(
 
 	return result, status, nil
 }
+
+// LoyaltyAccounts return list of participations in the loyalty program
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-accounts
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	req := LoyaltyAccountsRequest{
+//		Filter: LoyaltyAccountApiFilter{
+//			Status:      "activated",
+//			PhoneNumber: "89185556363",
+//			Ids:         []int{14},
+//			Level:       5,
+//			Loyalties:   []int{2},
+//			CustomerId:  "109",
+//		},
+//	}
+//
+// data, status, err := client.LoyaltyAccounts(req)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		for _, account := range data.LoyaltyAccounts {
+//			log.Printf("%v", account.Status)
+//		}
+//	}
+func (c *Client) LoyaltyAccounts(req LoyaltyAccountsRequest) (LoyaltyAccountsResponse, int, error) {
+	var result LoyaltyAccountsResponse
+
+	p, _ := query.Values(req)
+
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/accounts?%s", p.Encode()))
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
