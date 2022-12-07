@@ -5118,7 +5118,7 @@ func TestClient_IntegrationModule(t *testing.T) {
 	integrationModule := IntegrationModule{
 		Code:            code,
 		IntegrationCode: code,
-		Active:          false,
+		Active:          new(bool),
 		Name:            fmt.Sprintf("Integration module %s", name),
 		AccountURL:      fmt.Sprintf("http://example.com/%s/account", name),
 		BaseURL:         fmt.Sprintf("http://example.com/%s", name),
@@ -5126,10 +5126,13 @@ func TestClient_IntegrationModule(t *testing.T) {
 		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
 	}
 
-	jr, _ := json.Marshal(&integrationModule)
+	jsonData := fmt.Sprintf(
+		`{"code":"%s","integrationCode":"%s","active":false,"name":"%s","logo":"%s","clientId":"%s","baseUrl":"%s","accountUrl":"%s"}`,
+		code, code, integrationModule.Name, integrationModule.Logo, integrationModule.ClientID, integrationModule.BaseURL, integrationModule.AccountURL,
+	)
 
 	pr := url.Values{
-		"integrationModule": {string(jr[:])},
+		"integrationModule": {jsonData},
 	}
 
 	gock.New(crmURL).
@@ -5179,9 +5182,12 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 
 	defer gock.Off()
 
+	active := new(bool)
+	*active = true
+
 	integrationModule := IntegrationModule{
 		IntegrationCode: code,
-		Active:          false,
+		Active:          active,
 		Name:            fmt.Sprintf("Integration module %s", name),
 		AccountURL:      fmt.Sprintf("http://example.com/%s/account", name),
 		BaseURL:         fmt.Sprintf("http://example.com/%s", name),
@@ -5189,10 +5195,13 @@ func TestClient_IntegrationModule_Fail(t *testing.T) {
 		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
 	}
 
-	jr, _ := json.Marshal(&integrationModule)
+	jsonData := fmt.Sprintf(
+		`{"integrationCode":"%s","active":true,"name":"%s","logo":"%s","clientId":"%s","baseUrl":"%s","accountUrl":"%s"}`,
+		code, integrationModule.Name, integrationModule.Logo, integrationModule.ClientID, integrationModule.BaseURL, integrationModule.AccountURL,
+	)
 
 	pr := url.Values{
-		"integrationModule": {string(jr[:])},
+		"integrationModule": {jsonData},
 	}
 
 	gock.New(crmURL).
