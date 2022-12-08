@@ -5834,7 +5834,7 @@ func (c *Client) LoyaltyAccountCreate(site string, loyaltyAccount SerializedCrea
 //		if data.Success == true {
 //			log.Printf("%v", data.LoyaltyAccount.PhoneNumber)
 //		}
-func (c *Client) LoyaltyAccountEdit(ID int, loyaltyAccount SerializedEditLoyaltyAccount) (EditLoyaltyAccountResponse, int, error) {
+func (c *Client) LoyaltyAccountEdit(id int, loyaltyAccount SerializedEditLoyaltyAccount) (EditLoyaltyAccountResponse, int, error) {
 	var result EditLoyaltyAccountResponse
 
 	loyaltyAccountJSON, _ := json.Marshal(loyaltyAccount)
@@ -5842,7 +5842,7 @@ func (c *Client) LoyaltyAccountEdit(ID int, loyaltyAccount SerializedEditLoyalty
 		"loyaltyAccount": {string(loyaltyAccountJSON)},
 	}
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/edit", ID), p)
+	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/edit", id), p)
 
 	if err != nil {
 		return result, status, err
@@ -5878,10 +5878,10 @@ func (c *Client) LoyaltyAccountEdit(ID int, loyaltyAccount SerializedEditLoyalty
 //	if data.Success == true {
 //		log.Printf("%v", data.LoyaltyAccount.PhoneNumber)
 //	}
-func (c *Client) LoyaltyAccount(ID int) (LoyaltyAccountResponse, int, error) {
+func (c *Client) LoyaltyAccount(id int) (LoyaltyAccountResponse, int, error) {
 	var result LoyaltyAccountResponse
 
-	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/account/%d", ID))
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/account/%d", id))
 
 	if err != nil {
 		return result, status, err
@@ -5917,10 +5917,10 @@ func (c *Client) LoyaltyAccount(ID int) (LoyaltyAccountResponse, int, error) {
 //	if data.Success == true {
 //		log.Printf("%v", data.LoyaltyAccount.Active)
 //	}
-func (c *Client) LoyaltyAccountActivate(ID int) (LoyaltyAccountActivateResponse, int, error) {
+func (c *Client) LoyaltyAccountActivate(id int) (LoyaltyAccountActivateResponse, int, error) {
 	var result LoyaltyAccountActivateResponse
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/activate", ID), strings.NewReader(""))
+	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/activate", id), strings.NewReader(""))
 
 	if err != nil {
 		return result, status, err
@@ -5962,11 +5962,11 @@ func (c *Client) LoyaltyAccountActivate(ID int) (LoyaltyAccountActivateResponse,
 //	if data.Success == true {
 //		log.Printf("%v", data.LoyaltyBonus.ActivationDate)
 //	}
-func (c *Client) LoyaltyBonusCredit(ID int, req LoyaltyBonusCreditRequest) (LoyaltyBonusCreditResponse, int, error) {
+func (c *Client) LoyaltyBonusCredit(id int, req LoyaltyBonusCreditRequest) (LoyaltyBonusCreditResponse, int, error) {
 	var result LoyaltyBonusCreditResponse
 	p, _ := query.Values(req)
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/bonus/credit", ID), p)
+	resp, status, err := c.PostRequest(fmt.Sprintf("/loyalty/account/%d/bonus/credit", id), p)
 
 	if err != nil {
 		return result, status, err
@@ -6010,13 +6010,13 @@ func (c *Client) LoyaltyBonusCredit(ID int, req LoyaltyBonusCreditRequest) (Loya
 //		}
 //	}
 func (c *Client) LoyaltyBonusStatusDetails(
-	ID int, statusType string, request LoyaltyBonusStatusDetailsRequest,
+	id int, statusType string, request LoyaltyBonusStatusDetailsRequest,
 ) (LoyaltyBonusDetailsResponse, int, error) {
 	var result LoyaltyBonusDetailsResponse
 
 	p, _ := query.Values(request)
 
-	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/account/%d/bonus/%s/details?%s", ID, statusType, p.Encode()))
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/account/%d/bonus/%s/details?%s", id, statusType, p.Encode()))
 
 	if err != nil {
 		return result, status, err
@@ -6040,13 +6040,13 @@ func (c *Client) LoyaltyBonusStatusDetails(
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
 //	req := LoyaltyAccountsRequest{
-//		Filter: LoyaltyAccountApiFilter{
+//		Filter: LoyaltyAccountAPIFilter{
 //			Status:      "activated",
 //			PhoneNumber: "89185556363",
 //			Ids:         []int{14},
 //			Level:       5,
 //			Loyalties:   []int{2},
-//			CustomerId:  "109",
+//			CustomerID:  "109",
 //		},
 //	}
 //
@@ -6129,7 +6129,7 @@ func (c *Client) LoyaltyAccounts(req LoyaltyAccountsRequest) (LoyaltyAccountsRes
 func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculateResponse, int, error) {
 	var result LoyaltyCalculateResponse
 
-	orderJSON, err := json.Marshal(req.Order)
+	orderJSON, _ := json.Marshal(req.Order)
 
 	p := url.Values{
 		"site":    {req.Site},
@@ -6152,7 +6152,7 @@ func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculate
 	return result, status, nil
 }
 
-// GetLoyalties calculations of the maximum discount
+// GetLoyalties returns list of loyalty programs
 //
 // For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties
 //
@@ -6161,7 +6161,7 @@ func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculate
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
 //	req := LoyaltiesRequest{
-//		Filter: LoyaltyApiFilter{
+//		Filter: LoyaltyAPIFilter{
 //			Active: active,
 //			Ids:    []int{2},
 //			Sites:  []string{"main"},
@@ -6204,15 +6204,15 @@ func (c *Client) GetLoyalties(req LoyaltiesRequest) (LoyaltiesResponse, int, err
 	return result, status, nil
 }
 
-// GetLoyaltyById calculations of the maximum discount
+// GetLoyaltyByID return program of loyalty by id
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties-id
 //
 // Example:
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-// data, status, err := client.GetLoyaltyById(2)
+// data, status, err := client.GetLoyaltyByID(2)
 //
 //	if err != nil {
 //		if apiErr, ok := retailcrm.AsAPIError(err); ok {
@@ -6226,10 +6226,10 @@ func (c *Client) GetLoyalties(req LoyaltiesRequest) (LoyaltiesResponse, int, err
 //		log.Printf("%v", res.Loyalty.ID)
 //		log.Printf("%v", res.Loyalty.Active)
 //	}
-func (c *Client) GetLoyaltyById(ID int) (LoyaltyResponse, int, error) {
+func (c *Client) GetLoyaltyByID(id int) (LoyaltyResponse, int, error) {
 	var result LoyaltyResponse
 
-	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/loyalties/%d", ID))
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/loyalties/%d", id))
 
 	if err != nil {
 		return result, status, err
@@ -6244,10 +6244,36 @@ func (c *Client) GetLoyaltyById(ID int) (LoyaltyResponse, int, error) {
 	return result, status, nil
 }
 
-func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, ID string) (SuccessfulResponse, int, error) {
+// OrderIntegrationDeliveryCancel cancels of integration delivery
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-orders-externalId-delivery-cancel
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// data, status, err := client.OrderIntegrationDeliveryCancel("externalId", false, "1001C")
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v", res.Success)
+//	}
+func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, id string) (SuccessfulResponse, int, error) {
 	var result SuccessfulResponse
 
-	resp, status, err := c.PostRequest(fmt.Sprintf("/orders/%s/delivery/cancel?by=%s&force=%t", ID, checkBy(by), force), strings.NewReader(""))
+	p := url.Values{
+		"by":    {checkBy(by)},
+		"force": {fmt.Sprintf("%t", force)},
+	}
+
+	resp, status, err := c.PostRequest(fmt.Sprintf("/orders/%s/delivery/cancel?%s", id, p.Encode()), strings.NewReader(""))
 
 	if err != nil {
 		return result, status, err
@@ -6260,4 +6286,160 @@ func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, ID string
 	}
 
 	return result, status, nil
+}
+
+// CreateProductsGroup adds a product group
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-product-groups-create
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	group := ProductGroup{
+//		ParentID:    125,
+//		Name:        "Фрукты",
+//		Site:        "main",
+//		Active:      true,
+//		ExternalID:  "abc22",
+//	}
+//
+// data, status, err := client.CreateProductsGroup(group)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v", res.ID)
+//	}
+func (c *Client) CreateProductsGroup(group ProductGroup) (ActionProductsGroupResponse, int, error) {
+	var result ActionProductsGroupResponse
+
+	groupJSON, _ := json.Marshal(group)
+
+	p := url.Values{
+		"productGroup": {string(groupJSON)},
+	}
+
+	resp, status, err := c.PostRequest("/store/product-groups/create", p)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+// EditProductsGroup edits a product group
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-product-groups-externalId-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	group := ProductGroup{
+//		Name:        "Овощи",
+//		Active:      true,
+//		ExternalID:  "abc22",
+//	}
+//
+// data, status, err := client.EditProductsGroup("by", "125", "main", group)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v", res.ID)
+//	}
+func (c *Client) EditProductsGroup(by, id, site string, group ProductGroup) (ActionProductsGroupResponse, int, error) {
+	var result ActionProductsGroupResponse
+
+	groupJSON, _ := json.Marshal(group)
+
+	p := url.Values{
+		"by":           {checkBy(by)},
+		"site":         {site},
+		"productGroup": {string(groupJSON)},
+	}
+
+	resp, status, err := c.PostRequest(fmt.Sprintf("/store/product-groups/%s/edit", id), p)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCloser, int, error) {
+	p := url.Values{
+		"by":   {checkBy(by)},
+		"site": {site},
+	}
+
+	requestURL := fmt.Sprintf("%s/api/v5/orders/%s/plates/%d/print?%s", c.URL, orderID, plateID, p.Encode())
+	req, err := http.NewRequest("GET", requestURL, nil)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	req.Header.Set("X-API-KEY", c.Key)
+
+	if c.Debug {
+		c.writeLog("API Request: %s %s", requestURL, c.Key)
+	}
+
+	resp, err := c.httpClient.Do(req)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	if resp.StatusCode >= http.StatusInternalServerError {
+		return nil, resp.StatusCode, CreateGenericAPIError(
+			fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
+	}
+
+	if resp.StatusCode >= http.StatusBadRequest && resp.StatusCode < http.StatusInternalServerError {
+		res, err := buildRawResponse(resp)
+
+		if err != nil {
+			return nil, 0, err
+		}
+
+		return nil, resp.StatusCode, CreateAPIError(res)
+	}
+
+	reader := resp.Body
+	err = reader.Close()
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return reader, resp.StatusCode, nil
 }

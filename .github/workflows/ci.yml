@@ -34,6 +34,7 @@ jobs:
           version: v1.45.2
           only-new-issues: true
           skip-pkg-cache: true
+          args: --build-tags=testutils
   tests:
     name: Tests
     runs-on: ubuntu-latest
@@ -58,13 +59,13 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE != 1
-        run: go test ./...
+        run: go test -tags=testutils ./...
       - name: Tests with coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
         run: |
-          go test ./... -race -coverprofile=coverage.txt -covermode=atomic "$d"
+          go test -tags=testutils ./... -race -coverprofile=coverage.txt -covermode=atomic "$d"
       - name: Coverage
         env:
           COVERAGE: ${{ matrix.coverage }}

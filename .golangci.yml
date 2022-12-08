@@ -1,6 +1,8 @@
 run:
   skip-dirs-use-default: true
   allow-parallel-runners: true
+  skip-files:
+    - testutils.go
 
 output:
   format: colored-line-number

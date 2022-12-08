@@ -440,11 +440,11 @@ type AccountBonusOperationsFilter struct {
 	CreatedAtTo   string `url:"createdAtTo,omitempty"`
 }
 
-type LoyaltyBonusApiFilterType struct {
+type LoyaltyBonusAPIFilterType struct {
 	Date string `url:"date,omitempty"`
 }
 
-type LoyaltyAccountApiFilter struct {
+type LoyaltyAccountAPIFilter struct {
 	ID                 string   `url:"id,omitempty"`
 	Status             string   `url:"status,,omitempty"`
 	Customer           string   `url:"customer,omitempty"`
@@ -463,11 +463,11 @@ type LoyaltyAccountApiFilter struct {
 	BurnDateFrom       string   `url:"burnDateFrom,omitempty"`
 	BurnDateTo         string   `url:"burnDateTo,omitempty"`
 	CustomFields       []string `url:"customFields,omitempty,brackets"`
-	CustomerId         string   `url:"customerId,omitempty"`
-	CustomerExternalId string   `url:"customerExternalId,omitempty"`
+	CustomerID         string   `url:"customerId,omitempty"`
+	CustomerExternalID string   `url:"customerExternalId,omitempty"`
 }
 
-type LoyaltyApiFilter struct {
+type LoyaltyAPIFilter struct {
 	Active  *int     `url:"active,omitempty"`
 	Blocked *int     `url:"blocked,omitempty"`
 	Ids     []int    `url:"ids,omitempty,brackets"`

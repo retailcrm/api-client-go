@@ -256,13 +256,13 @@ type LoyaltyBonusCreditRequest struct {
 type LoyaltyBonusStatusDetailsRequest struct {
 	Limit  int                       `url:"limit,omitempty"`
 	Page   int                       `url:"page,omitempty"`
-	Filter LoyaltyBonusApiFilterType `url:"filter,omitempty"`
+	Filter LoyaltyBonusAPIFilterType `url:"filter,omitempty"`
 }
 
 type LoyaltyAccountsRequest struct {
 	Limit  int                     `url:"limit,omitempty"`
 	Page   int                     `url:"limit,omitempty"`
-	Filter LoyaltyAccountApiFilter `url:"filter,omitempty"`
+	Filter LoyaltyAccountAPIFilter `url:"filter,omitempty"`
 }
 
 type LoyaltyCalculateRequest struct {
@@ -274,7 +274,7 @@ type LoyaltyCalculateRequest struct {
 type LoyaltiesRequest struct {
 	Limit  int              `url:"limit,omitempty"`
 	Page   int              `url:"page,omitempty"`
-	Filter LoyaltyApiFilter `url:"filter,omitempty"`
+	Filter LoyaltyAPIFilter `url:"filter,omitempty"`
 }
 
 // SystemURL returns system URL from the connection request without trailing slash.

@@ -644,3 +644,8 @@ type LoyaltyResponse struct {
 	SuccessfulResponse
 	Loyalty Loyalty `json:"loyalty"`
 }
+
+type ActionProductsGroupResponse struct {
+	SuccessfulResponse
+	ID int `json:"id"`
+}

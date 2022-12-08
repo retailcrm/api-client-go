@@ -785,7 +785,7 @@ type DeliveryType struct {
 	VatRate              string                `json:"vatRate,omitempty"`
 	DefaultForCrm        bool                  `json:"defaultForCrm,omitempty"`
 	DeliveryServices     []string              `json:"deliveryServices,omitempty"`
-	PaymentTypes         []string              `json:"paymentTypes,omitempty"` //Deprecated, use DeliveryPaymentTypes
+	PaymentTypes         []string              `json:"paymentTypes,omitempty"` // Deprecated, use DeliveryPaymentTypes
 	DeliveryPaymentTypes []DeliveryPaymentType `json:"deliveryPaymentTypes,omitempty"`
 }
 
@@ -927,7 +927,7 @@ type Site struct {
 	DefaultForCRM     bool         `json:"defaultForCrm,omitempty"`
 	Ordering          int          `json:"ordering,omitempty"`
 	IsDemo            bool         `json:"isDemo,omitempty"`
-	CatalogId         string       `json:"catalogId,omitempty"`
+	CatalogID         string       `json:"catalogId,omitempty"`
 	IsCatalogMainSite bool         `json:"isCatalogMainSite,omitempty"`
 }
 
@@ -948,11 +948,14 @@ type Store struct {
 
 // ProductGroup type.
 type ProductGroup struct {
-	ID       int    `json:"id,omitempty"`
-	ParentID int    `json:"parentId,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Site     string `json:"site,omitempty"`
-	Active   bool   `json:"active,omitempty"`
+	ID               int    `json:"id,omitempty"`
+	ParentID         int    `json:"parentId,omitempty"`
+	Name             string `json:"name,omitempty"`
+	Site             string `json:"site,omitempty"`
+	Active           bool   `json:"active,omitempty"`
+	Description      string `json:"description,omitempty"`
+	ExternalID       string `json:"externalId,omitempty"`
+	ParentExternalID string `json:"parentExternalId,omitempty"`
 }
 
 // BaseProduct type.
