@@ -623,7 +623,7 @@ type LoyaltyBonusStatisticResponse struct {
 
 type LoyaltyAccountsResponse struct {
 	SuccessfulResponse
-	Pagination      *Pagination      `json:"pagination,omitempty"`
+	Pagination      *Pagination      `json:"pagination"`
 	LoyaltyAccounts []LoyaltyAccount `json:"loyaltyAccounts,omitempty"`
 }
 
@@ -631,5 +631,16 @@ type LoyaltyCalculateResponse struct {
 	SuccessfulResponse
 	Order        SerializedLoyaltyOrder `json:"order,omitempty"`
 	Calculations []LoyaltyCalculation   `json:"calculations,omitempty"`
-	Loyalty      Loyalty                `json:"loyalty,omitempty"`
+	Loyalty      SerializedLoyalty      `json:"loyalty,omitempty"`
+}
+
+type LoyaltiesResponse struct {
+	SuccessfulResponse
+	Pagination *Pagination `json:"pagination"`
+	Loyalties  []Loyalty   `json:"loyalties,omitempty"`
+}
+
+type LoyaltyResponse struct {
+	SuccessfulResponse
+	Loyalty Loyalty `json:"loyalty"`
 }

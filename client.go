@@ -6084,3 +6084,180 @@ func (c *Client) LoyaltyAccounts(req LoyaltyAccountsRequest) (LoyaltyAccountsRes
 
 	return result, status, nil
 }
+
+// LoyaltyCalculate calculations of the maximum discount
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-calculate
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	req := LoyaltyCalculateRequest{
+//		Site: "main",
+//		Order: Order{
+//			PrivilegeType: "loyalty_level",
+//			Customer: &Customer{
+//				ID: 123,
+//			},
+//			Items: []OrderItem{
+//				{
+//					InitialPrice: 10000,
+//					Quantity:     1,
+//					Offer:        Offer{ID: 214},
+//					PriceType:    &PriceType{Code: "base"},
+//				},
+//			},
+//		},
+//		Bonuses: 10,
+//	}
+//
+// data, status, err := client.LoyaltyCalculate(req)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v", data.Order.PrivilegeType)
+//		log.Printf("%v", data.Order.BonusesCreditTotal)
+//	}
+func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculateResponse, int, error) {
+	var result LoyaltyCalculateResponse
+
+	orderJSON, err := json.Marshal(req.Order)
+
+	p := url.Values{
+		"site":    {req.Site},
+		"order":   {string(orderJSON)},
+		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
+	}
+
+	resp, status, err := c.PostRequest("/loyalty/calculate", p)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+// GetLoyalties calculations of the maximum discount
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	req := LoyaltiesRequest{
+//		Filter: LoyaltyApiFilter{
+//			Active: active,
+//			Ids:    []int{2},
+//			Sites:  []string{"main"},
+//		},
+//	}
+//
+// data, status, err := client.GetLoyalties(req)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		for _, l := range data.Loyalties {
+//			log.Printf("%v", l.ID)
+//			log.Printf("%v", l.Active)
+//		}
+//	}
+func (c *Client) GetLoyalties(req LoyaltiesRequest) (LoyaltiesResponse, int, error) {
+	var result LoyaltiesResponse
+
+	p, _ := query.Values(req)
+
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/loyalties?%s", p.Encode()))
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+// GetLoyaltyById calculations of the maximum discount
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// data, status, err := client.GetLoyaltyById(2)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Printf("%v", res.Loyalty.ID)
+//		log.Printf("%v", res.Loyalty.Active)
+//	}
+func (c *Client) GetLoyaltyById(ID int) (LoyaltyResponse, int, error) {
+	var result LoyaltyResponse
+
+	resp, status, err := c.GetRequest(fmt.Sprintf("/loyalty/loyalties/%d", ID))
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, ID string) (SuccessfulResponse, int, error) {
+	var result SuccessfulResponse
+
+	resp, status, err := c.PostRequest(fmt.Sprintf("/orders/%s/delivery/cancel?by=%s&force=%t", ID, checkBy(by), force), strings.NewReader(""))
+
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}

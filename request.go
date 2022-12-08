@@ -266,9 +266,15 @@ type LoyaltyAccountsRequest struct {
 }
 
 type LoyaltyCalculateRequest struct {
-	Site    string  `url:"site"`
-	Order   Order   `url:"order"`
-	Bonuses float64 `url:"bonuses"`
+	Site    string
+	Order   Order
+	Bonuses float32
+}
+
+type LoyaltiesRequest struct {
+	Limit  int              `url:"limit,omitempty"`
+	Page   int              `url:"page,omitempty"`
+	Filter LoyaltyApiFilter `url:"filter,omitempty"`
 }
 
 // SystemURL returns system URL from the connection request without trailing slash.

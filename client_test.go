@@ -3125,7 +3125,26 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	gock.New(crmURL).
 		Get("/reference/delivery-types").
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+		"success": true,
+		"deliveryTypes": {
+			"courier": {
+				"name": "Доставка курьером",
+				"code": "courier",
+				"active": true,
+				"deliveryPaymentTypes": [
+					{
+						"code": "cash",
+						"cod": false
+					},
+					{
+						"code": "bank-card",
+						"cod": false
+					}
+				]
+			}
+		}
+	}`)
 
 	data, st, err := c.DeliveryTypes()
 	if err != nil {
@@ -3139,6 +3158,14 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Equal(t, "Доставка курьером", data.DeliveryTypes["courier"].Name)
+	assert.Equal(t, "courier", data.DeliveryTypes["courier"].Code)
+	assert.True(t, data.DeliveryTypes["courier"].Active)
+	assert.Equal(t, "cash", data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Code)
+	assert.Equal(t, "bank-card", data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Code)
+	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Cod)
+	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Cod)
 }
 
 func TestClient_LegalEntities(t *testing.T) {
@@ -7272,6 +7299,8 @@ func TestClient_LoyaltyBonusStatusDetails(t *testing.T) {
 }
 
 func TestClient_LoyaltyAccounts(t *testing.T) {
+	defer gock.Off()
+
 	req := LoyaltyAccountsRequest{
 		Filter: LoyaltyAccountApiFilter{
 			Status:      "activated",
@@ -7313,4 +7342,175 @@ func TestClient_LoyaltyAccounts(t *testing.T) {
 	assert.True(t, res.LoyaltyAccounts[0].Active)
 	assert.Equal(t, req.Filter.PhoneNumber, res.LoyaltyAccounts[0].PhoneNumber)
 	assert.Equal(t, req.Filter.Status, res.LoyaltyAccounts[0].Status)
+}
+
+func TestClient_LoyaltyCalculate(t *testing.T) {
+	defer gock.Off()
+
+	req := getLoyaltyCalculateReq()
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"site":    {req.Site},
+		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
+		"order":   {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/loyalty/calculate").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyCalculateResponse())
+
+	res, status, err := client().LoyaltyCalculate(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, float32(999), res.Order.BonusesCreditTotal)
+	assert.Equal(t, float32(10), res.Order.BonusesChargeTotal)
+	assert.Equal(t, req.Order.PrivilegeType, res.Order.PrivilegeType)
+	assert.Equal(t, float64(9990), res.Order.TotalSumm)
+	assert.Equal(t, 13, res.Order.LoyaltyAccount.ID)
+	assert.Equal(t, float64(240), res.Order.LoyaltyAccount.Amount)
+	assert.Equal(t, req.Order.Customer.ID, res.Order.Customer.ID)
+
+	assert.Equal(t, float32(999), res.Order.Items[0].BonusesCreditTotal)
+	assert.Equal(t, float32(10), res.Order.Items[0].BonusesChargeTotal)
+	assert.Equal(t, req.Order.Items[0].PriceType.Code, res.Order.Items[0].PriceType.Code)
+	assert.Equal(t, req.Order.Items[0].InitialPrice, res.Order.Items[0].InitialPrice)
+	assert.Equal(t, "bonus_charge", res.Order.Items[0].Discounts[0].Type)
+	assert.Equal(t, float32(10), res.Order.Items[0].Discounts[0].Amount)
+	assert.Equal(t, float64(9990), res.Order.Items[0].Prices[0].Price)
+	assert.Equal(t, float32(1), res.Order.Items[0].Prices[0].Quantity)
+	assert.Equal(t, float32(1), res.Order.Items[0].Quantity)
+	assert.Equal(t, "696999ed-bc8d-4d0f-9627-527acf7b1d57", res.Order.Items[0].Offer.XMLID)
+
+	assert.Equal(t, req.Order.PrivilegeType, res.Calculations[0].PrivilegeType)
+	assert.Equal(t, req.Bonuses, res.Calculations[0].Discount)
+	assert.Equal(t, float32(999), res.Calculations[0].CreditBonuses)
+	assert.Equal(t, float32(240), res.Calculations[0].MaxChargeBonuses)
+
+	assert.Equal(t, float32(240), res.Calculations[0].MaxChargeBonuses)
+	assert.Equal(t, "Бонусная программа", res.Loyalty.Name)
+	assert.Equal(t, float32(1), res.Loyalty.ChargeRate)
+}
+
+func TestClient_GetLoyalties(t *testing.T) {
+	defer gock.Off()
+
+	active := new(int)
+	*active = 1
+
+	req := LoyaltiesRequest{
+		Filter: LoyaltyApiFilter{
+			Active: active,
+			Ids:    []int{2},
+			Sites:  []string{"main"},
+		},
+	}
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/loyalties").
+		MatchParams(map[string]string{
+			"filter[active]":  "1",
+			"filter[sites][]": "main",
+			"filter[ids][]":   "2",
+		}).
+		Reply(http.StatusOK).
+		JSON(getLoyaltiesResponse())
+
+	res, status, err := client().GetLoyalties(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotEmpty(t, res.Pagination)
+	assert.True(t, res.Loyalties[0].Active)
+	assert.False(t, res.Loyalties[0].Blocked)
+	assert.Equal(t, 2, res.Loyalties[0].ID)
+	assert.Equal(t, "Бонусная программа", res.Loyalties[0].Name)
+	assert.False(t, res.Loyalties[0].ConfirmSmsCharge)
+	assert.False(t, res.Loyalties[0].ConfirmSmsCharge)
+	assert.NotEmpty(t, res.Loyalties[0].CreatedAt)
+	assert.NotEmpty(t, res.Loyalties[0].ActivatedAt)
+}
+
+func TestClient_GetLoyaltyById(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/loyalties/2").
+		Reply(http.StatusOK).
+		JSON(getLoyaltyResponse())
+
+	res, status, err := client().GetLoyaltyById(2)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, res.Loyalty.Active)
+	assert.False(t, res.Loyalty.Blocked)
+	assert.Equal(t, 2, res.Loyalty.ID)
+	assert.Equal(t, 4, len(res.Loyalty.LoyaltyLevels))
+	assert.Equal(t, "Бонусная программа", res.Loyalty.Name)
+	assert.False(t, res.Loyalty.ConfirmSmsCharge)
+	assert.False(t, res.Loyalty.ConfirmSmsCharge)
+	assert.NotEmpty(t, res.Loyalty.CreatedAt)
+	assert.NotEmpty(t, res.Loyalty.ActivatedAt)
+}
+
+func TestClient_OrderIntegrationDeliveryCancel(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post(prefix + "/orders/123/delivery/cancel").
+		MatchParams(map[string]string{
+			"by":    "id",
+			"force": "true",
+		}).
+		Reply(http.StatusOK).
+		JSON(`{"success":true}`)
+
+	res, status, err := client().OrderIntegrationDeliveryCancel("id", true, "123")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
 }
