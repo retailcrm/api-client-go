@@ -17,6 +17,10 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
+// HTTPStatusUnknown can return for the method `/api/v5/customers/upload`, `/api/v5/customers-corporate/upload`,
+// `/api/v5/orders/upload`
+const HTTPStatusUnknown = 460
+
 // New initialize client.
 func New(url string, key string) *Client {
 	return &Client{
@@ -670,6 +674,8 @@ func (c *Client) CustomerNoteDelete(id int) (SuccessfulResponse, int, error) {
 
 // CustomersUpload customers batch upload
 //
+// # This method can return response together with error if http status is equal 460
+//
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-customers-upload
 //
 // Example:
@@ -716,12 +722,16 @@ func (c *Client) CustomersUpload(customers []Customer, site ...string) (Customer
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers/upload", p)
-	if err != nil {
+	if err != nil && status != HTTPStatusUnknown {
 		return resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
+	errJSON := json.Unmarshal(data, &resp)
+	if errJSON != nil {
+		return resp, status, errJSON
+	}
+
+	if status == HTTPStatusUnknown {
 		return resp, status, err
 	}
 
@@ -1145,6 +1155,8 @@ func (c *Client) CorporateCustomerNoteDelete(id int) (SuccessfulResponse, int, e
 
 // CorporateCustomersUpload corporate customers batch upload
 //
+// # This method can return response together with error if http status is equal 460
+//
 // For more information see http://help.retailcrm.pro/Developers/ApiVersion5#post--api-v5-customers-corporate-upload
 //
 // Example:
@@ -1187,12 +1199,16 @@ func (c *Client) CorporateCustomersUpload(
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/customers-corporate/upload", p)
-	if err != nil {
+	if err != nil && status != HTTPStatusUnknown {
 		return resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
+	errJSON := json.Unmarshal(data, &resp)
+	if errJSON != nil {
+		return resp, status, err
+	}
+
+	if status == HTTPStatusUnknown {
 		return resp, status, err
 	}
 
@@ -2589,6 +2605,8 @@ func (c *Client) OrdersStatuses(request OrdersStatusesRequest) (OrdersStatusesRe
 
 // OrdersUpload batch orders uploading
 //
+// # This method can return response together with error if http status is equal 460
+//
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-upload
 //
 // Example:
@@ -2635,12 +2653,16 @@ func (c *Client) OrdersUpload(orders []Order, site ...string) (OrdersUploadRespo
 	fillSite(&p, site)
 
 	data, status, err := c.PostRequest("/orders/upload", p)
-	if err != nil {
+	if err != nil && status != HTTPStatusUnknown {
 		return resp, status, err
 	}
 
-	err = json.Unmarshal(data, &resp)
-	if err != nil {
+	errJSON := json.Unmarshal(data, &resp)
+	if errJSON != nil {
+		return resp, status, err
+	}
+
+	if status == HTTPStatusUnknown {
 		return resp, status, err
 	}
 
@@ -6355,7 +6377,7 @@ func (c *Client) CreateProductsGroup(group ProductGroup) (ActionProductsGroupRes
 //		ExternalID:  "abc22",
 //	}
 //
-// data, status, err := client.EditProductsGroup("by", "125", "main", group)
+// data, status, err := client.EditProductsGroup("id", "125", "main", group)
 //
 //	if err != nil {
 //		if apiErr, ok := retailcrm.AsAPIError(err); ok {
@@ -6394,6 +6416,34 @@ func (c *Client) EditProductsGroup(by, id, site string, group ProductGroup) (Act
 	return result, status, nil
 }
 
+// GetOrderPlate receives a print form file for the order
+//
+// # Body of response is already closed
+//
+// For more information see https://help.retailcrm.ru/api_v5_ru.html#get--api-v5-orders-externalId-plates-plateId-print
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+// data, status, err := client.GetOrderPlate("id", "107", "main", 1)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data != nil {
+//		fileData, err := io.ReadAll(data)
+//		if err != nil {
+//			return
+//		}
+//
+//		log.Printf("%s", fileData)
+//	}
 func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCloser, int, error) {
 	p := url.Values{
 		"by":   {checkBy(by)},

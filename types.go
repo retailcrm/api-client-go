@@ -1427,3 +1427,7 @@ type SerializedLoyalty struct {
 	Name       string  `json:"name"`
 	ChargeRate float32 `json:"chargeRate"`
 }
+
+type ExternalID struct {
+	ExternalID string `json:"externalId,omitempty"`
+}

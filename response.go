@@ -123,6 +123,7 @@ type CorporateCustomerChangeResponse CustomerChangeResponse
 type CustomersUploadResponse struct {
 	Success           bool              `json:"success"`
 	UploadedCustomers []IdentifiersPair `json:"uploadedCustomers,omitempty"`
+	FailedCustomers   []ExternalID      `json:"failedCustomers,omitempty"`
 }
 
 // CorporateCustomersUploadResponse type.
@@ -167,6 +168,7 @@ type OrdersStatusesResponse struct {
 type OrdersUploadResponse struct {
 	Success        bool              `json:"success"`
 	UploadedOrders []IdentifiersPair `json:"uploadedOrders,omitempty"`
+	FailedOrders   []ExternalID      `json:"failedOrders,omitempty"`
 }
 
 // OrdersHistoryResponse type.

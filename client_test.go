@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/go-querystring/query"
-	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -505,7 +504,15 @@ func TestClient_CustomersUpload(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"uploadedCustomers": [
+				{
+					"id": 136
+				}
+			],
+			"failedCustomers": []
+		}`)
 
 	data, status, err := c.CustomersUpload(customers)
 	if err != nil {
@@ -519,6 +526,8 @@ func TestClient_CustomersUpload(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Equal(t, 136, data.UploadedCustomers[0].ID)
 }
 
 func TestClient_CustomersUpload_Fail(t *testing.T) {
@@ -532,7 +541,7 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 	p := url.Values{
 		"customers": {string(str)},
 	}
-	// TODO ???
+
 	gock.New(crmURL).
 		Post("/api/v5/customers/upload").
 		MatchType("url").
@@ -556,7 +565,7 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 			}
 		}`, iCodeFail))
 
-	data, _, err := c.CustomersUpload(customers)
+	data, status, err := c.CustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -564,6 +573,12 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Equal(t, 132, data.UploadedCustomers[0].ID)
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
+	assert.Equal(t, "Customers are loaded with errors", err.Error())
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"])
 }
 
 func TestClient_CustomersCombine(t *testing.T) {
@@ -1176,7 +1191,7 @@ func TestClient_CorporateCustomersUpload(t *testing.T) {
 func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 	c := client()
 
-	customers := []CorporateCustomer{{ExternalID: strconv.Itoa(iCodeFail)}}
+	customers := []CorporateCustomer{{ExternalID: strconv.Itoa(iCodeFail), ManagerID: 100001}}
 
 	defer gock.Off()
 
@@ -1190,9 +1205,19 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Customers are loaded with ErrorsList"}`)
+		BodyString(fmt.Sprintf(`{
+			"success": false,
+			"uploadedCustomers": [],
+			"failedCustomers": [{
+				"externalId": "%d"
+			}],
+			"errorMsg": "Customers are loaded with errors",
+			"errors": {
+				"managerId": "Something went wrong"
+			}
+		}`, iCodeFail))
 
-	data, _, err := c.CorporateCustomersUpload(customers)
+	data, status, err := c.CorporateCustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -1200,6 +1225,12 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Empty(t, data.UploadedCustomers)
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
+	assert.Equal(t, "Customers are loaded with errors", err.Error())
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"])
 }
 
 func TestClient_CorporateCustomer(t *testing.T) {
@@ -2210,6 +2241,9 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 			LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
 			ExternalID: strconv.Itoa(iCodeFail),
 			Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
+			Items: []OrderItem{
+				{Offer: Offer{ID: iCodeFail}},
+			},
 		},
 	}
 
@@ -2226,9 +2260,21 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Orders are loaded with ErrorsList"}`)
+		BodyString(fmt.Sprintf(`{
+			"success": false,
+			"uploadedOrders": [],
+			"failedOrders": [
+				{
+					"externalId": "%d"
+				}
+			],
+			"errorMsg": "Orders are loaded with errors",
+			"errors": [
+				"items[0].offer.id: Offer with id %d not found."
+			]
+		}`, iCodeFail, iCodeFail))
 
-	data, _, err := c.OrdersUpload(orders)
+	data, status, err := c.OrdersUpload(orders)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -2236,6 +2282,11 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedOrders[0].ExternalID)
+	assert.Equal(t, "Orders are loaded with errors", err.Error())
+	assert.Equal(t, "items[0].offer.id: Offer with id 123123 not found.", err.(APIError).Errors()["0"])
 }
 
 func TestClient_OrdersCombine(t *testing.T) {
@@ -7635,7 +7686,7 @@ func TestClient_GetOrderPlate(t *testing.T) {
 			"site": "main",
 		}).
 		Reply(200).
-		Body(io.NopCloser(strings.NewReader("PDF")))
+		Body(ioutil.NopCloser(strings.NewReader("PDF")))
 
 	data, status, err := client().GetOrderPlate("id", "124", "main", 1)
 
