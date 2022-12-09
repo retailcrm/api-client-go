@@ -18,7 +18,7 @@ import (
 )
 
 // HTTPStatusUnknown can return for the method `/api/v5/customers/upload`, `/api/v5/customers-corporate/upload`,
-// `/api/v5/orders/upload`
+// `/api/v5/orders/upload`.
 const HTTPStatusUnknown = 460
 
 // New initialize client.

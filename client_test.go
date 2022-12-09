@@ -578,7 +578,7 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 	assert.Equal(t, HTTPStatusUnknown, status)
 	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
 	assert.Equal(t, "Customers are loaded with errors", err.Error())
-	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"])
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"]) //nolint:errorlint
 }
 
 func TestClient_CustomersCombine(t *testing.T) {
@@ -1230,7 +1230,7 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 	assert.Equal(t, HTTPStatusUnknown, status)
 	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
 	assert.Equal(t, "Customers are loaded with errors", err.Error())
-	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"])
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"]) //nolint:errorlint
 }
 
 func TestClient_CorporateCustomer(t *testing.T) {
@@ -2286,7 +2286,7 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 	assert.Equal(t, HTTPStatusUnknown, status)
 	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedOrders[0].ExternalID)
 	assert.Equal(t, "Orders are loaded with errors", err.Error())
-	assert.Equal(t, "items[0].offer.id: Offer with id 123123 not found.", err.(APIError).Errors()["0"])
+	assert.Equal(t, "items[0].offer.id: Offer with id 123123 not found.", err.(APIError).Errors()["0"]) //nolint:errorlint
 }
 
 func TestClient_OrdersCombine(t *testing.T) {

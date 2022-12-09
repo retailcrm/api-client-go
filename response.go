@@ -616,7 +616,7 @@ type LoyaltyBonusDetailsResponse struct {
 	SuccessfulResponse
 	Pagination `json:"pagination"`
 	Statistic  LoyaltyBonusStatisticResponse `json:"statistic"`
-	Bonuses    []BonusDetail                 `json:"bonuses"`
+	Bonuses    []BonusDetail                 `json:"bonuses,omitempty"`
 }
 
 type LoyaltyBonusStatisticResponse struct {
