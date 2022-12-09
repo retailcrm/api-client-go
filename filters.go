@@ -439,3 +439,37 @@ type AccountBonusOperationsFilter struct {
 	CreatedAtFrom string `url:"createdAtFrom,omitempty"`
 	CreatedAtTo   string `url:"createdAtTo,omitempty"`
 }
+
+type LoyaltyBonusAPIFilterType struct {
+	Date string `url:"date,omitempty"`
+}
+
+type LoyaltyAccountAPIFilter struct {
+	ID                 string   `url:"id,omitempty"`
+	Status             string   `url:"status,,omitempty"`
+	Customer           string   `url:"customer,omitempty"`
+	MinOrderSum        string   `url:"minOrderSum,omitempty"`
+	MaxOrderSum        string   `url:"maxOrderSum,omitempty"`
+	MinAmount          string   `url:"minAmount,omitempty"`
+	MaxAmount          string   `url:"maxAmount,omitempty"`
+	PhoneNumber        string   `url:"phoneNumber,omitempty"`
+	CardNumber         string   `url:"cardNumber,omitempty"`
+	Ids                []int    `url:"ids,omitempty,brackets"`
+	Loyalties          []int    `url:"loyalties,omitempty,brackets"`
+	Sites              []string `url:"sites,omitempty,brackets"`
+	Level              int      `url:"level,omitempty"`
+	CreatedAtFrom      string   `url:"createdAtFrom,omitempty"`
+	CreatedAtTo        string   `url:"createdAtTo,omitempty"`
+	BurnDateFrom       string   `url:"burnDateFrom,omitempty"`
+	BurnDateTo         string   `url:"burnDateTo,omitempty"`
+	CustomFields       []string `url:"customFields,omitempty,brackets"`
+	CustomerID         string   `url:"customerId,omitempty"`
+	CustomerExternalID string   `url:"customerExternalId,omitempty"`
+}
+
+type LoyaltyAPIFilter struct {
+	Active  *int     `url:"active,omitempty"`
+	Blocked *int     `url:"blocked,omitempty"`
+	Ids     []int    `url:"ids,omitempty,brackets"`
+	Sites   []string `url:"sites,omitempty,brackets"`
+}

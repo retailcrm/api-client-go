@@ -3,6 +3,7 @@ package retailcrm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -20,6 +21,8 @@ import (
 	"github.com/joho/godotenv"
 	gock "gopkg.in/h2non/gock.v1"
 )
+
+const prefix = "/api/v5"
 
 func TestMain(m *testing.M) {
 	err := godotenv.Load(".env")
@@ -501,7 +504,15 @@ func TestClient_CustomersUpload(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"uploadedCustomers": [
+				{
+					"id": 136
+				}
+			],
+			"failedCustomers": []
+		}`)
 
 	data, status, err := c.CustomersUpload(customers)
 	if err != nil {
@@ -515,12 +526,14 @@ func TestClient_CustomersUpload(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Equal(t, 136, data.UploadedCustomers[0].ID)
 }
 
 func TestClient_CustomersUpload_Fail(t *testing.T) {
 	c := client()
 
-	customers := []Customer{{ExternalID: strconv.Itoa(iCodeFail)}}
+	customers := []Customer{{ExternalID: strconv.Itoa(iCodeFail)}, {FirstName: "John"}}
 
 	defer gock.Off()
 
@@ -534,9 +547,25 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Customers are loaded with ErrorsList"}`)
+		BodyString(fmt.Sprintf(`{
+			"success": false,
+			"uploadedCustomers": [
+				{
+					"id": 132
+				}
+			],
+			"failedCustomers": [
+				{
+					"externalId": "%d"
+				}
+			],
+			"errorMsg": "Customers are loaded with errors",
+			"errors": {
+				"managerId": "Something went wrong"
+			}
+		}`, iCodeFail))
 
-	data, _, err := c.CustomersUpload(customers)
+	data, status, err := c.CustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -544,6 +573,12 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Equal(t, 132, data.UploadedCustomers[0].ID)
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
+	assert.Equal(t, "Customers are loaded with errors", err.Error())
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"]) //nolint:errorlint
 }
 
 func TestClient_CustomersCombine(t *testing.T) {
@@ -1156,7 +1191,7 @@ func TestClient_CorporateCustomersUpload(t *testing.T) {
 func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 	c := client()
 
-	customers := []CorporateCustomer{{ExternalID: strconv.Itoa(iCodeFail)}}
+	customers := []CorporateCustomer{{ExternalID: strconv.Itoa(iCodeFail), ManagerID: 100001}}
 
 	defer gock.Off()
 
@@ -1170,9 +1205,19 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Customers are loaded with ErrorsList"}`)
+		BodyString(fmt.Sprintf(`{
+			"success": false,
+			"uploadedCustomers": [],
+			"failedCustomers": [{
+				"externalId": "%d"
+			}],
+			"errorMsg": "Customers are loaded with errors",
+			"errors": {
+				"managerId": "Something went wrong"
+			}
+		}`, iCodeFail))
 
-	data, _, err := c.CorporateCustomersUpload(customers)
+	data, status, err := c.CorporateCustomersUpload(customers)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -1180,6 +1225,12 @@ func TestClient_CorporateCustomersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Empty(t, data.UploadedCustomers)
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedCustomers[0].ExternalID)
+	assert.Equal(t, "Customers are loaded with errors", err.Error())
+	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"]) //nolint:errorlint
 }
 
 func TestClient_CorporateCustomer(t *testing.T) {
@@ -2190,6 +2241,9 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 			LastName:   fmt.Sprintf("Test_%s", RandomString(8)),
 			ExternalID: strconv.Itoa(iCodeFail),
 			Email:      fmt.Sprintf("%s@example.com", RandomString(8)),
+			Items: []OrderItem{
+				{Offer: Offer{ID: iCodeFail}},
+			},
 		},
 	}
 
@@ -2206,9 +2260,21 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 		MatchType("url").
 		BodyString(p.Encode()).
 		Reply(460).
-		BodyString(`{"success": false, "errorMsg": "Orders are loaded with ErrorsList"}`)
+		BodyString(fmt.Sprintf(`{
+			"success": false,
+			"uploadedOrders": [],
+			"failedOrders": [
+				{
+					"externalId": "%d"
+				}
+			],
+			"errorMsg": "Orders are loaded with errors",
+			"errors": [
+				"items[0].offer.id: Offer with id %d not found."
+			]
+		}`, iCodeFail, iCodeFail))
 
-	data, _, err := c.OrdersUpload(orders)
+	data, status, err := c.OrdersUpload(orders)
 	if err == nil {
 		t.Error("Error must be return")
 	}
@@ -2216,6 +2282,11 @@ func TestClient_OrdersUpload_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+
+	assert.Equal(t, HTTPStatusUnknown, status)
+	assert.Equal(t, fmt.Sprintf("%d", iCodeFail), data.FailedOrders[0].ExternalID)
+	assert.Equal(t, "Orders are loaded with errors", err.Error())
+	assert.Equal(t, "items[0].offer.id: Offer with id 123123 not found.", err.(APIError).Errors()["0"]) //nolint:errorlint
 }
 
 func TestClient_OrdersCombine(t *testing.T) {
@@ -3122,7 +3193,26 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	gock.New(crmURL).
 		Get("/reference/delivery-types").
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+		"success": true,
+		"deliveryTypes": {
+			"courier": {
+				"name": "Доставка курьером",
+				"code": "courier",
+				"active": true,
+				"deliveryPaymentTypes": [
+					{
+						"code": "cash",
+						"cod": false
+					},
+					{
+						"code": "bank-card",
+						"cod": false
+					}
+				]
+			}
+		}
+	}`)
 
 	data, st, err := c.DeliveryTypes()
 	if err != nil {
@@ -3136,6 +3226,14 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+
+	assert.Equal(t, "Доставка курьером", data.DeliveryTypes["courier"].Name)
+	assert.Equal(t, "courier", data.DeliveryTypes["courier"].Code)
+	assert.True(t, data.DeliveryTypes["courier"].Active)
+	assert.Equal(t, "cash", data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Code)
+	assert.Equal(t, "bank-card", data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Code)
+	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Cod)
+	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Cod)
 }
 
 func TestClient_LegalEntities(t *testing.T) {
@@ -5124,11 +5222,41 @@ func TestClient_IntegrationModule(t *testing.T) {
 		BaseURL:         fmt.Sprintf("http://example.com/%s", name),
 		ClientID:        RandomString(10),
 		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
+		Integrations: &Integrations{
+			Delivery: &Delivery{
+				StatusList: []DeliveryStatus{
+					{
+						Code:            "st1",
+						Name:            "st1",
+						IsEditable:      true,
+						IsError:         true,
+						IsPreprocessing: false,
+					},
+					{
+						Code:            "st2",
+						Name:            "st2",
+						IsEditable:      false,
+						IsError:         false,
+						IsPreprocessing: false,
+					},
+				},
+			},
+		},
 	}
 
+	integrations, err := json.Marshal(integrationModule.Integrations)
+	assert.NoError(t, err)
+
 	jsonData := fmt.Sprintf(
-		`{"code":"%s","integrationCode":"%s","active":false,"name":"%s","logo":"%s","clientId":"%s","baseUrl":"%s","accountUrl":"%s"}`,
-		code, code, integrationModule.Name, integrationModule.Logo, integrationModule.ClientID, integrationModule.BaseURL, integrationModule.AccountURL,
+		`{"code":"%s","integrationCode":"%s","active":false,"name":"%s","logo":"%s","clientId":"%s","baseUrl":"%s","accountUrl":"%s","integrations":%s}`,
+		code,
+		code,
+		integrationModule.Name,
+		integrationModule.Logo,
+		integrationModule.ClientID,
+		integrationModule.BaseURL,
+		integrationModule.AccountURL,
+		integrations,
 	)
 
 	pr := url.Values{
@@ -5140,7 +5268,24 @@ func TestClient_IntegrationModule(t *testing.T) {
 		MatchType("url").
 		BodyString(pr.Encode()).
 		Reply(201).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"info": {
+				"deliveryType": {
+					"id": 38,
+					"code": "sdek-v-2-podkliuchenie-1"
+				},
+				"billingInfo": {
+					"price": 0,
+					"currency": {
+						"name": "Рубль",
+						"shortName": "руб.",
+						"code": "RUB"
+					},
+					"billingType": "fixed"
+				}
+			}
+		}`)
 
 	m, status, err := c.IntegrationModuleEdit(integrationModule)
 	if err != nil {
@@ -6801,4 +6946,780 @@ func TestClient_AccountBonusOperations_Fail(t *testing.T) {
 	if data.Success != false {
 		t.Error(successFail)
 	}
+}
+
+func TestClient_ProductsBatchCreate(t *testing.T) {
+	defer gock.Off()
+
+	products := getProductsCreate()
+	productsJSON, err := json.Marshal(products)
+	assert.NoError(t, err)
+
+	p := url.Values{"products": {string(productsJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/products/batch/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getProductsCreateResponse())
+
+	resp, status, err := client().ProductsBatchCreate(products)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != true || resp.ProcessedProductsCount == 0 {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_ProductsBatchCreateFail(t *testing.T) {
+	defer gock.Off()
+
+	products := getProductsCreate()
+	productsJSON, err := json.Marshal(products)
+	assert.NoError(t, err)
+
+	p := url.Values{"products": {string(productsJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/products/batch/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusBadRequest).
+		JSON(`{"success":false,"errorMsg":"Something went wrong"}`)
+
+	resp, status, err := client().ProductsBatchCreate(products)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if status < http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_ProductsBatchEdit(t *testing.T) {
+	defer gock.Off()
+
+	products := getProductsEdit()
+	productsJSON, err := json.Marshal(products)
+	assert.NoError(t, err)
+
+	p := url.Values{"products": {string(productsJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/products/batch/edit").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getProductsEditResponse())
+
+	resp, status, err := client().ProductsBatchEdit(products)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != true || resp.ProcessedProductsCount == 0 {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_ProductsBatchEditFail(t *testing.T) {
+	defer gock.Off()
+
+	products := getProductsEdit()
+	productsJSON, err := json.Marshal(products)
+	assert.NoError(t, err)
+
+	p := url.Values{"products": {string(productsJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/products/batch/edit").
+		BodyString(p.Encode()).
+		Reply(http.StatusInternalServerError).
+		JSON(`{"success":false,"errorMsg":"Something went wrong"}`)
+
+	resp, status, err := client().ProductsBatchEdit(products)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if status != http.StatusInternalServerError {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_LoyaltyAccountCreate(t *testing.T) {
+	defer gock.Off()
+
+	acc := getLoyaltyAccountCreate()
+	accJSON, _ := json.Marshal(acc)
+	p := url.Values{
+		"site":           {"second"},
+		"loyaltyAccount": {string(accJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/loyalty/account/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyAccountCreateResponse())
+
+	resp, status, err := client().LoyaltyAccountCreate("second", acc)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_LoyaltyAccountCreateFail(t *testing.T) {
+	defer gock.Off()
+
+	acc := getLoyaltyAccountCreate()
+	accJSON, _ := json.Marshal(acc)
+	p := url.Values{
+		"site":           {"second"},
+		"loyaltyAccount": {string(accJSON)},
+	}
+
+	gock.New(crmURL).
+		Post("/loyalty/account/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusInternalServerError).
+		JSON(`{"success":false,"errorMsg":"Something went wrong"}`)
+
+	resp, status, err := client().LoyaltyAccountCreate("second", acc)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if status != http.StatusInternalServerError {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_LoyaltyAccountEdit(t *testing.T) {
+	defer gock.Off()
+
+	acc := getLoyaltyAccountCreate()
+	acc.PhoneNumber = "89142221020"
+	req := SerializedEditLoyaltyAccount{acc.SerializedBaseLoyaltyAccount}
+	reqJSON, _ := json.Marshal(req)
+	p := url.Values{
+		"loyaltyAccount": {string(reqJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/loyalty/account/%d/edit", 13)).
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyAccountEditResponse())
+
+	res, status, err := client().LoyaltyAccountEdit(13, req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_LoyaltyAccountEditFail(t *testing.T) {
+	defer gock.Off()
+
+	acc := getLoyaltyAccountCreate()
+	acc.PhoneNumber = "89142221020"
+	req := SerializedEditLoyaltyAccount{acc.SerializedBaseLoyaltyAccount}
+	reqJSON, _ := json.Marshal(req)
+	p := url.Values{
+		"loyaltyAccount": {string(reqJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/loyalty/account/%d/edit", 13)).
+		BodyString(p.Encode()).
+		Reply(http.StatusInternalServerError).
+		JSON(`{"success":false,"errorMsg":"Something went wrong"}`)
+
+	res, status, err := client().LoyaltyAccountEdit(13, req)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if status != http.StatusInternalServerError {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_LoyaltyAccount(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + fmt.Sprintf("/loyalty/account/%d", 13)).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyAccountResponse())
+
+	res, status, err := client().LoyaltyAccount(13)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotEmpty(t, res.LoyaltyAccount.ID)
+	assert.NotEmpty(t, res.LoyaltyAccount.Loyalty)
+	assert.NotEmpty(t, res.LoyaltyAccount.Customer)
+	assert.NotEmpty(t, res.LoyaltyAccount.PhoneNumber)
+	assert.NotEmpty(t, res.LoyaltyAccount.NextLevelSum)
+	assert.NotEmpty(t, res.LoyaltyAccount.LoyaltyLevel)
+	assert.NotEmpty(t, res.LoyaltyAccount.CreatedAt)
+	assert.NotEmpty(t, res.LoyaltyAccount.ActivatedAt)
+	assert.NotEmpty(t, res.LoyaltyAccount.Status)
+}
+
+func TestClient_LoyaltyAccountActivate(t *testing.T) {
+	defer gock.Off()
+
+	var resp LoyaltyAccountActivateResponse
+	err := json.Unmarshal([]byte(getLoyaltyAccountResponse()), &resp)
+	assert.NoError(t, err)
+	resp.Verification = SmsVerification{
+		CreatedAt:  "2022-11-24 12:39:37",
+		ExpiredAt:  "2022-11-24 12:39:37",
+		VerifiedAt: "2022-11-24 13:39:37",
+		CheckID:    "test",
+		ActionType: "test",
+	}
+	gock.New(crmURL).
+		Post(prefix + fmt.Sprintf("/loyalty/account/%d/activate", 13)).
+		Body(strings.NewReader("")).
+		Reply(http.StatusOK).
+		JSON(resp)
+
+	res, status, err := client().LoyaltyAccountActivate(13)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotEmpty(t, res.LoyaltyAccount.ID)
+	assert.NotEmpty(t, res.LoyaltyAccount.Loyalty)
+	assert.NotEmpty(t, res.LoyaltyAccount.Customer)
+	assert.NotEmpty(t, res.LoyaltyAccount.PhoneNumber)
+	assert.NotEmpty(t, res.LoyaltyAccount.NextLevelSum)
+	assert.NotEmpty(t, res.LoyaltyAccount.LoyaltyLevel)
+	assert.NotEmpty(t, res.LoyaltyAccount.CreatedAt)
+	assert.NotEmpty(t, res.LoyaltyAccount.ActivatedAt)
+	assert.NotEmpty(t, res.LoyaltyAccount.Status)
+	assert.NotEmpty(t, res.Verification)
+}
+
+func TestClient_LoyaltyBonusCredit(t *testing.T) {
+	defer gock.Off()
+
+	req := LoyaltyBonusCreditRequest{
+		Amount:      120,
+		ExpiredDate: "2023-11-24 12:39:37",
+		Comment:     "Test",
+	}
+	body, err := query.Values(req)
+	assert.NoError(t, err)
+
+	gock.New(crmURL).
+		Post(prefix + fmt.Sprintf("/loyalty/account/%d/bonus/credit", 13)).
+		BodyString(body.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{
+			"success":true,
+			"loyaltyBonus": {
+				"amount":120,
+				"expiredDate":"2023-11-24 12:39:37"
+			}
+		}`)
+
+	res, status, err := client().LoyaltyBonusCredit(13, req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_LoyaltyBonusCreditFail(t *testing.T) {
+	defer gock.Off()
+
+	req := LoyaltyBonusCreditRequest{
+		Amount:      120,
+		ExpiredDate: "2023-11-24 12:39:37",
+		Comment:     "Test",
+	}
+	body, err := query.Values(req)
+	assert.NoError(t, err)
+
+	gock.New(crmURL).
+		Post(prefix + fmt.Sprintf("/loyalty/account/%d/bonus/credit", 13)).
+		BodyString(body.Encode()).
+		Reply(http.StatusInternalServerError).
+		JSON(`{"success":false,"errorMsg":"Something went wrong"}`)
+
+	res, status, err := client().LoyaltyBonusCredit(13, req)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	if status != http.StatusInternalServerError {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_LoyaltyBonusStatusDetails(t *testing.T) {
+	defer gock.Off()
+
+	req := LoyaltyBonusStatusDetailsRequest{
+		Limit: 20,
+		Page:  3,
+	}
+
+	gock.New(crmURL).
+		Get(prefix+fmt.Sprintf("/loyalty/account/%d/bonus/%s/details", 13, "waiting_activation")).
+		MatchParam("limit", strconv.Itoa(20)).
+		MatchParam("page", strconv.Itoa(3)).
+		Reply(http.StatusOK).
+		JSON(getBonusDetailsResponse())
+
+	res, status, err := client().LoyaltyBonusStatusDetails(13, "waiting_activation", req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotEmpty(t, res.Pagination.TotalCount)
+	assert.NotEmpty(t, res.Bonuses)
+	assert.NotEmpty(t, res.Statistic.TotalAmount)
+}
+
+func TestClient_LoyaltyAccounts(t *testing.T) {
+	defer gock.Off()
+
+	req := LoyaltyAccountsRequest{
+		Filter: LoyaltyAccountAPIFilter{
+			Status:      "activated",
+			PhoneNumber: "89185556363",
+			Ids:         []int{14},
+			Level:       5,
+			Loyalties:   []int{2},
+			CustomerID:  "109",
+		},
+	}
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/accounts").
+		MatchParams(map[string]string{
+			"filter[phoneNumber]": "89185556363",
+			"filter[status]":      "activated",
+			"filter[level]":       "5",
+			"filter[customerId]":  "109",
+		}).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyAccountsResponse())
+
+	res, status, err := client().LoyaltyAccounts(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, req.Filter.Ids[0], res.LoyaltyAccounts[0].ID)
+	assert.Equal(t, req.Filter.Loyalties[0], res.LoyaltyAccounts[0].Loyalty.ID)
+	assert.True(t, res.LoyaltyAccounts[0].Active)
+	assert.Equal(t, req.Filter.PhoneNumber, res.LoyaltyAccounts[0].PhoneNumber)
+	assert.Equal(t, req.Filter.Status, res.LoyaltyAccounts[0].Status)
+}
+
+func TestClient_LoyaltyCalculate(t *testing.T) {
+	defer gock.Off()
+
+	req := getLoyaltyCalculateReq()
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"site":    {req.Site},
+		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
+		"order":   {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/loyalty/calculate").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(getLoyaltyCalculateResponse())
+
+	res, status, err := client().LoyaltyCalculate(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, float32(999), res.Order.BonusesCreditTotal)
+	assert.Equal(t, float32(10), res.Order.BonusesChargeTotal)
+	assert.Equal(t, req.Order.PrivilegeType, res.Order.PrivilegeType)
+	assert.Equal(t, float64(9990), res.Order.TotalSumm)
+	assert.Equal(t, 13, res.Order.LoyaltyAccount.ID)
+	assert.Equal(t, float64(240), res.Order.LoyaltyAccount.Amount)
+	assert.Equal(t, req.Order.Customer.ID, res.Order.Customer.ID)
+
+	assert.Equal(t, float32(999), res.Order.Items[0].BonusesCreditTotal)
+	assert.Equal(t, float32(10), res.Order.Items[0].BonusesChargeTotal)
+	assert.Equal(t, req.Order.Items[0].PriceType.Code, res.Order.Items[0].PriceType.Code)
+	assert.Equal(t, req.Order.Items[0].InitialPrice, res.Order.Items[0].InitialPrice)
+	assert.Equal(t, "bonus_charge", res.Order.Items[0].Discounts[0].Type)
+	assert.Equal(t, float32(10), res.Order.Items[0].Discounts[0].Amount)
+	assert.Equal(t, float64(9990), res.Order.Items[0].Prices[0].Price)
+	assert.Equal(t, float32(1), res.Order.Items[0].Prices[0].Quantity)
+	assert.Equal(t, float32(1), res.Order.Items[0].Quantity)
+	assert.Equal(t, "696999ed-bc8d-4d0f-9627-527acf7b1d57", res.Order.Items[0].Offer.XMLID)
+
+	assert.Equal(t, req.Order.PrivilegeType, res.Calculations[0].PrivilegeType)
+	assert.Equal(t, req.Bonuses, res.Calculations[0].Discount)
+	assert.Equal(t, float32(999), res.Calculations[0].CreditBonuses)
+	assert.Equal(t, float32(240), res.Calculations[0].MaxChargeBonuses)
+
+	assert.Equal(t, float32(240), res.Calculations[0].MaxChargeBonuses)
+	assert.Equal(t, "Бонусная программа", res.Loyalty.Name)
+	assert.Equal(t, float32(1), res.Loyalty.ChargeRate)
+}
+
+func TestClient_GetLoyalties(t *testing.T) {
+	defer gock.Off()
+
+	active := new(int)
+	*active = 1
+
+	req := LoyaltiesRequest{
+		Filter: LoyaltyAPIFilter{
+			Active: active,
+			Ids:    []int{2},
+			Sites:  []string{"main"},
+		},
+	}
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/loyalties").
+		MatchParams(map[string]string{
+			"filter[active]":  "1",
+			"filter[sites][]": "main",
+			"filter[ids][]":   "2",
+		}).
+		Reply(http.StatusOK).
+		JSON(getLoyaltiesResponse())
+
+	res, status, err := client().GetLoyalties(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotEmpty(t, res.Pagination)
+	assert.True(t, res.Loyalties[0].Active)
+	assert.False(t, res.Loyalties[0].Blocked)
+	assert.Equal(t, 2, res.Loyalties[0].ID)
+	assert.Equal(t, "Бонусная программа", res.Loyalties[0].Name)
+	assert.False(t, res.Loyalties[0].ConfirmSmsCharge)
+	assert.False(t, res.Loyalties[0].ConfirmSmsCharge)
+	assert.NotEmpty(t, res.Loyalties[0].CreatedAt)
+	assert.NotEmpty(t, res.Loyalties[0].ActivatedAt)
+}
+
+func TestClient_GetLoyaltyById(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/loyalties/2").
+		Reply(http.StatusOK).
+		JSON(getLoyaltyResponse())
+
+	res, status, err := client().GetLoyaltyByID(2)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, res.Loyalty.Active)
+	assert.False(t, res.Loyalty.Blocked)
+	assert.Equal(t, 2, res.Loyalty.ID)
+	assert.Equal(t, 4, len(res.Loyalty.LoyaltyLevels))
+	assert.Equal(t, "Бонусная программа", res.Loyalty.Name)
+	assert.False(t, res.Loyalty.ConfirmSmsCharge)
+	assert.False(t, res.Loyalty.ConfirmSmsCharge)
+	assert.NotEmpty(t, res.Loyalty.CreatedAt)
+	assert.NotEmpty(t, res.Loyalty.ActivatedAt)
+}
+
+func TestClient_OrderIntegrationDeliveryCancel(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post(prefix + "/orders/123/delivery/cancel").
+		MatchParams(map[string]string{
+			"by":    "id",
+			"force": "true",
+		}).
+		Reply(http.StatusOK).
+		JSON(`{"success":true}`)
+
+	res, status, err := client().OrderIntegrationDeliveryCancel("id", true, "123")
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_CreateProductsGroup(t *testing.T) {
+	defer gock.Off()
+
+	group := ProductGroup{
+		ParentID:    19,
+		Name:        "Подкатегория хлама",
+		Site:        "main",
+		Active:      true,
+		Description: "Ну и хлам!",
+		ExternalID:  "ti22",
+	}
+
+	body, err := json.Marshal(group)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"productGroup": {string(body)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/product-groups/create").
+		BodyString(p.Encode()).
+		Reply(http.StatusCreated).
+		JSON(`{"success":true,"id":32}`)
+
+	res, status, err := client().CreateProductsGroup(group)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, 32, res.ID)
+}
+
+func TestClient_EditProductsGroup(t *testing.T) {
+	defer gock.Off()
+
+	group := ProductGroup{
+		Name:       "Ценнейший хлам из хламов",
+		Active:     true,
+		ExternalID: "ti22",
+	}
+
+	body, err := json.Marshal(group)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"by":           {"id"},
+		"site":         {"main"},
+		"productGroup": {string(body)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/store/product-groups/32/edit").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{"success":true,"id":32}`)
+
+	res, status, err := client().EditProductsGroup("id", "32", "main", group)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if res.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, 32, res.ID)
+}
+
+func TestClient_GetOrderPlate(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + "/orders/124/plates/1/print").
+		MatchParams(map[string]string{
+			"by":   "id",
+			"site": "main",
+		}).
+		Reply(200).
+		Body(ioutil.NopCloser(strings.NewReader("PDF")))
+
+	data, status, err := client().GetOrderPlate("id", "124", "main", 1)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	assert.NotNil(t, data)
+	assert.Equal(t, status, http.StatusOK)
+}
+
+func TestClient_GetOrderPlateFail(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + "/orders/124/plates/1/print").
+		MatchParams(map[string]string{
+			"by":   "id",
+			"site": "main",
+		}).
+		Reply(404).
+		JSON(`{
+			"success": false,
+			"errorMsg": "Not found"
+		}`)
+
+	data, status, err := client().GetOrderPlate("id", "124", "main", 1)
+
+	if err == nil {
+		t.Error("Expected error")
+	}
+
+	assert.Nil(t, data)
+	assert.Equal(t, status, http.StatusNotFound)
+	assert.Equal(t, "Not found", err.(APIError).Error()) //nolint:errorlint
 }

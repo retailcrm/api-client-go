@@ -5,6 +5,17 @@ type SuccessfulResponse struct {
 	Success bool `json:"success"`
 }
 
+type CreateLoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount LoyaltyAccount `json:"loyaltyAccount,omitempty"`
+	Warnings       []string       `json:"warnings,omitempty"`
+}
+
+type EditLoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount LoyaltyAccount `json:"loyaltyAccount,omitempty"`
+}
+
 // CreateResponse type.
 type CreateResponse struct {
 	Success bool `json:"success"`
@@ -112,6 +123,7 @@ type CorporateCustomerChangeResponse CustomerChangeResponse
 type CustomersUploadResponse struct {
 	Success           bool              `json:"success"`
 	UploadedCustomers []IdentifiersPair `json:"uploadedCustomers,omitempty"`
+	FailedCustomers   []ExternalID      `json:"failedCustomers,omitempty"`
 }
 
 // CorporateCustomersUploadResponse type.
@@ -156,6 +168,7 @@ type OrdersStatusesResponse struct {
 type OrdersUploadResponse struct {
 	Success        bool              `json:"success"`
 	UploadedOrders []IdentifiersPair `json:"uploadedOrders,omitempty"`
+	FailedOrders   []ExternalID      `json:"failedOrders,omitempty"`
 }
 
 // OrdersHistoryResponse type.
@@ -370,6 +383,23 @@ type ProductsResponse struct {
 	Products   []Product   `json:"products,omitempty"`
 }
 
+type ProductEditNotFoundResponse struct {
+	ID         string `json:"id"`
+	ExternalID string `json:"externalId,omitempty"`
+}
+
+type ProductsBatchEditResponse struct {
+	SuccessfulResponse
+	ProcessedProductsCount int                           `json:"processedProductsCount,omitempty"`
+	NotFoundProducts       []ProductEditNotFoundResponse `json:"notFoundProducts,omitempty"`
+}
+
+type ProductsBatchCreateResponse struct {
+	SuccessfulResponse
+	ProcessedProductsCount int   `json:"processedProductsCount,omitempty"`
+	AddedProducts          []int `json:"addedProducts,omitempty"`
+}
+
 // ProductsPropertiesResponse type.
 type ProductsPropertiesResponse struct {
 	Success    bool        `json:"success"`
@@ -417,9 +447,10 @@ type IntegrationModuleEditResponse struct {
 
 // ResponseInfo type.
 type ResponseInfo struct {
-	MgTransportInfo MgInfo       `json:"mgTransport,omitempty"`
-	MgBotInfo       MgInfo       `json:"mgBot,omitempty"`
-	BillingInfo     *BillingInfo `json:"billingInfo,omitempty"`
+	MgTransportInfo  MgInfo           `json:"mgTransport,omitempty"`
+	MgBotInfo        MgInfo           `json:"mgBot,omitempty"`
+	BillingInfo      *BillingInfo     `json:"billingInfo,omitempty"`
+	DeliveryTypeInfo DeliveryTypeInfo `json:"deliveryType,omitempty"`
 }
 
 type BillingInfo struct {
@@ -563,4 +594,60 @@ type AccountBonusOperationsResponse struct {
 	Success         bool             `json:"success"`
 	Pagination      *Pagination      `json:"pagination,omitempty"`
 	BonusOperations []BonusOperation `json:"bonusOperations,omitempty"`
+}
+
+type LoyaltyAccountResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount `json:"loyaltyAccount"`
+}
+
+type LoyaltyAccountActivateResponse struct {
+	SuccessfulResponse
+	LoyaltyAccount `json:"loyaltyAccount"`
+	Verification   SmsVerification `json:"verification,omitempty"`
+}
+
+type LoyaltyBonusCreditResponse struct {
+	SuccessfulResponse
+	LoyaltyBonus LoyaltyBonus `json:"loyaltyBonus"`
+}
+
+type LoyaltyBonusDetailsResponse struct {
+	SuccessfulResponse
+	Pagination `json:"pagination"`
+	Statistic  LoyaltyBonusStatisticResponse `json:"statistic"`
+	Bonuses    []BonusDetail                 `json:"bonuses,omitempty"`
+}
+
+type LoyaltyBonusStatisticResponse struct {
+	TotalAmount float64 `json:"totalAmount"`
+}
+
+type LoyaltyAccountsResponse struct {
+	SuccessfulResponse
+	Pagination      *Pagination      `json:"pagination"`
+	LoyaltyAccounts []LoyaltyAccount `json:"loyaltyAccounts,omitempty"`
+}
+
+type LoyaltyCalculateResponse struct {
+	SuccessfulResponse
+	Order        SerializedLoyaltyOrder `json:"order,omitempty"`
+	Calculations []LoyaltyCalculation   `json:"calculations,omitempty"`
+	Loyalty      SerializedLoyalty      `json:"loyalty,omitempty"`
+}
+
+type LoyaltiesResponse struct {
+	SuccessfulResponse
+	Pagination *Pagination `json:"pagination"`
+	Loyalties  []Loyalty   `json:"loyalties,omitempty"`
+}
+
+type LoyaltyResponse struct {
+	SuccessfulResponse
+	Loyalty Loyalty `json:"loyalty"`
+}
+
+type ActionProductsGroupResponse struct {
+	SuccessfulResponse
+	ID int `json:"id"`
 }
