@@ -3,7 +3,6 @@ package retailcrm
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -15,6 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/google/go-querystring/query"
 
 	"github.com/stretchr/testify/assert"
 
@@ -7722,4 +7723,28 @@ func TestClient_GetOrderPlateFail(t *testing.T) {
 	assert.Nil(t, data)
 	assert.Equal(t, status, http.StatusNotFound)
 	assert.Equal(t, "Not found", err.(APIError).Error()) //nolint:errorlint
+}
+
+func TestClient_NotificationsSend(t *testing.T) {
+	defer gock.Off()
+	req := NotificationsSendRequest{
+		UserGroups: []UserGroupType{UserGroupSuperadmins},
+		Type:       NotificationTypeInfo,
+		Message:    "Hello everyone!",
+	}
+	data, err := json.Marshal(req)
+	if err != nil {
+		t.Error(err)
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/notifications/send").
+		BodyString(url.Values{"notification": {string(data)}}.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{"success":true}`)
+
+	status, err := client().NotificationsSend(req)
+
+	assert.NoError(t, err)
+	assert.True(t, statuses[status])
 }

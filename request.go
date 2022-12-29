@@ -277,6 +277,13 @@ type LoyaltiesRequest struct {
 	Filter LoyaltyAPIFilter `url:"filter,omitempty"`
 }
 
+type NotificationsSendRequest struct {
+	UserGroups []UserGroupType  `json:"userGroups,omitempty"`
+	Type       NotificationType `json:"type"`
+	Message    string           `json:"message"`
+	UserIDs    []string         `json:"userIds,omitempty"`
+}
+
 // SystemURL returns system URL from the connection request without trailing slash.
 func (r ConnectRequest) SystemURL() string {
 	if r.URL == "" {
