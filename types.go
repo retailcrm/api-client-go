@@ -1431,3 +1431,6 @@ type SerializedLoyalty struct {
 type ExternalID struct {
 	ExternalID string `json:"externalId,omitempty"`
 }
+
+type UserGroupType string
+type NotificationType string

@@ -6493,3 +6493,41 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 
 	return reader, resp.StatusCode, nil
 }
+
+// NotificationsSend send a notification
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-notifications-send
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	req := retailcrm.NotificationsSendRequest{
+//		UserGroups: []retailcrm.UserGroupType{retailcrm.UserGroupSuperadmins},
+//		Type:       retailcrm.NotificationTypeInfo,
+//		Message:    "Hello everyone!",
+//	}
+//
+//	status, err := client.NotificationsSend(req)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) NotificationsSend(req NotificationsSendRequest) (int, error) {
+	marshaled, err := json.Marshal(req)
+	if err != nil {
+		return 0, err
+	}
+
+	_, status, err := c.PostRequest("/notifications/send",
+		url.Values{"notification": {string(marshaled)}})
+	if err != nil {
+		return status, err
+	}
+
+	return status, nil
+}
