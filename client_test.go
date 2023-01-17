@@ -5150,6 +5150,16 @@ func TestClient_Settings(t *testing.T) {
 		"lunch_start_time": "13:00",
 		"lunch_end_time": "14:00"
 	  }
+    ],
+	"non_working_days": [
+      {
+        "start_date": "01.02",
+        "end_date": "01.07"
+      },
+      {
+        "start_date": "12.31",
+        "end_date": "12.31"
+      }
     ]
   }
 }
@@ -5182,6 +5192,10 @@ func TestClient_Settings(t *testing.T) {
 
 	if data.Settings.WorkTimes[0].DayType != "Monday" {
 		t.Errorf("Invalid work times: %v", data.Settings.WorkTimes[0].DayType)
+	}
+
+	if data.Settings.NonWorkingDays[0].StartDate != "01.02" {
+		t.Errorf("Invalid excluded days: %v", data.Settings.NonWorkingDays[0].StartDate)
 	}
 }
 

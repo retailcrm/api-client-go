@@ -705,6 +705,12 @@ type WorkTime struct {
 	LunchEndTime   string `json:"lunch_end_time"`
 }
 
+// NonWorkingDays type.
+type NonWorkingDays struct {
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+}
+
 type SerializedBaseLoyaltyAccount struct {
 	PhoneNumber  string   `json:"phoneNumber,omitempty"`
 	CardNumber   string   `json:"cardNumber,omitempty"`
@@ -722,10 +728,11 @@ type SerializedEditLoyaltyAccount struct {
 
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
-	DefaultCurrency SettingsNode `json:"default_currency"`
-	SystemLanguage  SettingsNode `json:"system_language"`
-	Timezone        SettingsNode `json:"timezone"`
-	WorkTimes       []WorkTime   `json:"work_times"`
+	DefaultCurrency SettingsNode     `json:"default_currency"`
+	SystemLanguage  SettingsNode     `json:"system_language"`
+	Timezone        SettingsNode     `json:"timezone"`
+	WorkTimes       []WorkTime       `json:"work_times"`
+	NonWorkingDays  []NonWorkingDays `json:"non_working_days"`
 }
 
 /**
