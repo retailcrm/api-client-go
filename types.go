@@ -245,15 +245,25 @@ type Phone struct {
 
 // CustomerHistoryRecord type.
 type CustomerHistoryRecord struct {
-	ID        int       `json:"id,omitempty"`
-	CreatedAt string    `json:"createdAt,omitempty"`
-	Created   bool      `json:"created,omitempty"`
-	Deleted   bool      `json:"deleted,omitempty"`
-	Source    string    `json:"source,omitempty"`
-	Field     string    `json:"field,omitempty"`
-	User      *User     `json:"user,omitempty"`
-	APIKey    *APIKey   `json:"apiKey,omitempty"`
-	Customer  *Customer `json:"customer,omitempty"`
+	ID        int                        `json:"id,omitempty"`
+	CreatedAt string                     `json:"createdAt,omitempty"`
+	Created   bool                       `json:"created,omitempty"`
+	Deleted   bool                       `json:"deleted,omitempty"`
+	Source    string                     `json:"source,omitempty"`
+	Field     string                     `json:"field,omitempty"`
+	OldValue  interface{}                `json:"oldValue,omitempty"`
+	NewValue  interface{}                `json:"newValue,omitempty"`
+	User      *User                      `json:"user,omitempty"`
+	APIKey    *APIKey                    `json:"apiKey,omitempty"`
+	Customer  *Customer                  `json:"customer,omitempty"`
+	Address   *CustomerAddressWithIsMain `json:"address,omitempty"`
+}
+
+type CustomerAddressWithIsMain struct {
+	ID         int    `json:"id"`
+	ExternalID string `json:"externalId,omitempty"`
+	Name       string `json:"name,omitempty"`
+	IsMain     bool   `json:"isMain"`
 }
 
 // CorporateCustomerHistoryRecord type.
@@ -264,6 +274,8 @@ type CorporateCustomerHistoryRecord struct {
 	Deleted           bool               `json:"deleted,omitempty"`
 	Source            string             `json:"source,omitempty"`
 	Field             string             `json:"field,omitempty"`
+	OldValue          interface{}        `json:"oldValue,omitempty"`
+	NewValue          interface{}        `json:"newValue,omitempty"`
 	User              *User              `json:"user,omitempty"`
 	APIKey            *APIKey            `json:"apiKey,omitempty"`
 	CorporateCustomer *CorporateCustomer `json:"corporateCustomer,omitempty"`
@@ -465,15 +477,21 @@ type OrderItem struct {
 
 // OrdersHistoryRecord type.
 type OrdersHistoryRecord struct {
-	ID        int     `json:"id,omitempty"`
-	CreatedAt string  `json:"createdAt,omitempty"`
-	Created   bool    `json:"created,omitempty"`
-	Deleted   bool    `json:"deleted,omitempty"`
-	Source    string  `json:"source,omitempty"`
-	Field     string  `json:"field,omitempty"`
-	User      *User   `json:"user,omitempty"`
-	APIKey    *APIKey `json:"apiKey,omitempty"`
-	Order     *Order  `json:"order,omitempty"`
+	ID         int         `json:"id,omitempty"`
+	CreatedAt  string      `json:"createdAt,omitempty"`
+	Created    bool        `json:"created,omitempty"`
+	Deleted    bool        `json:"deleted,omitempty"`
+	Source     string      `json:"source,omitempty"`
+	Field      string      `json:"field,omitempty"`
+	OldValue   interface{} `json:"oldValue,omitempty"`
+	NewValue   interface{} `json:"newValue,omitempty"`
+	User       *User       `json:"user,omitempty"`
+	APIKey     *APIKey     `json:"apiKey,omitempty"`
+	Order      *Order      `json:"order,omitempty"`
+	Ancestor   *Order      `json:"ancestor,omitempty"`
+	Item       *OrderItem  `json:"item,omitempty"`
+	Payment    *Payment    `json:"payment"`
+	CombinedTo *Order      `json:"combinedTo,omitempty"`
 }
 
 // Pack type.
@@ -499,14 +517,16 @@ type PackItem struct {
 
 // PacksHistoryRecord type.
 type PacksHistoryRecord struct {
-	ID        int    `json:"id,omitempty"`
-	CreatedAt string `json:"createdAt,omitempty"`
-	Created   bool   `json:"created,omitempty"`
-	Deleted   bool   `json:"deleted,omitempty"`
-	Source    string `json:"source,omitempty"`
-	Field     string `json:"field,omitempty"`
-	User      *User  `json:"user,omitempty"`
-	Pack      *Pack  `json:"pack,omitempty"`
+	ID        int         `json:"id,omitempty"`
+	CreatedAt string      `json:"createdAt,omitempty"`
+	Created   bool        `json:"created,omitempty"`
+	Deleted   bool        `json:"deleted,omitempty"`
+	Source    string      `json:"source,omitempty"`
+	Field     string      `json:"field,omitempty"`
+	OldValue  interface{} `json:"oldValue,omitempty"`
+	NewValue  interface{} `json:"newValue,omitempty"`
+	User      *User       `json:"user,omitempty"`
+	Pack      *Pack       `json:"pack,omitempty"`
 }
 
 // Offer type.
