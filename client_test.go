@@ -1266,7 +1266,10 @@ func TestClient_CorporateCustomer(t *testing.T) {
 		    "averageSumm": 0,
 		    "ordersCount": 0,
 		    "costSumm": 0,
-		    "customFields": [],
+		    "customFields": {
+			  "animal": "cat",
+			  "animal_multiselect": ["cat", "dog"]
+			},
 		    "personalDiscount": 10,
 		    "mainCompany": {
 		      "id": 26,
@@ -1482,7 +1485,13 @@ func TestClient_CorporateCustomerCompanies(t *testing.T) {
 		      "averageSumm": 0,
 		      "ordersCount": 0,
 		      "costSumm": 0,
-		      "customFields": []
+		      "customFields": {
+			    "field_multiselect": ["test1", "test2"],
+				"field_select": "test3",
+				"field_string": "test_string",
+				"field_float": 4.56,
+				"field_integer": 789
+   			  }
 		    }
 		  ]
 		}

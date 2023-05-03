@@ -85,7 +85,7 @@ func getLoyaltyAccountCreate() SerializedCreateLoyaltyAccount {
 	return SerializedCreateLoyaltyAccount{
 		SerializedBaseLoyaltyAccount: SerializedBaseLoyaltyAccount{
 			PhoneNumber:  "89151005004",
-			CustomFields: []string{"dog"},
+			CustomFields: []interface{}{"dog"},
 		},
 		Customer: SerializedEntityCustomer{
 			ID: 123,
@@ -103,7 +103,9 @@ func getLoyaltyAccountCreateResponse() CreateLoyaltyAccountResponse {
 			LoyaltyLevel: LoyaltyLevel{},
 			CreatedAt:    "2022-11-24 12:39:37",
 			ActivatedAt:  "2022-11-24 12:39:37",
-			CustomFields: []string{"dog"},
+			CustomFields: map[string]interface{}{
+				"animal": "dog",
+			},
 		},
 	}
 }
@@ -118,7 +120,9 @@ func getLoyaltyAccountEditResponse() EditLoyaltyAccountResponse {
 			LoyaltyLevel: LoyaltyLevel{},
 			CreatedAt:    "2022-11-24 12:39:37",
 			ActivatedAt:  "2022-11-24 12:39:37",
-			CustomFields: []string{"dog"},
+			CustomFields: map[string]interface{}{
+				"animal": "dog",
+			},
 		},
 	}
 }
@@ -134,7 +138,7 @@ func getLoyaltyAccountResponse() string {
 			},
 			"customer": {
 				"id": 123,
-				"customFields": [],
+				"customFields": {},
 				"firstName": "Руслан1",
 				"lastName": "Ефанов",
 				"patronymic": ""
@@ -154,7 +158,12 @@ func getLoyaltyAccountResponse() string {
 			"createdAt": "2022-11-24 12:39:37",
 			"activatedAt": "2022-11-24 12:39:37",
 			"status": "activated",
-			"customFields": []
+			"customFields": {
+				"custom_multiselect": ["test1", "test3"],
+				"custom_select": "test2",
+				"custom_integer": 456,
+				"custom_float": 8.43
+			}
 		}
 	}`
 }
