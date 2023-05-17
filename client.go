@@ -6531,3 +6531,54 @@ func (c *Client) NotificationsSend(req NotificationsSendRequest) (int, error) {
 
 	return status, nil
 }
+
+func (c *Client) ListMGChannelTemplates(channelID, page, limit int) (MGChannelTemplatesResponse, int, error) {
+	var resp MGChannelTemplatesResponse
+
+	values := url.Values{
+		"page":       {fmt.Sprintf("%d", page)},
+		"limit":      {fmt.Sprintf("%d", limit)},
+		"channel_id": {fmt.Sprintf("%d", channelID)},
+	}
+
+	data, code, err := c.GetRequest(fmt.Sprintf("/reference/mg-channels/templates?%s", values.Encode()))
+
+	if err != nil {
+		return resp, code, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+
+	if err != nil {
+		return resp, code, err
+	}
+
+	return resp, code, nil
+}
+
+func (c *Client) EditMGChannelTemplate(req EditMGChannelTemplateRequest) (int, error) {
+	templates, err := json.Marshal(req.Templates)
+
+	if err != nil {
+		return 0, err
+	}
+
+	removed, err := json.Marshal(req.Removed)
+
+	if err != nil {
+		return 0, err
+	}
+
+	values := url.Values{
+		"templates": {string(templates)},
+		"removed":   {string(removed)},
+	}
+
+	_, code, err := c.PostRequest("/reference/mg-channels/templates/edit", values)
+
+	if err != nil {
+		return code, err
+	}
+
+	return code, nil
+}

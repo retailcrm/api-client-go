@@ -651,3 +651,9 @@ type ActionProductsGroupResponse struct {
 	SuccessfulResponse
 	ID int `json:"id"`
 }
+
+type MGChannelTemplatesResponse struct {
+	Pagination *Pagination         `json:"pagination"`
+	Templates  []MGChannelTemplate `json:"templates"`
+	SuccessfulResponse
+}

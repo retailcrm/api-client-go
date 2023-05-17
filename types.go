@@ -1463,3 +1463,29 @@ type ExternalID struct {
 
 type UserGroupType string
 type NotificationType string
+
+type MGChannel struct {
+	Type               string `json:"type"`
+	Name               string `json:"name"`
+	ID                 int    `json:"id"`
+	ExternalID         int    `json:"externalId"`
+	AllowedSendByPhone bool   `json:"allowedSendByPhone"`
+	Active             bool   `json:"active"`
+}
+
+type MGChannelTemplate struct {
+	Header             *Header          `json:"header"`
+	Lang               string           `json:"lang"`
+	Category           string           `json:"category"`
+	Code               string           `json:"code"`
+	Name               string           `json:"name"`
+	Namespace          string           `json:"namespace"`
+	Footer             string           `json:"footer,omitempty"`
+	VerificationStatus string           `json:"verificationStatus"`
+	BodyTemplate       TemplateItemList `json:"template,omitempty"`
+	Buttons            []Button         `json:"buttons,omitempty"`
+	Channel            MGChannel        `json:"channel"`
+	ID                 int              `json:"id"`
+	ExternalID         int              `json:"externalId,omitempty"`
+	Active             bool             `json:"active"`
+}

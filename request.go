@@ -284,6 +284,11 @@ type NotificationsSendRequest struct {
 	UserIDs    []string         `json:"userIds,omitempty"`
 }
 
+type EditMGChannelTemplateRequest struct {
+	Templates []MGChannelTemplate `json:"templates"`
+	Removed   []int               `json:"removed"`
+}
+
 // SystemURL returns system URL from the connection request without trailing slash.
 func (r ConnectRequest) SystemURL() string {
 	if r.URL == "" {
