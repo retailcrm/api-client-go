@@ -7796,12 +7796,22 @@ func TestClient_ListMGChannelTemplates(t *testing.T) {
 	assert.Equal(t, 1, template.Channel.ID)
 	assert.Equal(t, 1, template.Channel.ExternalID)
 	assert.Equal(t, "NAMEAAA", template.Name)
+
 	assert.Equal(t, TemplateItemTypeText, template.BodyTemplate[0].Type)
+	assert.Equal(t, "Text_0", template.BodyTemplate[0].Text)
+
 	assert.Equal(t, TemplateItemTypeVar, template.BodyTemplate[1].Type)
+	assert.Equal(t, TemplateVarCustom, template.BodyTemplate[1].VarType)
+	assert.Equal(t, []string{"Text_1"}, template.BodyTemplateExample)
 	assert.Equal(t, "en", template.Lang)
 	assert.Equal(t, "test_0", template.Category)
-	assert.Equal(t, []string{"Hello,", "{{1}}"}, template.Header.Text.Parts)
+
+	assert.Equal(t, TemplateItemTypeText, template.Header.Text.Parts[0].Type)
+	assert.Equal(t, "JABAAA", template.Header.Text.Parts[0].Text)
+	assert.Equal(t, TemplateItemTypeVar, template.Header.Text.Parts[1].Type)
+	assert.Equal(t, TemplateVarCustom, template.Header.Text.Parts[1].VarType)
 	assert.Equal(t, []string{"AAAAAA"}, template.Header.Text.Example)
+
 	assert.Equal(t, "https://example.com/file/123.png", template.Header.Image.Example)
 	assert.Equal(t, "https://example.com/file/123.pdf", template.Header.Document.Example)
 	assert.Equal(t, "https://example.com/file/123.mp4", template.Header.Video.Example)
@@ -7823,7 +7833,7 @@ func TestClient_ListMGChannelTemplates(t *testing.T) {
 
 	data, err := json.Marshal(template.BodyTemplate)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, `["Text_0",{}]`, string(data))
+	assert.Equal(t, `["Text_0",{"var":"custom"}]`, string(data))
 }
 
 func TestClient_ListMGChannelEmptyHeaderButtons(t *testing.T) {

@@ -464,15 +464,18 @@ func getMGTemplatesResponse() string {
                     "var": "custom"
                 }
             ],
+			"templateExample": ["Text_1"],
             "namespace": "namespace_0",
             "lang": "en",
             "category": "test_0",
             "header": {
                 "text": {
                     "parts": [
-                        "Hello,",
-                        "{{1}}"
-                    ],
+						"JABAAA",
+						{
+							"var": "custom"
+						}
+					],
                     "example": [
                         "AAAAAA"
                     ]
@@ -514,5 +517,5 @@ func getMGTemplatesResponse() string {
 }
 
 func getMGTemplatesForEdit() string {
-	return `[{"header":{"text":{"parts":["Hello,","{{1}}"],"example":["Henry"]},"document":{"example":"https://example.com/file/123.pdf"},"image":{"example":"https://example.com/file/123.png"},"video":{"example":"https://example.com/file/123.mp4"}},"lang":"en","category":"test_0","code":"namespace#name_0#ru","name":"name_0","namespace":"namespace_0","footer":"footer_0","verificationStatus":"REJECTED","template":["Text_0",{"var":"custom"}],"buttons":[{"type":"PHONE_NUMBER","text":"your-phone-button-text","phoneNumber":"+79895553535"},{"type":"QUICK_REPLY","text":"Yes"},{"type":"URL","url":"https://example.com/file/{{1}}","text":"button","example":["https://www.website.com/dynamic-url-example"]}],"channel":{"type":"fbmessenger","name":"JABAAAAAAAAAA","id":1,"externalId":1,"allowedSendByPhone":false,"active":true},"id":1,"externalId":10,"active":true}]`
+	return `[{"header":{"text":{"parts":["Hello,",{"var":"custom"}],"example":["Henry"]},"document":{"example":"https://example.com/file/123.pdf"},"image":{"example":"https://example.com/file/123.png"},"video":{"example":"https://example.com/file/123.mp4"}},"lang":"en","category":"test_0","code":"namespace#name_0#ru","name":"name_0","namespace":"namespace","footer":"footer_0","verificationStatus":"REJECTED","template":["Text_0",{"var":"custom"}],"buttons":[{"type":"PHONE_NUMBER","text":"your-phone-button-text","phoneNumber":"+79895553535"},{"type":"QUICK_REPLY","text":"Yes"},{"type":"URL","url":"https://example.com/file/{{1}}","text":"button","example":["https://www.website.com/dynamic-url-example"]}],"channel":{"type":"fbmessenger","name":"JABAAAAAAAAAA","id":1,"externalId":1,"allowedSendByPhone":false,"active":true},"id":1,"externalId":10,"active":true}]`
 }

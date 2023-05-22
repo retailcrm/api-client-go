@@ -1474,18 +1474,19 @@ type MGChannel struct {
 }
 
 type MGChannelTemplate struct {
-	Header             *Header          `json:"header"`
-	Lang               string           `json:"lang"`
-	Category           string           `json:"category"`
-	Code               string           `json:"code"`
-	Name               string           `json:"name"`
-	Namespace          string           `json:"namespace"`
-	Footer             string           `json:"footer,omitempty"`
-	VerificationStatus string           `json:"verificationStatus"`
-	BodyTemplate       TemplateItemList `json:"template,omitempty"`
-	Buttons            []Button         `json:"buttons,omitempty"`
-	Channel            MGChannel        `json:"channel"`
-	ID                 int              `json:"id"`
-	ExternalID         int              `json:"externalId,omitempty"`
-	Active             bool             `json:"active"`
+	Header              *Header          `json:"header"`
+	Lang                string           `json:"lang"`
+	Category            string           `json:"category"`
+	Code                string           `json:"code,omitempty"`
+	Name                string           `json:"name"`
+	Namespace           string           `json:"namespace,omitempty"`
+	Footer              string           `json:"footer,omitempty"`
+	VerificationStatus  string           `json:"verificationStatus,omitempty"`
+	BodyTemplate        TemplateItemList `json:"template"`
+	BodyTemplateExample []string         `json:"templateExample"`
+	Buttons             []Button         `json:"buttons,omitempty"`
+	Channel             MGChannel        `json:"channel"`
+	ID                  int              `json:"id,omitempty"`
+	ExternalID          int              `json:"externalId,omitempty"`
+	Active              bool             `json:"active"`
 }

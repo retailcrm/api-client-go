@@ -36,8 +36,8 @@ var templateVarAssoc = map[string]interface{}{
 }
 
 type Text struct {
-	Parts   []string `json:"parts"`
-	Example []string `json:"example,omitempty"`
+	Parts   []TextTemplateItem `json:"parts"`
+	Example []string           `json:"example,omitempty"`
 }
 
 type Media struct {
@@ -51,17 +51,17 @@ type Header struct {
 	Video    *Media `json:"video,omitempty"`
 }
 
-type TemplateItemList []BodyTemplateItem
+type TemplateItemList []TextTemplateItem
 
-// BodyTemplateItem is a part of template.
-type BodyTemplateItem struct {
+// TextTemplateItem is a part of template.
+type TextTemplateItem struct {
 	Text    string
 	VarType string
 	Type    uint8
 }
 
-// MarshalJSON controls how BodyTemplateItem will be marshaled into JSON.
-func (t BodyTemplateItem) MarshalJSON() ([]byte, error) {
+// MarshalJSON controls how TextTemplateItem will be marshaled into JSON.
+func (t TextTemplateItem) MarshalJSON() ([]byte, error) {
 	switch t.Type {
 	case TemplateItemTypeText:
 		return json.Marshal(t.Text)
@@ -71,11 +71,11 @@ func (t BodyTemplateItem) MarshalJSON() ([]byte, error) {
 		})
 	}
 
-	return nil, errors.New("unknown BodyTemplateItem type")
+	return nil, errors.New("unknown TextTemplateItem type")
 }
 
-// UnmarshalJSON will correctly unmarshal BodyTemplateItem.
-func (t *BodyTemplateItem) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON will correctly unmarshal TextTemplateItem.
+func (t *TextTemplateItem) UnmarshalJSON(b []byte) error {
 	var obj interface{}
 	err := json.Unmarshal(b, &obj)
 	if err != nil {
@@ -89,8 +89,8 @@ func (t *BodyTemplateItem) UnmarshalJSON(b []byte) error {
 	case map[string]interface{}:
 		// {} case
 		if len(bodyPart) == 0 {
-			t.Type = TemplateItemTypeVar
-			t.VarType = TemplateVarCustom
+			t.Type = TemplateItemTypeText
+			t.Text = "{}"
 			return nil
 		}
 
@@ -102,10 +102,10 @@ func (t *BodyTemplateItem) UnmarshalJSON(b []byte) error {
 			t.Type = TemplateItemTypeVar
 			t.VarType = varTypeCurr
 		} else {
-			return errors.New("invalid BodyTemplateItem")
+			return errors.New("invalid TextTemplateItem")
 		}
 	default:
-		return errors.New("invalid BodyTemplateItem")
+		return errors.New("invalid TextTemplateItem")
 	}
 
 	return nil
