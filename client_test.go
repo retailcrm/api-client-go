@@ -7771,3 +7771,129 @@ func TestClient_NotificationsSend(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, statuses[status])
 }
+
+func TestClient_ListMGChannelTemplates(t *testing.T) {
+	defer gock.Off()
+	gock.New(crmURL).
+		Get("/reference/mg-channels/templates").
+		MatchParams(map[string]string{
+			"limit":      "10",
+			"page":       "5",
+			"channel_id": "1",
+		}).
+		Reply(http.StatusOK).
+		JSON(getMGTemplatesResponse())
+
+	resp, code, err := client().ListMGChannelTemplates(1, 5, 10)
+
+	assert.NoError(t, err)
+	assert.True(t, statuses[code])
+	assert.NotEmpty(t, resp.Pagination)
+	assert.NotEmpty(t, resp.Templates)
+
+	template := resp.Templates[0]
+	assert.Equal(t, 1, template.ID)
+	assert.Equal(t, 1, template.Channel.ID)
+	assert.Equal(t, 1, template.Channel.ExternalID)
+	assert.Equal(t, "NAMEAAA", template.Name)
+
+	assert.Equal(t, TemplateItemTypeText, template.BodyTemplate[0].Type)
+	assert.Equal(t, "Text_0", template.BodyTemplate[0].Text)
+
+	assert.Equal(t, TemplateItemTypeVar, template.BodyTemplate[1].Type)
+	assert.Equal(t, TemplateVarCustom, template.BodyTemplate[1].VarType)
+	assert.Equal(t, []string{"Text_1"}, template.BodyTemplateExample)
+	assert.Equal(t, "en", template.Lang)
+	assert.Equal(t, "test_0", template.Category)
+
+	assert.Equal(t, TemplateItemTypeText, template.Header.Text.Parts[0].Type)
+	assert.Equal(t, "JABAAA", template.Header.Text.Parts[0].Text)
+	assert.Equal(t, TemplateItemTypeVar, template.Header.Text.Parts[1].Type)
+	assert.Equal(t, TemplateVarCustom, template.Header.Text.Parts[1].VarType)
+	assert.Equal(t, []string{"AAAAAA"}, template.Header.Text.Example)
+
+	assert.Equal(t, "https://example.com/file/123.png", template.Header.Image.Example)
+	assert.Equal(t, "https://example.com/file/123.pdf", template.Header.Document.Example)
+	assert.Equal(t, "https://example.com/file/123.mp4", template.Header.Video.Example)
+	assert.Equal(t, "footer_0", template.Footer)
+
+	assert.Equal(t, PhoneNumber, template.Buttons[0].Type)
+	assert.Equal(t, "your-phone-button-text", template.Buttons[0].Text)
+	assert.Equal(t, "+79895553535", template.Buttons[0].PhoneNumber)
+
+	assert.Equal(t, QuickReply, template.Buttons[1].Type)
+	assert.Equal(t, "Yes", template.Buttons[1].Text)
+
+	assert.Equal(t, URL, template.Buttons[2].Type)
+	assert.Equal(t, "button", template.Buttons[2].Text)
+	assert.Equal(t, "https://example.com/file/{{1}}", template.Buttons[2].URL)
+	assert.Equal(t, []string{"https://www.website.com/dynamic-url-example"}, template.Buttons[2].Example)
+
+	assert.Equal(t, "APPROVED", template.VerificationStatus)
+
+	data, err := json.Marshal(template.BodyTemplate)
+	assert.NoError(t, err)
+	assert.Equal(t, `["Text_0",{"var":"custom"}]`, string(data))
+}
+
+func TestClient_ListMGChannelEmptyHeaderButtons(t *testing.T) {
+	defer gock.Off()
+	gock.New(crmURL).
+		Get("/reference/mg-channels/templates").
+		MatchParams(map[string]string{
+			"limit":      "1",
+			"page":       "1",
+			"channel_id": "1",
+		}).
+		Reply(http.StatusOK).
+		JSON(`{
+    "success": true,
+    "pagination": {
+        "limit": 1,
+        "totalCount": 1,
+        "currentPage": 1,
+        "totalPageCount": 1
+    },
+    "templates": [
+        {
+            "id": 12,
+            "externalId": 0,
+            "channel": {
+                "id": 1,
+                "externalId": 1
+            },
+            "name": "name_0"
+		}
+	]
+}`)
+
+	resp, code, err := client().ListMGChannelTemplates(1, 1, 1)
+
+	assert.NoError(t, err)
+	assert.True(t, statuses[code])
+	assert.NotEmpty(t, resp.Pagination)
+	assert.NotEmpty(t, resp.Templates)
+	assert.Nil(t, resp.Templates[0].Header)
+	assert.Nil(t, resp.Templates[0].Buttons)
+}
+
+func TestClient_EditMGChannelTemplate(t *testing.T) {
+	defer gock.Off()
+
+	tmplsJSON := getMGTemplatesForEdit()
+	var tmpls []MGChannelTemplate
+	assert.NoError(t, json.Unmarshal([]byte(tmplsJSON), &tmpls))
+	request := EditMGChannelTemplateRequest{Templates: tmpls, Removed: []int{1, 2, 3}}
+	reqValue := url.Values{
+		"templates": {tmplsJSON},
+		"removed":   {"[1,2,3]"},
+	}
+	gock.New(crmURL).
+		Post("reference/mg-channels/templates/edit").
+		Body(strings.NewReader(reqValue.Encode())).
+		Reply(http.StatusOK)
+
+	code, err := client().EditMGChannelTemplate(request)
+	assert.NoError(t, err)
+	assert.True(t, statuses[code])
+}

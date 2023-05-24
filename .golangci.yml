@@ -16,8 +16,6 @@ output:
 linters:
   disable-all: true
   enable:
-    - paralleltest
-    - tparallel
     - asciicheck
     - asasalint
     - varnamelen
