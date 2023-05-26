@@ -6563,10 +6563,18 @@ func (c *Client) EditMGChannelTemplate(req EditMGChannelTemplateRequest) (int, e
 		return 0, err
 	}
 
+	if string(templates) == "null" {
+		templates = []byte(`[]`)
+	}
+
 	removed, err := json.Marshal(req.Removed)
 
 	if err != nil {
 		return 0, err
+	}
+
+	if string(removed) == "null" {
+		removed = []byte(`[]`)
 	}
 
 	values := url.Values{

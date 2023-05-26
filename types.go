@@ -1474,6 +1474,7 @@ type MGChannel struct {
 }
 
 type MGChannelTemplate struct {
+	Channel             *MGChannel       `json:"channel,omitempty"`
 	Header              *Header          `json:"header"`
 	Lang                string           `json:"lang"`
 	Category            string           `json:"category"`
@@ -1483,10 +1484,10 @@ type MGChannelTemplate struct {
 	Footer              string           `json:"footer,omitempty"`
 	VerificationStatus  string           `json:"verificationStatus,omitempty"`
 	BodyTemplate        TemplateItemList `json:"template"`
-	BodyTemplateExample []string         `json:"templateExample"`
 	Buttons             []Button         `json:"buttons,omitempty"`
-	Channel             MGChannel        `json:"channel"`
+	BodyTemplateExample []string         `json:"templateExample"`
 	ID                  int              `json:"id,omitempty"`
 	ExternalID          int              `json:"externalId,omitempty"`
+	MGChannelID         int              `json:"mgChannelId"`
 	Active              bool             `json:"active"`
 }
