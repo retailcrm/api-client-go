@@ -7896,4 +7896,19 @@ func TestClient_EditMGChannelTemplate(t *testing.T) {
 	code, err := client().EditMGChannelTemplate(request)
 	assert.NoError(t, err)
 	assert.True(t, statuses[code])
+
+	reqValue = url.Values{
+		"templates": {tmplsJSON},
+		"removed":   {"[]"},
+	}
+
+	gock.New(crmURL).
+		Post("reference/mg-channels/templates/edit").
+		Body(strings.NewReader(reqValue.Encode())).
+		Reply(http.StatusOK)
+
+	request = EditMGChannelTemplateRequest{Templates: tmpls}
+	code, err = client().EditMGChannelTemplate(request)
+	assert.NoError(t, err)
+	assert.True(t, statuses[code])
 }
