@@ -58,6 +58,30 @@ func (l *StringMap) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (l *CustomFieldMap) UnmarshalJSON(data []byte) error {
+	var i interface{}
+	var m CustomFieldMap
+	if err := json.Unmarshal(data, &i); err != nil {
+		return err
+	}
+
+	switch e := i.(type) {
+	case map[string]interface{}:
+		m = make(CustomFieldMap, len(e))
+		for idx, val := range e {
+			m[idx] = val
+		}
+	case []interface{}:
+		m = make(CustomFieldMap, len(e))
+		for idx, val := range e {
+			m[strconv.Itoa(idx)] = val
+		}
+	}
+
+	*l = m
+	return nil
+}
+
 func (p *OrderPayments) UnmarshalJSON(data []byte) error {
 	var i interface{}
 	var m OrderPayments
