@@ -748,11 +748,27 @@ type SerializedEditLoyaltyAccount struct {
 	SerializedBaseLoyaltyAccount
 }
 
+type ChannelSetting struct {
+	Site        string `json:"site"`
+	OrderType   string `json:"order_type"`
+	OrderMethod string `json:"order_method"`
+}
+
+type MgOrderCreationSettings struct {
+	Channels map[int]ChannelSetting `json:"channels"`
+	Default  ChannelSetting         `json:"default"`
+}
+
+type MgSettings struct {
+	OrderCreation MgOrderCreationSettings `json:"order_creation"`
+}
+
 // Settings type. Contains retailCRM configuration.
 type Settings struct {
 	DefaultCurrency SettingsNode     `json:"default_currency"`
 	SystemLanguage  SettingsNode     `json:"system_language"`
 	Timezone        SettingsNode     `json:"timezone"`
+	MgSettings      MgSettings       `json:"mg"`
 	WorkTimes       []WorkTime       `json:"work_times"`
 	NonWorkingDays  []NonWorkingDays `json:"non_working_days"`
 }
