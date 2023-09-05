@@ -596,6 +596,34 @@ type AccountBonusOperationsResponse struct {
 	BonusOperations []BonusOperation `json:"bonusOperations,omitempty"`
 }
 
+// ClientIdResponse type
+type ClientIdResponse struct {
+	Success         bool              `json:"success"`
+	FailedClientIds []ClientId        `json:"failed_client_ids,omitempty"`
+	ErrorMsg        string            `json:"errorMsg,omitempty"`
+	Errors          map[string]string `json:"errors,omitempty"`
+}
+
+// SourcesResponse type
+type SourcesResponse struct {
+	Success       bool              `json:"success"`
+	FailedSources []Source          `json:"failed_sources,omitempty"`
+	ErrorMsg      string            `json:"errorMsg,omitempty"`
+	Errors        map[string]string `json:"errors,omitempty"`
+}
+
+//CurrencyResponse type
+type CurrencyResponse struct {
+	Success    bool       `json:"success"`
+	Currencies []Currency `json:"currencies,omitempty"`
+}
+
+//CurrencyCreateResponse type
+type CurrencyCreateResponse struct {
+	Success bool `json:"success"`
+	ID      int  `json:"id,omitempty"`
+}
+
 type LoyaltyAccountResponse struct {
 	SuccessfulResponse
 	LoyaltyAccount `json:"loyaltyAccount"`

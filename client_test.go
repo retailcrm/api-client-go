@@ -1988,6 +1988,424 @@ func TestClient_OrdersOrders_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_LinksCreate(t *testing.T) {
+	c := client()
+
+	orders := []LinkedOrder{{ID: 10}, {ID: 12}}
+
+	link := SerializedOrderLink{
+		Comment: "comment",
+		Orders:  orders,
+	}
+
+	linkJson, _ := json.Marshal(link)
+
+	p := url.Values{
+		"link": {string(linkJson)},
+	}
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/links/create").
+		BodyString(p.Encode()).
+		Reply(201).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.LinksCreate(link)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_ClientIdsUpload(t *testing.T) {
+	c := client()
+
+	clientIds := []ClientId{
+		{
+			Value:    "value",
+			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
+			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalID"},
+			Site:     "site",
+		},
+		{
+			Value:    "value2",
+			Order:    LinkedOrder{ID: 12, ExternalID: "externalID2", Number: "number2"},
+			Customer: SerializedEntityCustomer{ID: 12, ExternalID: "externalID2"},
+			Site:     "site2",
+		},
+	}
+
+	clientIdsJSON, _ := json.Marshal(&clientIds)
+
+	p := url.Values{
+		"clientIds": {string(clientIdsJSON)},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post("/web-analytics/client-ids/upload").
+		BodyString(p.Encode()).
+		Reply(201).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.ClientIdsUpload(clientIds)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_ClientIdsUpload_Fail(t *testing.T) {
+	c := client()
+
+	clientIds := []ClientId{
+		{
+			Value:    "value",
+			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
+			Customer: SerializedEntityCustomer{},
+			Site:     "site",
+		},
+		{
+			Value:    "value2",
+			Order:    LinkedOrder{ID: 12, ExternalID: "externalID2", Number: "number2"},
+			Customer: SerializedEntityCustomer{ID: 12, ExternalID: "externalID2"},
+			Site:     "site2",
+		},
+	}
+
+	clientIdsJSON, _ := json.Marshal(&clientIds)
+
+	p := url.Values{
+		"clientIds": {string(clientIdsJSON)},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post("/web-analytics/client-ids/upload").
+		BodyString(p.Encode()).
+		Reply(460).
+		BodyString(`
+			{
+				"success": false,
+				"failedClientIds": {
+					"value": "value",
+					"order": {
+						"id": 10,
+						"externalID": "externalID",
+						"number": "number"
+					},
+					"customer": {}.
+					"site": "site2"
+				},
+				"errorMsg": "customer is required",
+				"errors": [460]
+			}
+		`)
+
+	data, _, err := c.ClientIdsUpload(clientIds)
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_SourcesUpload(t *testing.T) {
+	c := client()
+
+	sources := []Source{
+		{
+			Source:   "source",
+			Medium:   "medium",
+			Campaign: "campaign",
+			Keyword:  "keyword",
+			Content:  "content",
+			ClientId: "10",
+			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
+			Site:     "site",
+		},
+	}
+
+	sourcesJSON, _ := json.Marshal(&sources)
+
+	p := url.Values{
+		"sources": {string(sourcesJSON)},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post("/web-analytics/sources/upload").
+		BodyString(p.Encode()).
+		Reply(201).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.SourcesUpload(sources)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_SourcesUpload_Fail(t *testing.T) {
+	c := client()
+
+	sources := []Source{
+		{
+			Source:   "source",
+			Medium:   "medium",
+			Campaign: "campaign",
+			Keyword:  "keyword",
+			Content:  "content",
+			ClientId: "10",
+			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
+			Site:     "site",
+		},
+		{
+			Source:   "source",
+			Medium:   "medium",
+			Campaign: "campaign",
+			Keyword:  "keyword",
+			Content:  "content",
+			ClientId: "12",
+			Order:    LinkedOrder{},
+			Customer: SerializedEntityCustomer{},
+			Site:     "site",
+		},
+	}
+
+	sourcesJSON, _ := json.Marshal(&sources)
+
+	p := url.Values{
+		"sources": {string(sourcesJSON)},
+	}
+
+	gock.New(crmURL).
+		Post("/web-analytics/sources/upload").
+		BodyString(p.Encode()).
+		Reply(460).
+		BodyString(`
+			{
+				"success": false,
+				"failedSources": {
+					"source": "source",
+					"medium": "medium",
+					"campaign": "campaign",
+					"keyword": "keyword",
+					"content": "content",
+					"order": {},
+					"customer": {}.
+					"site": "sitey"
+				},
+				"errorMsg": "order and customer is required",
+				"errors": [460]
+			}
+		`)
+
+	data, _, err := c.SourcesUpload(sources)
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
+func TestClient_Currencies(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Get("/reference/currencies").
+		Reply(200).
+		BodyString(`
+			{
+				"success": true,
+				"currencies": [
+					{
+						"id": 10,
+						"code": "code",
+						"isBase": true,
+						"isAutoConvert": true,
+						"autoConvertExtraPercent": 1,
+						"manualConvertNominal": 1,
+						"manualConvertValue": 1.5
+					},
+					{		
+						"id": 12,
+						"code": "code2",
+						"isBase": false,
+						"isAutoConvert": false,
+						"autoConvertExtra_percent": 2,
+						"manualConvertNominal": 5,
+						"manualConvertValue": 60.25
+					}
+				]
+			}`)
+
+	resp := CurrencyResponse{
+		Success: true,
+		Currencies: []Currency{
+			{
+				ID:                      10,
+				Code:                    "code",
+				IsBase:                  true,
+				IsAutoConvert:           true,
+				AutoConvertExtraPercent: 1,
+				ManualConvertNominal:    1,
+				ManualConvertValue:      1.5,
+			},
+			{
+				ID:                      12,
+				Code:                    "code2",
+				IsBase:                  false,
+				IsAutoConvert:           false,
+				AutoConvertExtraPercent: 0,
+				ManualConvertNominal:    5,
+				ManualConvertValue:      60.25,
+			},
+		},
+	}
+
+	data, status, err := c.Currencies()
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, resp, data)
+}
+
+func TestClient_CurrenciesCreate(t *testing.T) {
+	c := client()
+
+	currency := Currency{
+		ID:                      10,
+		Code:                    "code",
+		IsBase:                  true,
+		IsAutoConvert:           true,
+		AutoConvertExtraPercent: 1,
+		ManualConvertNominal:    1,
+		ManualConvertValue:      1.5,
+	}
+
+	currencyJSON, _ := json.Marshal(&currency)
+
+	p := url.Values{
+		"currency": {string(currencyJSON)},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post("/reference/currencies/create").
+		BodyString(p.Encode()).
+		Reply(201).
+		BodyString(`{"success": true, "id": 10}`)
+
+	data, status, err := c.CurrenciesCreate(currency)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+
+	assert.Equal(t, currency.ID, data.ID)
+}
+
+func TestClient_CurrenciesEdit(t *testing.T) {
+	c := client()
+
+	currency := Currency{
+		ID:                      10,
+		Code:                    "code",
+		IsBase:                  true,
+		IsAutoConvert:           true,
+		AutoConvertExtraPercent: 1,
+		ManualConvertNominal:    1,
+		ManualConvertValue:      1.5,
+	}
+	var uid = strconv.Itoa(currency.ID)
+	currencyJSON, _ := json.Marshal(&currency)
+
+	p := url.Values{
+		"currency": {string(currencyJSON)},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/reference/currencies/%s/edit", uid)).
+		BodyString(p.Encode()).
+		Reply(200).
+		BodyString(`{"success": true}`)
+
+	data, status, err := c.CurrenciesEdit(currency)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("%v", err)
+	}
+
+	if data.Success != true {
+
+		t.Errorf("%v", err)
+	}
+}
+
 func TestClient_OrderChange(t *testing.T) {
 	c := client()
 
