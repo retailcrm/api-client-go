@@ -1998,10 +1998,10 @@ func TestClient_LinksCreate(t *testing.T) {
 		Orders:  orders,
 	}
 
-	linkJson, _ := json.Marshal(link)
+	linkJSON, _ := json.Marshal(link)
 
 	p := url.Values{
-		"link": {string(linkJson)},
+		"link": {string(linkJSON)},
 	}
 
 	defer gock.Off()
@@ -2028,10 +2028,45 @@ func TestClient_LinksCreate(t *testing.T) {
 	}
 }
 
+func TestClient_LinksCreate_Fail(t *testing.T) {
+	c := client()
+
+	orders := []LinkedOrder{{ID: 10}}
+
+	link := SerializedOrderLink{
+		Comment: "comment",
+		Orders:  orders,
+	}
+
+	linkJSON, _ := json.Marshal(link)
+
+	p := url.Values{
+		"link": {string(linkJSON)},
+	}
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Post("/links/create").
+		BodyString(p.Encode()).
+		Reply(400).
+		BodyString(`{"errorMsg": "Errors in the entity format", errors: [orders: "This collection should contain 2 elements or more."}`)
+
+	data, _, err := c.LinksCreate(link)
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if data.Success != false {
+		t.Error(successFail)
+	}
+}
+
 func TestClient_ClientIdsUpload(t *testing.T) {
 	c := client()
 
-	clientIds := []ClientId{
+	clientIds := []ClientID{
 		{
 			Value:    "value",
 			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
@@ -2078,18 +2113,11 @@ func TestClient_ClientIdsUpload(t *testing.T) {
 func TestClient_ClientIdsUpload_Fail(t *testing.T) {
 	c := client()
 
-	clientIds := []ClientId{
+	clientIds := []ClientID{
 		{
 			Value:    "value",
-			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
+			Order:    LinkedOrder{ID: 10},
 			Customer: SerializedEntityCustomer{},
-			Site:     "site",
-		},
-		{
-			Value:    "value2",
-			Order:    LinkedOrder{ID: 12, ExternalID: "externalID2", Number: "number2"},
-			Customer: SerializedEntityCustomer{ID: 12, ExternalID: "externalID2"},
-			Site:     "site2",
 		},
 	}
 
@@ -2103,22 +2131,11 @@ func TestClient_ClientIdsUpload_Fail(t *testing.T) {
 	gock.New(crmURL).
 		Post("/web-analytics/client-ids/upload").
 		BodyString(p.Encode()).
-		Reply(460).
+		Reply(400).
 		BodyString(`
 			{
-				"success": false,
-				"failedClientIds": {
-					"value": "value",
-					"order": {
-						"id": 10,
-						"externalID": "externalID",
-						"number": "number"
-					},
-					"customer": {}.
-					"site": "site2"
-				},
-				"errorMsg": "customer is required",
-				"errors": [460]
+				"errorMsg": "ClientIds are loaded with errors",
+				"errors": [0: "customer: Set one of the following fields: id, externalId"]
 			}
 		`)
 
@@ -2143,7 +2160,7 @@ func TestClient_SourcesUpload(t *testing.T) {
 			Campaign: "campaign",
 			Keyword:  "keyword",
 			Content:  "content",
-			ClientId: "10",
+			ClientID: "10",
 			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
 			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
 			Site:     "site",
@@ -2189,19 +2206,8 @@ func TestClient_SourcesUpload_Fail(t *testing.T) {
 			Campaign: "campaign",
 			Keyword:  "keyword",
 			Content:  "content",
-			ClientId: "10",
+			ClientID: "12",
 			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
-			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
-			Site:     "site",
-		},
-		{
-			Source:   "source",
-			Medium:   "medium",
-			Campaign: "campaign",
-			Keyword:  "keyword",
-			Content:  "content",
-			ClientId: "12",
-			Order:    LinkedOrder{},
 			Customer: SerializedEntityCustomer{},
 			Site:     "site",
 		},
@@ -2216,22 +2222,11 @@ func TestClient_SourcesUpload_Fail(t *testing.T) {
 	gock.New(crmURL).
 		Post("/web-analytics/sources/upload").
 		BodyString(p.Encode()).
-		Reply(460).
+		Reply(400).
 		BodyString(`
 			{
-				"success": false,
-				"failedSources": {
-					"source": "source",
-					"medium": "medium",
-					"campaign": "campaign",
-					"keyword": "keyword",
-					"content": "content",
-					"order": {},
-					"customer": {}.
-					"site": "sitey"
-				},
-				"errorMsg": "order and customer is required",
-				"errors": [460]
+				"errorMsg": "ClientIds are loaded with errors",
+				"errors": [0: "customer: Set one of the following fields: id, externalId"]
 			}
 		`)
 
@@ -2325,7 +2320,7 @@ func TestClient_CurrenciesCreate(t *testing.T) {
 
 	currency := Currency{
 		ID:                      10,
-		Code:                    "code",
+		Code:                    "RUB",
 		IsBase:                  true,
 		IsAutoConvert:           true,
 		AutoConvertExtraPercent: 1,

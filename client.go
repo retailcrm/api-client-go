@@ -2136,10 +2136,14 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 func (c *Client) LinksCreate(link SerializedOrderLink, site ...string) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
-	linkJson, _ := json.Marshal(link)
+	linkJSON, err := json.Marshal(link)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
 
 	p := url.Values{
-		"link": {string(linkJson)},
+		"link": {string(linkJSON)},
 	}
 
 	fillSite(&p, site)
@@ -2166,7 +2170,7 @@ func (c *Client) LinksCreate(link SerializedOrderLink, site ...string) (Successf
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := client.ClientIdsUpload([]retailcrm.ClientId{
+//	data, status, err := client.ClientIdsUpload([]retailcrm.ClientID{
 //		{
 //			Value:    "value",
 //			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
@@ -2192,9 +2196,13 @@ func (c *Client) LinksCreate(link SerializedOrderLink, site ...string) (Successf
 //	if data.Success == true {
 //		log.Println("Upload is successful")
 //	}
-func (c *Client) ClientIdsUpload(clientIds []ClientId) (ClientIdResponse, int, error) {
-	var resp ClientIdResponse
-	clientIdsJSON, _ := json.Marshal(&clientIds)
+func (c *Client) ClientIdsUpload(clientIds []ClientID) (ClientIDResponse, int, error) {
+	var resp ClientIDResponse
+	clientIdsJSON, err := json.Marshal(&clientIds)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
 
 	p := url.Values{
 		"clientIds": {string(clientIdsJSON)},
@@ -2228,7 +2236,7 @@ func (c *Client) ClientIdsUpload(clientIds []ClientId) (ClientIdResponse, int, e
 //			Campaign: "campaign",
 //			Keyword:  "keyword",
 //			Content:  "content",
-//			ClientId: "10",
+//			ClientID: "10",
 //			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
 //			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
 //			Site:     "site",
@@ -2248,7 +2256,11 @@ func (c *Client) ClientIdsUpload(clientIds []ClientId) (ClientIdResponse, int, e
 //	}
 func (c *Client) SourcesUpload(sources []Source) (SourcesResponse, int, error) {
 	var resp SourcesResponse
-	sourcesJSON, _ := json.Marshal(&sources)
+	sourcesJSON, err := json.Marshal(&sources)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
 
 	p := url.Values{
 		"sources": {string(sourcesJSON)},
@@ -2335,7 +2347,11 @@ func (c *Client) Currencies() (CurrencyResponse, int, error) {
 //	}
 func (c *Client) CurrenciesCreate(currency Currency) (CurrencyCreateResponse, int, error) {
 	var resp CurrencyCreateResponse
-	currencyJSON, _ := json.Marshal(&currency)
+	currencyJSON, err := json.Marshal(&currency)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
 
 	p := url.Values{
 		"currency": {string(currencyJSON)},
@@ -2388,7 +2404,11 @@ func (c *Client) CurrenciesEdit(currency Currency) (SuccessfulResponse, int, err
 	var resp SuccessfulResponse
 	var uid = strconv.Itoa(currency.ID)
 
-	currencyJSON, _ := json.Marshal(&currency)
+	currencyJSON, err := json.Marshal(&currency)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
 
 	p := url.Values{
 		"currency": {string(currencyJSON)},

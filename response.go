@@ -596,18 +596,18 @@ type AccountBonusOperationsResponse struct {
 	BonusOperations []BonusOperation `json:"bonusOperations,omitempty"`
 }
 
-// ClientIdResponse type
-type ClientIdResponse struct {
-	Success         bool              `json:"success"`
-	FailedClientIds []ClientId        `json:"failed_client_ids,omitempty"`
+// ClientIDResponse type.
+type ClientIDResponse struct {
 	ErrorMsg        string            `json:"errorMsg,omitempty"`
 	Errors          map[string]string `json:"errors,omitempty"`
+	FailedClientIds []ClientID        `json:"failed_client_ids,omitempty"`
+	Success         bool              `json:"success"`
 }
 
 // SourcesResponse type
 type SourcesResponse struct {
 	Success       bool              `json:"success"`
-	FailedSources []Source          `json:"failed_sources,omitempty"`
+	FailedSources []Source          `json:"failedSources,omitempty"`
 	ErrorMsg      string            `json:"errorMsg,omitempty"`
 	Errors        map[string]string `json:"errors,omitempty"`
 }

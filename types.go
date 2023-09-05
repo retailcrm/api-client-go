@@ -69,7 +69,7 @@ type Source struct {
 	Campaign string                   `json:"campaign,omitempty"`
 	Keyword  string                   `json:"keyword,omitempty"`
 	Content  string                   `json:"content,omitempty"`
-	ClientId string                   `json:"client_id,omitempty"`
+	ClientID string                   `json:"client_id,omitempty"`
 	Order    LinkedOrder              `json:"order,omitempty"`
 	Customer SerializedEntityCustomer `json:"customer,omitempty"`
 	Site     string                   `json:"site,omitempty"`
@@ -352,45 +352,45 @@ type Order struct {
 	Currency                      string            `json:"currency,omitempty"`
 }
 
-// LinkedOrder type
+// LinkedOrder type.
 type LinkedOrder struct {
-	ID         int    `json:"id,omitempty"`
 	Number     string `json:"number,omitempty"`
 	ExternalID string `json:"externalID,omitempty"`
+	ID         int    `json:"id,omitempty"`
 }
 
-// OrderLink type
+// OrderLink type.
 type OrderLink struct {
 	Comment   string      `json:"comment,omitempty"`
-	Order     LinkedOrder `json:"order,omitempty"`
 	CreatedAt string      `json:"createdAt,omitempty"`
+	Order     LinkedOrder `json:"order,omitempty"`
 }
 
-// SerializedOrderLink type
+// SerializedOrderLink type.
 type SerializedOrderLink struct {
 	Comment   string        `json:"comment,omitempty"`
-	Orders    []LinkedOrder `json:"orders,omitempty"`
 	CreatedAt string        `json:"createdAt,omitempty"`
+	Orders    []LinkedOrder `json:"orders,omitempty"`
 }
 
-// ClientId type
-type ClientId struct {
+// ClientID type.
+type ClientID struct {
 	Value    string                   `json:"value"`
 	CreateAt string                   `json:"createAt,omitempty"`
-	Order    LinkedOrder              `json:"order,omitempty"`
-	Customer SerializedEntityCustomer `json:"customer,omitempty"`
 	Site     string                   `json:"site,omitempty"`
+	Customer SerializedEntityCustomer `json:"customer,omitempty"`
+	Order    LinkedOrder              `json:"order,omitempty"`
 }
 
-// Currency type
+// Currency type.
 type Currency struct {
-	ID                      int     `json:"id,omitempty"`
 	Code                    string  `json:"code,omitempty"`
+	ID                      int     `json:"id,omitempty"`
+	ManualConvertNominal    int     `json:"manualConvertNominal,omitempty"`
+	AutoConvertExtraPercent int     `json:"autoConvertExtraPercent,omitempty"`
 	IsBase                  bool    `json:"isBase,omitempty"`
 	IsAutoConvert           bool    `json:"isAutoConvert,omitempty"`
-	AutoConvertExtraPercent int     `json:"autoConvertExtraPercent,omitempty"`
-	ManualConvertNominal    int     `json:"manualConvertNominal,omitempty"`
-	ManualConvertValue      float64 `json:"manualConvertValue,omitempty"`
+	ManualConvertValue      float32 `json:"manualConvertValue,omitempty"`
 }
 
 // OrdersStatus type.
