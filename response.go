@@ -604,21 +604,21 @@ type ClientIDResponse struct {
 	Success         bool              `json:"success"`
 }
 
-// SourcesResponse type
+// SourcesResponse type.
 type SourcesResponse struct {
-	Success       bool              `json:"success"`
-	FailedSources []Source          `json:"failedSources,omitempty"`
 	ErrorMsg      string            `json:"errorMsg,omitempty"`
 	Errors        map[string]string `json:"errors,omitempty"`
+	FailedSources []Source          `json:"failed_sources,omitempty"`
+	Success       bool              `json:"success"`
 }
 
-//CurrencyResponse type
+// CurrencyResponse type.
 type CurrencyResponse struct {
-	Success    bool       `json:"success"`
 	Currencies []Currency `json:"currencies,omitempty"`
+	Success    bool       `json:"success"`
 }
 
-//CurrencyCreateResponse type
+// CurrencyCreateResponse type.
 type CurrencyCreateResponse struct {
 	Success bool `json:"success"`
 	ID      int  `json:"id,omitempty"`

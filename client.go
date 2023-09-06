@@ -2305,7 +2305,6 @@ func (c *Client) Currencies() (CurrencyResponse, int, error) {
 
 	data, status, err := c.GetRequest("/reference/currencies")
 	if err != nil {
-
 		return resp, status, err
 	}
 

@@ -70,9 +70,9 @@ type Source struct {
 	Keyword  string                   `json:"keyword,omitempty"`
 	Content  string                   `json:"content,omitempty"`
 	ClientID string                   `json:"client_id,omitempty"`
+	Site     string                   `json:"site,omitempty"`
 	Order    LinkedOrder              `json:"order,omitempty"`
 	Customer SerializedEntityCustomer `json:"customer,omitempty"`
-	Site     string                   `json:"site,omitempty"`
 }
 
 // Contragent type.
