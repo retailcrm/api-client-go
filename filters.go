@@ -199,6 +199,7 @@ type OrdersFilter struct {
 	PaymentStatuses                []string          `url:"paymentStatuses,omitempty,brackets"`
 	PaymentTypes                   []string          `url:"paymentTypes,omitempty,brackets"`
 	DeliveryTypes                  []string          `url:"deliveryTypes,omitempty,brackets"`
+	DeliveryServices               []string          `url:"deliveryServices,omitempty,brackets"`
 	OrderMethods                   []string          `url:"orderMethods,omitempty,brackets"`
 	ShipmentStores                 []string          `url:"shipmentStores,omitempty,brackets"`
 	Couriers                       []string          `url:"couriers,omitempty,brackets"`
@@ -448,8 +449,8 @@ type LoyaltyAccountAPIFilter struct {
 	ID                 string   `url:"id,omitempty"`
 	Status             string   `url:"status,,omitempty"`
 	Customer           string   `url:"customer,omitempty"`
-	MinOrderSum        string   `url:"minOrderSum,omitempty"`
-	MaxOrderSum        string   `url:"maxOrderSum,omitempty"`
+	MinOrderSum        string   `url:"minOrdersSum,omitempty"`
+	MaxOrderSum        string   `url:"maxOrdersSum,omitempty"`
 	MinAmount          string   `url:"minAmount,omitempty"`
 	MaxAmount          string   `url:"maxAmount,omitempty"`
 	PhoneNumber        string   `url:"phoneNumber,omitempty"`

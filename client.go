@@ -2109,6 +2109,323 @@ func (c *Client) IntegrationModule(code string) (IntegrationModuleResponse, int,
 	return resp, status, nil
 }
 
+// LinksCreate creates a link
+//
+// For more information see https://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-orders-links-create
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.LinksCreate(retailcrm.SerializedOrderLink{
+//		Comment:  "comment for link",
+//		Orders: []retailcrm.LinkedOrder{{ID: 10}, {ID: 12}},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Println("Creating a link")
+//	}
+func (c *Client) LinksCreate(link SerializedOrderLink, site ...string) (SuccessfulResponse, int, error) {
+	var resp SuccessfulResponse
+
+	linkJSON, err := json.Marshal(link)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
+
+	p := url.Values{
+		"link": {string(linkJSON)},
+	}
+
+	fillSite(&p, site)
+
+	data, status, err := c.PostRequest("/orders/links/create", p)
+
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// ClientIdsUpload uploading of web analytics clientId
+//
+// For more information see https://docs.simla.com/Developers/API/APIVersions/APIv5#post--api-v5-web-analytics-client-ids-upload
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ClientIdsUpload([]retailcrm.ClientID{
+//		{
+//			Value:    "value",
+//			Order:    LinkedOrder{ID: 10, ExternalID: "externalID", Number: "number"},
+//			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalID"},
+//			Site: "site",
+//		},
+//		{
+//			Value:    "value",
+//			Order:    LinkedOrder{ID: 12, ExternalID: "externalID2", Number: "number2"},
+//			Customer: SerializedEntityCustomer{ID: 12, ExternalID: "externalID2"},
+//			Site: "site2",
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Println("Upload is successful")
+//	}
+func (c *Client) ClientIdsUpload(clientIds []ClientID) (ClientIDResponse, int, error) {
+	var resp ClientIDResponse
+	clientIdsJSON, err := json.Marshal(&clientIds)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
+
+	p := url.Values{
+		"clientIds": {string(clientIdsJSON)},
+	}
+
+	data, status, err := c.PostRequest("/web-analytics/client-ids/upload", p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// SourcesUpload uploading of sources
+//
+// For more information see https://docs.simla.com/Developers/API/APIVersions/APIv5#post--api-v5-web-analytics-sources-upload
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.SourcesUpload([]retailcrm.Source{
+//		{
+//			Source:   "source",
+//			Medium:   "medium",
+//			Campaign: "campaign",
+//			Keyword:  "keyword",
+//			Content:  "content",
+//			ClientID: "10",
+//			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+//			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
+//			Site:     "site",
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Println("Upload is successful!")
+//	}
+func (c *Client) SourcesUpload(sources []Source) (SourcesResponse, int, error) {
+	var resp SourcesResponse
+	sourcesJSON, err := json.Marshal(&sources)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
+
+	p := url.Values{
+		"sources": {string(sourcesJSON)},
+	}
+
+	data, status, err := c.PostRequest("/web-analytics/sources/upload", p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// Currencies returns a list of currencies
+//
+// For more information see https://docs.simla.com/Developers/API/APIVersions/APIv5#get--api-v5-reference-currencies
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Currencies()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Currencies {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) Currencies() (CurrencyResponse, int, error) {
+	var resp CurrencyResponse
+
+	data, status, err := c.GetRequest("/reference/currencies")
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CurrenciesCreate create currency
+//
+// For more information see https://docs.simla.com/Developers/API/APIVersions/APIv5#post--api-v5-reference-currencies-create
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CurrenciesCreate(retailcrm.Currency{
+//		Code:                    "RUB",
+//		IsBase:                  true,
+//		IsAutoConvert:           true,
+//		AutoConvertExtraPercent: 1,
+//		ManualConvertNominal:    1,
+//		ManualConvertValue:      1,
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	if data.Success == true {
+//		log.Println("Create currency")
+//	}
+func (c *Client) CurrenciesCreate(currency Currency) (CurrencyCreateResponse, int, error) {
+	var resp CurrencyCreateResponse
+	currencyJSON, err := json.Marshal(&currency)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
+
+	p := url.Values{
+		"currency": {string(currencyJSON)},
+	}
+
+	data, status, err := c.PostRequest("/reference/currencies/create", p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// CurrenciesEdit edit an currency
+//
+// For more information see https://docs.simla.com/Developers/API/APIVersions/APIv5#post--api-v5-reference-currencies-id-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CurrenciesEdit(
+//		retailcrm.Currency{
+//			ID:                      10,
+//			Code:                    "RUB",
+//			IsBase:                  true,
+//			IsAutoConvert:           true,
+//			AutoConvertExtraPercent: 1,
+//			ManualConvertNominal:    1,
+//			ManualConvertValue:      1,
+//		},
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//	if data.Success == true {
+//		log.Println("Currency was edit")
+//	}
+func (c *Client) CurrenciesEdit(currency Currency) (SuccessfulResponse, int, error) {
+	var resp SuccessfulResponse
+	var uid = strconv.Itoa(currency.ID)
+
+	currencyJSON, err := json.Marshal(&currency)
+
+	if err != nil {
+		return resp, http.StatusBadRequest, err
+	}
+
+	p := url.Values{
+		"currency": {string(currencyJSON)},
+	}
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/reference/currencies/%s/edit", uid), p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // IntegrationModuleEdit integration module create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-integration-modules-code

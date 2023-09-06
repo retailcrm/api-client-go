@@ -64,11 +64,15 @@ type GeoHierarchyRow struct {
 
 // Source type.
 type Source struct {
-	Source   string `json:"source,omitempty"`
-	Medium   string `json:"medium,omitempty"`
-	Campaign string `json:"campaign,omitempty"`
-	Keyword  string `json:"keyword,omitempty"`
-	Content  string `json:"content,omitempty"`
+	Source   string                   `json:"source,omitempty"`
+	Medium   string                   `json:"medium,omitempty"`
+	Campaign string                   `json:"campaign,omitempty"`
+	Keyword  string                   `json:"keyword,omitempty"`
+	Content  string                   `json:"content,omitempty"`
+	ClientID string                   `json:"client_id,omitempty"`
+	Site     string                   `json:"site,omitempty"`
+	Order    LinkedOrder              `json:"order,omitempty"`
+	Customer SerializedEntityCustomer `json:"customer,omitempty"`
 }
 
 // Contragent type.
@@ -344,6 +348,49 @@ type Order struct {
 	ApplyRound                    *bool             `json:"applyRound,omitempty"`
 	PrivilegeType                 string            `json:"privilegeType,omitempty"`
 	DialogID                      int               `json:"dialogId,omitempty"`
+	Links                         []OrderLink       `json:"links,omitempty"`
+	Currency                      string            `json:"currency,omitempty"`
+}
+
+// LinkedOrder type.
+type LinkedOrder struct {
+	Number     string `json:"number,omitempty"`
+	ExternalID string `json:"externalID,omitempty"`
+	ID         int    `json:"id,omitempty"`
+}
+
+// OrderLink type.
+type OrderLink struct {
+	Comment   string      `json:"comment,omitempty"`
+	CreatedAt string      `json:"createdAt,omitempty"`
+	Order     LinkedOrder `json:"order,omitempty"`
+}
+
+// SerializedOrderLink type.
+type SerializedOrderLink struct {
+	Comment   string        `json:"comment,omitempty"`
+	CreatedAt string        `json:"createdAt,omitempty"`
+	Orders    []LinkedOrder `json:"orders,omitempty"`
+}
+
+// ClientID type.
+type ClientID struct {
+	Value    string                   `json:"value"`
+	CreateAt string                   `json:"createAt,omitempty"`
+	Site     string                   `json:"site,omitempty"`
+	Customer SerializedEntityCustomer `json:"customer,omitempty"`
+	Order    LinkedOrder              `json:"order,omitempty"`
+}
+
+// Currency type.
+type Currency struct {
+	Code                    string  `json:"code,omitempty"`
+	ID                      int     `json:"id,omitempty"`
+	ManualConvertNominal    int     `json:"manualConvertNominal,omitempty"`
+	AutoConvertExtraPercent int     `json:"autoConvertExtraPercent,omitempty"`
+	IsBase                  bool    `json:"isBase,omitempty"`
+	IsAutoConvert           bool    `json:"isAutoConvert,omitempty"`
+	ManualConvertValue      float32 `json:"manualConvertValue,omitempty"`
 }
 
 // OrdersStatus type.
@@ -580,6 +627,7 @@ type OfferPrice struct {
 	Price     float32 `json:"price,omitempty"`
 	Ordering  int     `json:"ordering,omitempty"`
 	PriceType string  `json:"priceType,omitempty"`
+	Currency  string  `json:"currency,omitempty"`
 }
 
 // OfferPriceUpload type.
@@ -619,6 +667,7 @@ type User struct {
 	CreatedAt  string      `json:"createdAt,omitempty"`
 	Active     bool        `json:"active,omitempty"`
 	Online     bool        `json:"online,omitempty"`
+	Position   string      `json:"position,omitempty"`
 	IsAdmin    bool        `json:"isAdmin,omitempty"`
 	IsManager  bool        `json:"isManager,omitempty"`
 	Email      string      `json:"email,omitempty"`
@@ -832,6 +881,7 @@ type DeliveryType struct {
 	DeliveryServices     []string              `json:"deliveryServices,omitempty"`
 	PaymentTypes         []string              `json:"paymentTypes,omitempty"` // Deprecated, use DeliveryPaymentTypes
 	DeliveryPaymentTypes []DeliveryPaymentType `json:"deliveryPaymentTypes,omitempty"`
+	Currency             string                `json:"currency,omitempty"`
 }
 
 type DeliveryPaymentType struct {
@@ -862,8 +912,8 @@ type LegalEntity struct {
 }
 
 type SerializedEntityCustomer struct {
-	ID         int `json:"id,omitempty"`
-	ExternalID int `json:"externalId,omitempty"`
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
 }
 
 // OrderMethod type.
@@ -921,6 +971,7 @@ type PriceType struct {
 	Ordering         int               `json:"ordering,omitempty"`
 	Groups           []string          `json:"groups,omitempty"`
 	Geo              []GeoHierarchyRow `json:"geo,omitempty"`
+	Currency         string            `json:"currency,omitempty"`
 }
 
 // ProductStatus type.
@@ -974,6 +1025,7 @@ type Site struct {
 	IsDemo            bool         `json:"isDemo,omitempty"`
 	CatalogID         string       `json:"catalogId,omitempty"`
 	IsCatalogMainSite bool         `json:"isCatalogMainSite,omitempty"`
+	Currency          string       `json:"currency,omitempty"`
 }
 
 // Store type.
@@ -1381,6 +1433,7 @@ type Loyalty struct {
 	ActivatedAt            string         `json:"activatedAt,omitempty"`
 	DeactivatedAt          string         `json:"deactivatedAt,omitempty"`
 	BlockedAt              string         `json:"blockedAt,omitempty"`
+	Currency               string         `json:"currency,omitempty"`
 }
 
 // LoyaltyLevel type.
@@ -1424,6 +1477,7 @@ type SerializedLoyaltyOrder struct {
 	Delivery                Delivery             `json:"delivery,omitempty"`
 	Site                    string               `json:"site,omitempty"`
 	Items                   []LoyaltyItems       `json:"items,omitempty"`
+	Currency                string               `json:"currency,omitempty"`
 }
 
 type LoyaltyEventDiscount struct {
