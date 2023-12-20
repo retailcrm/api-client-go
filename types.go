@@ -1254,7 +1254,13 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
-	WebhookURL string `json:"webhookUrl,omitempty"`
+	WebhookURL string              `json:"webhookUrl,omitempty"`
+	Actions    *MgTransportActions `json:"actions,omitempty"`
+}
+
+type MgTransportActions struct {
+	Visits string `json:"visits,omitempty"`
+	Online string `json:"online,omitempty"`
 }
 
 // MgBot type.
