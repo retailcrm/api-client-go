@@ -1366,8 +1366,8 @@ type ChatVisitsResponse struct {
 	LastVisit   ChatLastVisit `json:"lastVisit"`
 	IP          string        `json:"ip"`
 	CountVisits uint          `json:"countVisits"`
-	ChatDevice  ChatDevice    `json:"chatDevice"`
-	ChatUTM     *ChatUTM      `json:"chatUtm,omitempty"`
+	Device      ChatDevice    `json:"device"`
+	UTM         *ChatUTM      `json:"utm,omitempty"`
 }
 
 type ChatLastVisit struct {
