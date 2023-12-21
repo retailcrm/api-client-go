@@ -1358,6 +1358,43 @@ type Activity struct {
 	Freeze bool `json:"freeze"`
 }
 
+type ChatCustomerOnline struct {
+	LastOnline SystemTime `json:"lastOnline"`
+}
+
+type ChatVisitsResponse struct {
+	LastVisit   ChatLastVisit `json:"lastVisit"`
+	IP          string        `json:"ip"`
+	CountVisits uint          `json:"countVisits"`
+	ChatDevice  ChatDevice    `json:"chatDevice"`
+	ChatUTM     *ChatUTM      `json:"chatUtm,omitempty"`
+}
+
+type ChatLastVisit struct {
+	Source    string            `json:"source"`
+	Duration  uint              `json:"duration"`
+	CreatedAt SystemTime        `json:"createdAt"`
+	EndedAt   *SystemTime       `json:"endedAt,omitempty"`
+	Pages     []ChatVisitedPage `json:"pages"`
+}
+
+type ChatVisitedPage struct {
+	DateTime SystemTime `json:"dateTime"`
+	URL      string     `json:"url"`
+}
+
+type ChatDevice struct {
+	Lang    string `json:"lang"`
+	Browser string `json:"browser"`
+	OS      string `json:"os"`
+}
+
+type ChatUTM struct {
+	Source   string `json:"source"`
+	Medium   string `json:"medium"`
+	Campaign string `json:"campaign"`
+}
+
 // Tag struct.
 type Tag struct {
 	Name     string `json:"name,omitempty"`
