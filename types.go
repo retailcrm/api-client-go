@@ -1057,24 +1057,33 @@ type ProductGroup struct {
 
 // BaseProduct type.
 type BaseProduct struct {
-	Name         string `json:"name,omitempty"`
-	URL          string `json:"url,omitempty"`
-	Article      string `json:"article,omitempty"`
-	ExternalID   string `json:"externalId,omitempty"`
-	Manufacturer string `json:"manufacturer,omitempty"`
-	Description  string `json:"description,omitempty"`
-	Popular      bool   `json:"popular,omitempty"`
-	Stock        bool   `json:"stock,omitempty"`
-	Novelty      bool   `json:"novelty,omitempty"`
-	Recommended  bool   `json:"recommended,omitempty"`
-	Active       bool   `json:"active,omitempty"`
-	Markable     bool   `json:"markable,omitempty"`
+	Name         string      `json:"name,omitempty"`
+	Type         ProductType `json:"type,omitempty"`
+	URL          string      `json:"url,omitempty"`
+	Article      string      `json:"article,omitempty"`
+	ExternalID   string      `json:"externalId,omitempty"`
+	Manufacturer string      `json:"manufacturer,omitempty"`
+	Description  string      `json:"description,omitempty"`
+	Popular      bool        `json:"popular,omitempty"`
+	Stock        bool        `json:"stock,omitempty"`
+	Novelty      bool        `json:"novelty,omitempty"`
+	Recommended  bool        `json:"recommended,omitempty"`
+	Active       bool        `json:"active,omitempty"`
+	Markable     bool        `json:"markable,omitempty"`
 }
+
+type ProductType string
+
+const (
+	RegularProduct ProductType = "product"
+	ServiceProduct ProductType = "service"
+)
 
 // Product type.
 type Product struct {
 	BaseProduct
 	ID         int            `json:"id,omitempty"`
+	Type       ProductType    `json:"type"`
 	MaxPrice   float32        `json:"maxPrice,omitempty"`
 	MinPrice   float32        `json:"minPrice,omitempty"`
 	ImageURL   string         `json:"imageUrl,omitempty"`
