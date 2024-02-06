@@ -1363,19 +1363,19 @@ type ChatCustomerOnline struct {
 }
 
 type ChatVisitsResponse struct {
-	LastVisit   ChatLastVisit `json:"lastVisit"`
-	IP          string        `json:"ip"`
-	CountVisits uint          `json:"countVisits"`
-	Device      ChatDevice    `json:"device"`
 	UTM         *ChatUTM      `json:"utm,omitempty"`
+	Device      ChatDevice    `json:"device"`
+	IP          string        `json:"ip"`
+	LastVisit   ChatLastVisit `json:"lastVisit"`
+	CountVisits uint          `json:"countVisits"`
 }
 
 type ChatLastVisit struct {
-	Source    string            `json:"source"`
-	Duration  uint              `json:"duration"`
 	CreatedAt SystemTime        `json:"createdAt"`
 	EndedAt   *SystemTime       `json:"endedAt,omitempty"`
+	Source    string            `json:"source"`
 	Pages     []ChatVisitedPage `json:"pages"`
+	Duration  uint              `json:"duration"`
 }
 
 type ChatVisitedPage struct {
