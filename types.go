@@ -1365,7 +1365,8 @@ type ChatCustomerOnline struct {
 type ChatVisitsResponse struct {
 	UTM         *ChatUTM      `json:"utm,omitempty"`
 	Device      ChatDevice    `json:"device"`
-	IP          string        `json:"ip"`
+	Country     string        `json:"country"`
+	City        string        `json:"city"`
 	LastVisit   ChatLastVisit `json:"lastVisit"`
 	CountVisits uint          `json:"countVisits"`
 }
