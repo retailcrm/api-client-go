@@ -1381,6 +1381,7 @@ type ChatLastVisit struct {
 
 type ChatVisitedPage struct {
 	DateTime SystemTime `json:"dateTime"`
+	Title    string     `json:"title,omitempty"`
 	URL      string     `json:"url"`
 }
 
