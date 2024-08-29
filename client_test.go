@@ -2021,6 +2021,7 @@ func TestClient_OrderChange(t *testing.T) {
         "slug": 1,
         "id": 1,
         "number": "1A",
+		"currency": "RUB",
         "orderMethod": "shopping-cart",
         "countryIso": "RU",
         "createdAt": "2020-07-14 11:44:43",
@@ -2108,6 +2109,8 @@ func TestClient_OrderChange(t *testing.T) {
 	if cr.Order.Number != "1A" {
 		t.Errorf("invalid order number: got %s want %s", cr.Order.Number, "1A")
 	}
+
+	assert.Equal(t, "RUB", cr.Order.Currency)
 
 	f.ID = cr.ID
 	f.CustomerComment = "test comment"

@@ -342,6 +342,7 @@ type Order struct {
 	Payments                      OrderPayments          `json:"payments,omitempty"`
 	ApplyRound                    *bool                  `json:"applyRound,omitempty"`
 	PrivilegeType                 string                 `json:"privilegeType,omitempty"`
+	Currency                      string                 `json:"currency,omitempty"`
 }
 
 // OrdersStatus type.
