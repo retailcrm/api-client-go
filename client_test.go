@@ -5660,6 +5660,13 @@ func TestClient_IntegrationModule(t *testing.T) {
 		ClientID:        RandomString(10),
 		Logo:            "https://cdn.worldvectorlogo.com/logos/github-icon.svg",
 		Integrations: &Integrations{
+			MgBot: &MgBot{
+				RefreshToken: true,
+			},
+			MgTransport: &MgTransport{
+				WebhookURL:   "https://loc.example.local/webhook",
+				RefreshToken: true,
+			},
 			Delivery: &Delivery{
 				StatusList: []DeliveryStatus{
 					{
