@@ -1254,11 +1254,14 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
-	WebhookURL string `json:"webhookUrl,omitempty"`
+	WebhookURL   string `json:"webhookUrl,omitempty"`
+	RefreshToken bool   `json:"refreshToken,omitempty"`
 }
 
 // MgBot type.
-type MgBot struct{}
+type MgBot struct {
+	RefreshToken bool `json:"refreshToken,omitempty"`
+}
 
 /**
 Cost related types
