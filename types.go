@@ -1254,8 +1254,14 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
-	WebhookURL   string `json:"webhookUrl,omitempty"`
-	RefreshToken bool   `json:"refreshToken,omitempty"`
+	WebhookURL   string              `json:"webhookUrl,omitempty"`
+  RefreshToken bool   `json:"refreshToken,omitempty"`
+	Actions      *MgTransportActions `json:"actions,omitempty"`
+}
+
+type MgTransportActions struct {
+	Visits string `json:"visits,omitempty"`
+	Online string `json:"online,omitempty"`
 }
 
 // MgBot type.
@@ -1353,6 +1359,45 @@ type Element struct {
 type Activity struct {
 	Active bool `json:"active"`
 	Freeze bool `json:"freeze"`
+}
+
+type ChatCustomerOnline struct {
+	LastOnline SystemTime `json:"lastOnline"`
+}
+
+type ChatVisitsResponse struct {
+	UTM         *ChatUTM      `json:"utm,omitempty"`
+	Device      ChatDevice    `json:"device"`
+	Country     string        `json:"country"`
+	City        string        `json:"city"`
+	LastVisit   ChatLastVisit `json:"lastVisit"`
+	CountVisits uint          `json:"countVisits"`
+}
+
+type ChatLastVisit struct {
+	CreatedAt SystemTime        `json:"createdAt"`
+	EndedAt   *SystemTime       `json:"endedAt,omitempty"`
+	Source    string            `json:"source"`
+	Pages     []ChatVisitedPage `json:"pages"`
+	Duration  uint              `json:"duration"`
+}
+
+type ChatVisitedPage struct {
+	DateTime SystemTime `json:"dateTime"`
+	Title    string     `json:"title,omitempty"`
+	URL      string     `json:"url"`
+}
+
+type ChatDevice struct {
+	Lang    string `json:"lang"`
+	Browser string `json:"browser"`
+	OS      string `json:"os"`
+}
+
+type ChatUTM struct {
+	Source   string `json:"source"`
+	Medium   string `json:"medium"`
+	Campaign string `json:"campaign"`
 }
 
 // Tag struct.
