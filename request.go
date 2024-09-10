@@ -261,7 +261,7 @@ type LoyaltyBonusStatusDetailsRequest struct {
 
 type LoyaltyAccountsRequest struct {
 	Limit  int                     `url:"limit,omitempty"`
-	Page   int                     `url:"limit,omitempty"`
+	Page   int                     `url:"page,omitempty"`
 	Filter LoyaltyAccountAPIFilter `url:"filter,omitempty"`
 }
 
