@@ -249,7 +249,7 @@ type AccountBonusOperationsRequest struct {
 type LoyaltyBonusCreditRequest struct {
 	Amount         float64 `url:"amount"`
 	ActivationDate string  `url:"activationDate,omitempty"`
-	ExpiredDate    string  `url:"expiredDate,omitempty"`
+	ExpiredDate    string  `url:"expireDate,omitempty"`
 	Comment        string  `url:"comment,omitempty"`
 }
 
