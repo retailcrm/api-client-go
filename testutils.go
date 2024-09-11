@@ -519,3 +519,47 @@ func getMGTemplatesResponse() string {
 func getMGTemplatesForEdit() string {
 	return `[{"header":{"text":{"parts":["Hello,",{"var":"custom"}],"example":["Henry"]},"document":{"example":"https://example.com/file/123.pdf"},"image":{"example":"https://example.com/file/123.png"},"video":{"example":"https://example.com/file/123.mp4"}},"lang":"en","category":"test_0","code":"namespace#name_0#ru","name":"name_0","namespace":"namespace","footer":"footer_0","verificationStatus":"REJECTED","template":["Text_0",{"var":"custom"}],"buttons":[{"type":"PHONE_NUMBER","text":"your-phone-button-text","phoneNumber":"+79895553535"},{"type":"QUICK_REPLY","text":"Yes"},{"type":"URL","url":"https://example.com/file/{{1}}","text":"button","example":["https://www.website.com/dynamic-url-example"]}],"templateExample":["WIU"],"id":1,"externalId":10,"mgChannelId":110,"active":true}]`
 }
+
+func getStoreOfferResponse() string {
+	return `{
+    "success": true,
+    "pagination": {
+        "limit": 20,
+        "totalCount": 1,
+        "currentPage": 1,
+        "totalPageCount": 1
+    },
+    "offers": [
+        {
+            "images": [
+                "https://s3-s1.retailcrm.tech/ru-central1/retailcrm/dev-vega-d32aea7f9a5bc26eba6ad986077cea03/product/65a92fa0bb737-test.jpeg"
+            ],
+            "id": 76,
+            "site": "main",
+            "name": "Название\nПеревод строки",
+            "article": "Артикул",
+            "product": {
+                "type": "product",
+                "catalogId": 2,
+                "id": 222
+            },
+            "prices": [
+                {
+                    "priceType": "base",
+                    "price": 10000,
+                    "ordering": 991,
+                    "currency": "RUB"
+                }
+            ],
+            "purchasePrice": 10,
+            "quantity": 5,
+            "active": true,
+            "unit": {
+                "code": "pc",
+                "name": "Штука",
+                "sym": "шт."
+            }
+        }
+    ]
+}`
+}

@@ -474,3 +474,8 @@ type LoyaltyAPIFilter struct {
 	Ids     []int    `url:"ids,omitempty,brackets"`
 	Sites   []string `url:"sites,omitempty,brackets"`
 }
+
+type OffersFilter struct {
+	Ids    []int `url:"ids,omitempty,brackets"`
+	Active *int  `url:"active,omitempty"`
+}

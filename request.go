@@ -310,3 +310,7 @@ func (r ConnectRequest) Verify(secret string) bool {
 	}
 	return hmac.Equal([]byte(r.Token), []byte(hex.EncodeToString(mac.Sum(nil))))
 }
+
+type OffersRequest struct {
+	OffersFilter `url:"filter,omitempty"`
+}
