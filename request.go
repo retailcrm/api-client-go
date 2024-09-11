@@ -249,7 +249,7 @@ type AccountBonusOperationsRequest struct {
 type LoyaltyBonusCreditRequest struct {
 	Amount         float64 `url:"amount"`
 	ActivationDate string  `url:"activationDate,omitempty"`
-	ExpiredDate    string  `url:"expiredDate,omitempty"`
+	ExpiredDate    string  `url:"expireDate,omitempty"`
 	Comment        string  `url:"comment,omitempty"`
 }
 
@@ -261,7 +261,7 @@ type LoyaltyBonusStatusDetailsRequest struct {
 
 type LoyaltyAccountsRequest struct {
 	Limit  int                     `url:"limit,omitempty"`
-	Page   int                     `url:"limit,omitempty"`
+	Page   int                     `url:"page,omitempty"`
 	Filter LoyaltyAccountAPIFilter `url:"filter,omitempty"`
 }
 
