@@ -6907,3 +6907,26 @@ func (c *Client) EditMGChannelTemplate(req EditMGChannelTemplateRequest) (int, e
 
 	return code, nil
 }
+
+func (c *Client) StoreOffers(req OffersRequest) (StoreOffersResponse, int, error) {
+	var result StoreOffersResponse
+
+	filter, err := query.Values(req)
+
+	if err != nil {
+		return StoreOffersResponse{}, 0, err
+	}
+
+	resp, status, err := c.GetRequest(fmt.Sprintf("/store/offers?%s", filter.Encode()))
+
+	if err != nil {
+		return StoreOffersResponse{}, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return StoreOffersResponse{}, status, err
+	}
+
+	return result, status, nil
+}

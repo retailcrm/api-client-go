@@ -685,3 +685,9 @@ type MGChannelTemplatesResponse struct {
 	Templates  []MGChannelTemplate `json:"templates"`
 	SuccessfulResponse
 }
+
+type StoreOffersResponse struct {
+	Pagination *Pagination `json:"pagination"`
+	SuccessfulResponse
+	Offers []Offer `json:"offers,omitempty"`
+}

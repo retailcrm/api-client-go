@@ -8332,3 +8332,39 @@ func TestClient_EditMGChannelTemplate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, statuses[code])
 }
+
+func TestClient_StoreOffers(t *testing.T) {
+	cl := client()
+
+	gock.New(cl.URL).
+		Get(prefix+"/store/offers").
+		MatchParam("filter[active]", "1").
+		MatchParam("filter[ids][]", "76").
+		Reply(http.StatusOK).
+		JSON(getStoreOfferResponse())
+
+	a := 1
+	f := OffersRequest{OffersFilter{Ids: []int{76}, Active: &a}}
+
+	resp, status, err := cl.StoreOffers(f)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	if resp.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	assert.Len(t, resp.Offers, 1)
+	assert.Equal(t, 76, resp.Offers[0].ID)
+	assert.Equal(t, "Название\nПеревод строки", resp.Offers[0].Name)
+	assert.Equal(t, 222, resp.Offers[0].Product.ID)
+	assert.Equal(t, "base", resp.Offers[0].Prices[0].PriceType)
+	assert.Equal(t, float32(10000), resp.Offers[0].Prices[0].Price)
+	assert.Equal(t, "RUB", resp.Offers[0].Prices[0].Currency)
+}

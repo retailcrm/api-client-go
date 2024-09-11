@@ -598,6 +598,7 @@ type Offer struct {
 	Prices        []OfferPrice `json:"prices,omitempty"`
 	Images        []string     `json:"images,omitempty"`
 	Unit          *Unit        `json:"unit,omitempty"`
+	Product       *Product     `json:"product,omitempty"`
 }
 
 // Inventory type.
@@ -1255,7 +1256,7 @@ type Action struct {
 // MgTransport type.
 type MgTransport struct {
 	WebhookURL   string              `json:"webhookUrl,omitempty"`
-  RefreshToken bool   `json:"refreshToken,omitempty"`
+	RefreshToken bool                `json:"refreshToken,omitempty"`
 	Actions      *MgTransportActions `json:"actions,omitempty"`
 }
 

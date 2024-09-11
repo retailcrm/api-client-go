@@ -79,7 +79,6 @@ linters-settings:
       - unmarshal
       - unreachable
       - unsafeptr
-      - fieldalignment
     settings:
       printf:
         funcs:
