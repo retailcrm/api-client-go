@@ -352,6 +352,7 @@ type ProductsFilter struct {
 	ExternalID       string            `url:"externalId,omitempty"`
 	Manufacturer     string            `url:"manufacturer,omitempty"`
 	URL              string            `url:"url,omitempty"`
+	URLLike          string            `url:"urlLike,omitempty"`
 	PriceType        string            `url:"priceType,omitempty"`
 	OfferExternalID  string            `url:"offerExternalId,omitempty"`
 	Sites            []string          `url:"sites,omitempty,brackets"`
