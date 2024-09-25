@@ -5896,6 +5896,7 @@ func TestClient_Products(t *testing.T) {
 		Get("/store/products").
 		MatchParam("filter[active]", "1").
 		MatchParam("filter[minPrice]", "1").
+		MatchParam("filter[urlLike]", "https://test.com/path/to/resource").
 		Reply(200).
 		BodyString(`{"success": true}`)
 
@@ -5903,6 +5904,7 @@ func TestClient_Products(t *testing.T) {
 		Filter: ProductsFilter{
 			Active:   1,
 			MinPrice: 1,
+			URLLike:  "https://test.com/path/to/resource",
 		},
 	})
 	if err != nil {
