@@ -1261,8 +1261,9 @@ type MgTransport struct {
 }
 
 type MgTransportActions struct {
-	Visits string `json:"visits,omitempty"`
-	Online string `json:"online,omitempty"`
+	Visits              string `json:"visits,omitempty"`
+	Online              string `json:"online,omitempty"`
+	ManualTemplatesSync string `json:"manualTemplatesSync,omitempty"`
 }
 
 // MgBot type.
