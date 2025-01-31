@@ -3822,7 +3822,95 @@ func TestClient_PriceTypes(t *testing.T) {
 	gock.New(crmURL).
 		Get("/reference/price-types").
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`
+{
+    "success": true,
+    "priceTypes": [
+        {
+            "id": 1,
+            "code": "base",
+            "name": "Base",
+            "active": true,
+            "promo": false,
+            "default": true,
+            "geo": [],
+            "groups": [],
+            "ordering": 1,
+            "currency": "MXN"
+        },
+        {
+            "id": 4,
+            "code": "cop",
+            "name": "COP",
+            "active": false,
+            "promo": false,
+            "default": false,
+            "geo": [],
+            "groups": [
+                "manager_1"
+            ],
+            "ordering": 990,
+            "currency": "MXN"
+        },
+        {
+            "id": 2,
+            "code": "promo_test",
+            "name": "Promotional",
+            "active": false,
+            "promo": true,
+            "default": false,
+            "geo": [
+                {
+                    "country": "CO",
+                    "regionId": "",
+                    "region": "Todas las regiones",
+                    "cityId": "",
+                    "city": "All"
+                },
+                {
+                    "country": "ES",
+                    "regionId": "",
+                    "region": "Todas las regiones",
+                    "cityId": "",
+                    "city": "All"
+                },
+                {
+                    "country": "MX",
+                    "regionId": "",
+                    "region": "Todas las regiones",
+                    "cityId": "",
+                    "city": "All"
+                }
+            ],
+            "groups": [],
+            "ordering": 990,
+            "currency": "MXN"
+        },
+        {
+            "id": 3,
+            "code": "wholesale",
+            "name": "Wholesale",
+            "active": false,
+            "promo": true,
+            "default": false,
+            "description": "Solo para ventas al mayoreo con mas de 10 articulos.",
+            "filterExpression": "order.quantity >= 1",
+            "geo": [
+                {
+                    "country": "MX",
+                    "regionId": "",
+                    "region": "Todas las regiones",
+                    "cityId": "",
+                    "city": "All"
+                }
+            ],
+            "groups": [],
+            "ordering": 990,
+            "currency": "MXN"
+        }
+    ]
+}
+`)
 
 	data, st, err := c.PriceTypes()
 	if err != nil {

@@ -20,10 +20,10 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-      - name: Set up Go 1.17
-        uses: actions/setup-go@v2
+      - name: Set up Go 1.23
+        uses: actions/setup-go@v3
         with:
-          go-version: '1.17'
+          go-version: '1.23'
       - name: Get dependencies
         run: |
           go mod tidy
@@ -31,7 +31,7 @@ jobs:
       - name: Lint code with golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.50.1
+          version: v1.62.2
           only-new-issues: true
           skip-pkg-cache: true
           args: --build-tags=testutils
@@ -40,13 +40,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.13', '1.14', '1.15', '1.16', '1.17']
+        go-version: ['1.19', '1.20', '1.21', '1.22', '1.23', 'stable']
         include:
-          - go-version: '1.17'
+          - go-version: '1.23'
             coverage: 1
     steps:
       - name: Set up Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
       - name: Check out code into the Go module directory
@@ -59,17 +59,21 @@ jobs:
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE != 1
-        run: go test -tags=testutils ./...
+        run: |
+          go install gotest.tools/gotestsum@latest
+          gotestsum --format testdox ./... -tags=testutils -v -cpu 2 -timeout 60s -race
       - name: Tests with coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
         run: |
-          go test -tags=testutils ./... -race -coverprofile=coverage.txt -covermode=atomic "$d"
+          go install gotest.tools/gotestsum@latest
+          gotestsum --format testdox ./... -tags=testutils -v -cpu 2 -timeout 60s -race -cover -coverprofile=coverage.txt -covermode=atomic "$d"
       - name: Coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
         run: |
+          go install github.com/axw/gocov/gocov@latest
+          gocov convert ./coverage.txt | gocov report
           bash <(curl -s https://codecov.io/bash)
-          rm coverage.txt

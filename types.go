@@ -53,13 +53,16 @@ type Address struct {
 	Text       string `json:"text,omitempty"`
 }
 
+// GeoID type. Can be empty string.
+type GeoID json.Number
+
 // GeoHierarchyRow type.
 type GeoHierarchyRow struct {
 	Country  string `json:"country,omitempty"`
 	Region   string `json:"region,omitempty"`
-	RegionID int    `json:"regionId,omitempty"`
+	RegionID GeoID  `json:"regionId,omitempty"`
 	City     string `json:"city,omitempty"`
-	CityID   int    `json:"cityId,omitempty"`
+	CityID   GeoID  `json:"cityId,omitempty"`
 }
 
 // Source type.
