@@ -23,7 +23,7 @@ func (st SystemTime) MarshalJSON() ([]byte, error) {
 	return []byte(st.String()), nil
 }
 
-// String returns the time in the custom format
+// String returns the time in the custom format.
 func (st *SystemTime) String() string {
 	t := time.Time(*st)
 	return fmt.Sprintf("%q", t.Format(systemTimeLayout))

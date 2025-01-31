@@ -1,11 +1,37 @@
 run:
   skip-dirs-use-default: true
   allow-parallel-runners: true
-  skip-files:
+
+issues:
+  exclude-files:
     - testutils.go
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - lll
+        - errcheck
+        - misspell
+        - ineffassign
+        - whitespace
+        - makezero
+        - errcheck
+        - funlen
+        - goconst
+        - gocognit
+        - gocyclo
+        - godot
+        - unused
+        - errchkjson
+        - varnamelen
+  exclude-use-default: true
+  exclude-case-sensitive: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  fix: true
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   sort-results: true
 
 # Linters below do not support go1.18 yet because of generics.
@@ -38,6 +64,7 @@ linters:
     - errorlint
     - exhaustive
     - exportloopref
+    - copyloopvar
     - funlen
     - gocognit
     - goconst
@@ -53,7 +80,6 @@ linters:
     - nestif
     - prealloc
     - predeclared
-    - exportloopref
     - unconvert
     - whitespace
 
@@ -178,34 +204,10 @@ linters-settings:
       - t *testing.T
       - e error
       - i int
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - lll
-        - errcheck
-        - misspell
-        - ineffassign
-        - whitespace
-        - makezero
-        - errcheck
-        - funlen
-        - goconst
-        - gocognit
-        - gocyclo
-        - godot
-        - unused
-        - errchkjson
-        - varnamelen
-  exclude-use-default: true
-  exclude-case-sensitive: false
-  max-issues-per-linter: 0
-  max-same-issues: 0
-  fix: true
 
 severity:
   default-severity: error
   case-sensitive: false
 
 service:
-  golangci-lint-version: 1.50.x
+  golangci-lint-version: 1.62.x
