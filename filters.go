@@ -381,21 +381,21 @@ type ShipmentFilter struct {
 
 // CostsFilter type.
 type CostsFilter struct {
-	MinSumm          string   `url:"minSumm,omitempty"`
-	MaxSumm          string   `url:"maxSumm,omitempty"`
+	MinSumm          int      `url:"minSumm,omitempty"`
+	MaxSumm          int      `url:"maxSumm,omitempty"`
 	OrderNumber      string   `url:"orderNumber,omitempty"`
 	Comment          string   `url:"orderNumber,omitempty"`
-	Ids              []string `url:"ids,omitempty,brackets"`
+	Ids              []int    `url:"ids,omitempty,brackets"`
 	Sites            []string `url:"sites,omitempty,brackets"`
-	CreatedBy        []string `url:"createdBy,omitempty,brackets"`
+	CreatedBy        []int    `url:"createdBy,omitempty,brackets"`
 	CostGroups       []string `url:"costGroups,omitempty,brackets"`
 	CostItems        []string `url:"costItems,omitempty,brackets"`
-	Users            []string `url:"users,omitempty,brackets"`
+	Users            []int    `url:"users,omitempty,brackets"`
 	DateFrom         string   `url:"dateFrom,omitempty"`
 	DateTo           string   `url:"dateTo,omitempty"`
 	CreatedAtFrom    string   `url:"createdAtFrom,omitempty"`
 	CreatedAtTo      string   `url:"createdAtTo,omitempty"`
-	OrderIds         []string `url:"orderIds,omitempty,brackets"`
+	OrderIds         []int    `url:"orderIds,omitempty,brackets"`
 	OrderExternalIds []string `url:"orderExternalIds,omitempty,brackets"`
 }
 
