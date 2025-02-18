@@ -396,7 +396,7 @@ type CostsFilter struct {
 	CreatedAtFrom    string   `url:"createdAtFrom,omitempty"`
 	CreatedAtTo      string   `url:"createdAtTo,omitempty"`
 	OrderIds         []string `url:"orderIds,omitempty,brackets"`
-	OrderExternalIds []string `url:"orderIds,omitempty,brackets"`
+	OrderExternalIds []string `url:"orderExternalIds,omitempty,brackets"`
 }
 
 // FilesFilter type.
