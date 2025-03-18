@@ -385,7 +385,7 @@ type CostsFilter struct {
 	MaxSumm          int      `url:"maxSumm,omitempty"`
 	OrderNumber      string   `url:"orderNumber,omitempty"`
 	Comment          string   `url:"orderNumber,omitempty"`
-	Ids              []int    `url:"ids,omitempty,brackets"`
+	IDs              []int    `url:"ids,omitempty,brackets"`
 	Sites            []string `url:"sites,omitempty,brackets"`
 	CreatedBy        []int    `url:"createdBy,omitempty,brackets"`
 	CostGroups       []string `url:"costGroups,omitempty,brackets"`
@@ -395,8 +395,8 @@ type CostsFilter struct {
 	DateTo           string   `url:"dateTo,omitempty"`
 	CreatedAtFrom    string   `url:"createdAtFrom,omitempty"`
 	CreatedAtTo      string   `url:"createdAtTo,omitempty"`
-	OrderIds         []int    `url:"orderIds,omitempty,brackets"`
-	OrderExternalIds []string `url:"orderExternalIds,omitempty,brackets"`
+	OrderIDs         []int    `url:"orderIds,omitempty,brackets"`
+	OrderExternalIDs []string `url:"orderExternalIds,omitempty,brackets"`
 }
 
 // FilesFilter type.

@@ -6214,7 +6214,7 @@ func TestClient_Cost(t *testing.T) {
 
 	costs, status, err := c.Costs(CostsRequest{
 		Filter: CostsFilter{
-			Ids: []int{id},
+			IDs: []int{id},
 		},
 		Limit: 20,
 		Page:  1,
