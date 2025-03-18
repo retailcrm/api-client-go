@@ -5,13 +5,27 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"sync"
+	"time"
 )
 
 // ByID is "id" constant to use as `by` property in methods.
 const ByID = "id"
 
-// ByExternalId is "externalId" constant to use as `by` property in methods.
+// ByExternalID is "externalId" constant to use as `by` property in methods.
 const ByExternalID = "externalId"
+
+// RateLimiter configuration constants
+const (
+	regularPathRPS   = 10                             // API rate limit (requests per second).
+	telephonyPathRPS = 40                             // Telephony API endpoints rate limit (requests per second).
+	regularDelay     = time.Second / regularPathRPS   // Delay between regular requests.
+	telephonyDelay   = time.Second / telephonyPathRPS // Delay between telephony requests.
+)
+
+// HTTPStatusUnknown can return for the method `/api/v5/customers/upload`, `/api/v5/customers-corporate/upload`,
+// `/api/v5/orders/upload`.
+const HTTPStatusUnknown = 460
 
 // Client type.
 type Client struct {
@@ -20,6 +34,15 @@ type Client struct {
 	Debug      bool
 	httpClient *http.Client
 	logger     BasicLogger
+	limiter    *RateLimiter
+	mutex      sync.Mutex
+}
+
+// RateLimiter manages API request rates to prevent hitting rate limits.
+type RateLimiter struct {
+	maxAttempts uint      // Maximum number of retry attempts (0 = infinite).
+	lastRequest time.Time // Time of the last request.
+	mutex       sync.Mutex
 }
 
 // Pagination type.
