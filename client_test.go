@@ -3,6 +3,7 @@ package retailcrm
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -81,21 +82,131 @@ func TestBaseURLTrimmed(t *testing.T) {
 	assert.Equal(t, c1.URL, c3.URL)
 }
 
-func TestGetRequest(t *testing.T) {
-	c := client()
+func TestGetRequestWithRateLimiter(t *testing.T) {
+	t.Run("Basic 404 response", func(t *testing.T) {
+		c := client()
 
-	defer gock.Off()
+		defer gock.Off()
 
-	gock.New(crmURL).
-		Get("/api/v5/fake-method").
-		Reply(404).
-		BodyString(`{"success": false, "errorMsg" : "Method not found"}`)
+		gock.New(crmURL).
+			Get("/api/v5/fake-method").
+			Reply(404).
+			BodyString(`{"success": false, "errorMsg" : "Method not found"}`)
 
-	_, status, _ := c.GetRequest("/fake-method")
+		_, status, _ := c.GetRequest("/fake-method")
 
-	if status != http.StatusNotFound {
-		t.Fail()
-	}
+		assert.Equal(t, http.StatusNotFound, status)
+	})
+
+	t.Run("Rate limiter respects configured RPS", func(t *testing.T) {
+		c := client()
+		c.EnableRateLimiter(3)
+
+		defer gock.Off()
+
+		numRequests := 5
+
+		for i := 0; i < numRequests; i++ {
+			gock.New(crmURL).
+				Get("/api/v5/test-method").
+				Reply(200).
+				BodyString(`{"success": true}`)
+		}
+
+		start := time.Now()
+		for i := 0; i < numRequests; i++ {
+			_, _, err := c.GetRequest("/test-method")
+			if err != nil {
+				t.Fatalf("Request %d failed: %v", i, err)
+			}
+		}
+
+		elapsed := time.Since(start)
+		minExpectedTime := time.Duration(numRequests-1) * time.Second / 10
+		assert.Truef(t, elapsed > minExpectedTime,
+			"Rate limiter not working correctly. Expected minimum time %v, got %v",
+			minExpectedTime, elapsed)
+	})
+
+	t.Run("Rate limiter respects telephony endpoint RPS", func(t *testing.T) {
+		c := client()
+		c.EnableRateLimiter(3)
+
+		defer gock.Off()
+
+		numRequests := 5
+
+		for i := 0; i < numRequests; i++ {
+			gock.New(crmURL).
+				Get("/api/v5/telephony/test-call").
+				Reply(200).
+				BodyString(`{"success": true}`)
+		}
+
+		start := time.Now()
+
+		for i := 0; i < numRequests; i++ {
+			_, _, err := c.GetRequest("/telephony/test-call")
+			if err != nil {
+				t.Fatalf("Request %d failed: %v", i, err)
+			}
+		}
+
+		elapsed := time.Since(start)
+		minExpectedTime := time.Duration(numRequests-1) * time.Second / 40
+		assert.Truef(t, elapsed > minExpectedTime,
+			"Rate limiter not working correctly for telephony. Expected minimum time %v, got %v",
+			minExpectedTime, elapsed)
+	})
+
+	t.Run("Rate limiter retries on 503 responses", func(t *testing.T) {
+		c := client()
+		c.EnableRateLimiter(3)
+		c.Debug = true
+
+		defer gock.Off()
+
+		gock.New(crmURL).
+			Get("/api/v5/retry-test").
+			Reply(503).
+			BodyString(`{"success": false, "errorMsg": "Rate limit exceeded"}`)
+
+		gock.New(crmURL).
+			Get("/api/v5/retry-test").
+			Reply(503).
+			BodyString(`{"success": false, "errorMsg": "Rate limit exceeded"}`)
+
+		gock.New(crmURL).
+			Get("/api/v5/retry-test").
+			Reply(200).
+			BodyString(`{"success": true}`)
+
+		_, status, err := c.GetRequest("/retry-test")
+
+		require.NoErrorf(t, err, "Request failed despite retries: %v", err)
+		assert.Equal(t, http.StatusOK, status)
+		assert.True(t, gock.IsDone(), "Not all expected requests were made")
+	})
+
+	t.Run("Rate limiter gives up after max attempts", func(t *testing.T) {
+		c := client()
+		c.EnableRateLimiter(2)
+
+		defer gock.OffAll()
+
+		for i := 0; i < 3; i++ {
+			gock.New(crmURL).
+				Get("/api/v5/retry-test").
+				Reply(503).
+				BodyString(`{"success": false, "errorMsg": "Rate limit exceeded"}`)
+		}
+
+		_, status, err := c.GetRequest("/retry-test")
+
+		assert.Equalf(t, http.StatusServiceUnavailable, status,
+			"Expected status 503 after max retries, got %d", status)
+		assert.ErrorIs(t, err, ErrRateLimited, "Expected error after max retries, got nil")
+	})
 }
 
 func TestPostRequest(t *testing.T) {

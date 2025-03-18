@@ -9,6 +9,8 @@ import (
 
 var missingParameterMatcher = regexp.MustCompile(`^Parameter \'([\w\]\[\_\-]+)\' is missing$`)
 var (
+	// ErrRateLimited will be returned if request was rate limited.
+	ErrRateLimited = NewAPIError("rate limit exceeded")
 	// ErrMissingCredentials will be returned if no API key was provided to the API.
 	ErrMissingCredentials = NewAPIError(`apiKey is missing`)
 	// ErrInvalidCredentials will be returned if provided API key is invalid.
