@@ -6325,7 +6325,7 @@ func TestClient_Cost(t *testing.T) {
 
 	costs, status, err := c.Costs(CostsRequest{
 		Filter: CostsFilter{
-			Ids: []string{strconv.Itoa(id)},
+			IDs: []int{id},
 		},
 		Limit: 20,
 		Page:  1,

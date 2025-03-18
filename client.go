@@ -5092,7 +5092,7 @@ func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 //
 //	data, status, err := client.Costs(CostsRequest{
 //		Filter: CostsFilter{
-//			Ids: []string{"1","2","3"},
+//			IDs: []string{"1","2","3"},
 //			MinSumm: "1000"
 //		},
 //	})
