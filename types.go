@@ -15,7 +15,7 @@ const ByID = "id"
 // ByExternalID is "externalId" constant to use as `by` property in methods.
 const ByExternalID = "externalId"
 
-// RateLimiter configuration constants
+// RateLimiter configuration constants.
 const (
 	regularPathRPS   = 10                             // API rate limit (requests per second).
 	telephonyPathRPS = 40                             // Telephony API endpoints rate limit (requests per second).

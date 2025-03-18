@@ -101,13 +101,14 @@ func (c *Client) executeWithRetry(
 	}
 
 	var (
-		res         interface{}
-		statusCode  int
-		err         error
-		attempt     uint = 1
-		maxAttempts      = c.limiter.maxAttempts
-		infinite         = maxAttempts == 0
-		lastAttempt      = false
+		res           interface{}
+		statusCode    int
+		err           error
+		lastAttempt   bool
+		attempt       uint = 1
+		maxAttempts        = c.limiter.maxAttempts
+		totalAttempts      = "∞"
+		infinite           = maxAttempts == 0
 	)
 
 	var baseDelay time.Duration
@@ -115,6 +116,10 @@ func (c *Client) executeWithRetry(
 		baseDelay = telephonyDelay
 	} else {
 		baseDelay = regularDelay
+	}
+
+	if !infinite {
+		totalAttempts = strconv.FormatUint(uint64(maxAttempts), 10)
 	}
 
 	for infinite || attempt <= maxAttempts {
@@ -135,8 +140,8 @@ func (c *Client) executeWithRetry(
 		// Calculate exponential backoff delay: baseDelay * 2^(attempt-1).
 		backoffDelay := baseDelay * (1 << (attempt - 1))
 		if c.Debug {
-			c.writeLog("API Error: rate limited (503), retrying in %v (attempt %d/%d)",
-				backoffDelay, attempt, maxAttempts)
+			c.writeLog("API Error: rate limited (503), retrying in %v (attempt %d/%s)",
+				backoffDelay, attempt, totalAttempts)
 		}
 
 		time.Sleep(backoffDelay)
