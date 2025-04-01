@@ -194,6 +194,22 @@ type DeliveryShipmentsRequest struct {
 	Page   int            `url:"page,omitempty"`
 }
 
+// ClearCartRequest type.
+type ClearCartRequest struct {
+	CreatedAt string         `url:"createdAt,omitempty"`
+	Customer  CartCustomer   `url:"customer,omitempty"`
+	Order     ClearCartOrder `url:"order,omitempty"`
+}
+
+// SetCartRequest type.
+type SetCartRequest struct {
+	ExternalID string        `url:"externalId,omitempty"`
+	DroppedAt  string        `url:"droppedAt,omitempty"`
+	Link       string        `url:"link,omitempty"`
+	Customer   CartCustomer  `url:"customer,omitempty"`
+	Items      []SetCartItem `url:"items,omitempty"`
+}
+
 // CostsRequest type.
 type CostsRequest struct {
 	Filter CostsFilter `url:"filter,omitempty"`

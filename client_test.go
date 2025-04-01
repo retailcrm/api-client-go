@@ -1877,6 +1877,171 @@ func TestClient_CorporateCustomerEdit(t *testing.T) {
 	}
 }
 
+func TestClient_ClearCart(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	filter := SiteFilter{SiteBy: "id"}
+	request := ClearCartRequest{
+		CreatedAt: time.Now().String(),
+		Customer: CartCustomer{
+			ID:         1,
+			ExternalID: "ext_id",
+			Site:       "site",
+			BrowserID:  "browser_id",
+			GaClientID: "ga_client_id",
+		},
+		Order: ClearCartOrder{
+			ID:         1,
+			ExternalID: "ext_id",
+			Number:     "abc123",
+		},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/customer-interaction/%s/cart/clear", site)).
+		MatchParam("siteBy", filter.SiteBy).
+		Reply(200).
+		BodyString(`{"success":true}`)
+
+	data, status, err := c.ClearCart(site, filter, request)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_SetCart(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	filter := SiteFilter{SiteBy: "id"}
+	request := SetCartRequest{
+		ExternalID: "ext_id",
+		DroppedAt:  time.Now().String(),
+		Link:       "link",
+		Customer: CartCustomer{
+			ID:         1,
+			ExternalID: "ext_id",
+			Site:       "site",
+			BrowserID:  "browser_id",
+			GaClientID: "ga_client_id",
+		},
+		Items: []SetCartItem{
+			{
+				Quantity: 1,
+				Price:    1.0,
+				Offer: SetCartOffer{
+					ID:         1,
+					ExternalID: "ext_id",
+					XMLID:      "xml_id",
+				},
+			},
+		},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/customer-interaction/%s/cart/set", site)).
+		MatchParam("siteBy", filter.SiteBy).
+		Reply(200).
+		BodyString(`{"success":true}`)
+
+	data, status, err := c.SetCart(site, filter, request)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_GetCart(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	customer := "customer_id"
+	filter := GetCartFilter{
+		SiteBy: "code",
+		By:     "externalId",
+	}
+
+	expCart := Cart{
+		Currency:   "currency",
+		ExternalID: "ext_id",
+		DroppedAt:  time.Now().String(),
+		ClearedAt:  time.Now().String(),
+		Link:       "link",
+		Items: []CartItem{
+			{
+				ID:       1,
+				Quantity: 2,
+				Price:    3.0,
+				Offer: CartOffer{
+					DisplayName: "name",
+					ID:          1,
+					ExternalID:  "ext_id",
+					XMLID:       "xml_id",
+					Name:        "name",
+					Article:     "article",
+					VatRate:     "vat_rate",
+					Properties: StringMap{
+						"a": "b",
+						"c": "d",
+					},
+					Barcode: "barcode",
+				},
+			},
+		},
+	}
+
+	cartResp := CartResponse{
+		SuccessfulResponse: SuccessfulResponse{Success: true},
+		Cart:               expCart,
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/customer-interaction/%s/cart/%s", site, customer)).
+		MatchParams(map[string]string{
+			"siteBy": filter.SiteBy,
+			"by":     filter.By,
+		}).
+		Reply(200).
+		JSON(cartResp)
+
+	data, status, err := c.GetCart(site, customer, filter)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	if !reflect.DeepEqual(expCart, data.Cart) {
+		t.Errorf("%v", err)
+	}
+
+}
+
 func TestClient_NotesNotes(t *testing.T) {
 	c := client()
 
