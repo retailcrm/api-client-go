@@ -247,6 +247,15 @@ type CorporateCustomerContactCustomer struct {
 	Site       string `json:"site,omitempty"`
 }
 
+// CartCustomer type.
+type CartCustomer struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	Site       string `json:"site,omitempty"`
+	BrowserID  string `json:"browserId,omitempty"`
+	GaClientID string `json:"gaClientId,omitempty"`
+}
+
 type Company struct {
 	ID           int              `json:"id,omitempty"`
 	IsMain       bool             `json:"isMain,omitempty"`
@@ -399,6 +408,13 @@ type SerializedOrderLink struct {
 	Orders    []LinkedOrder `json:"orders,omitempty"`
 }
 
+// ClearCartOrder type.
+type ClearCartOrder struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalID,omitempty"`
+	Number     string `json:"number,omitempty"`
+}
+
 // ClientID type.
 type ClientID struct {
 	Value    string                   `json:"value"`
@@ -467,6 +483,59 @@ type OrderDeliveryDataBasic struct {
 type OrderDeliveryData struct {
 	OrderDeliveryDataBasic
 	AdditionalFields map[string]interface{}
+}
+
+// SetCartItem type.
+type SetCartItem struct {
+	Quantity float64      `json:"quantity,omitempty"`
+	Price    float64      `json:"price,omitempty"`
+	Offer    SetCartOffer `json:"offer,omitempty"`
+}
+
+// SetCartOffer type.
+type SetCartOffer struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalID,omitempty"`
+	XMLID      string `json:"xmlId,omitempty"`
+}
+
+// Cart type.
+type Cart struct {
+	Currency   string     `json:"currency,omitempty"`
+	ExternalID string     `json:"externalId,omitempty"`
+	DroppedAt  string     `json:"droppedAt,omitempty"`
+	ClearedAt  string     `json:"clearedAt,omitempty"`
+	Link       string     `json:"link,omitempty"`
+	Items      []CartItem `json:"items,omitempty"`
+}
+
+// CartItem type.
+type CartItem struct {
+	ID       int       `json:"id,omitempty"`
+	Quantity float64   `json:"quantity,omitempty"`
+	Price    float64   `json:"price,omitempty"`
+	Offer    CartOffer `json:"offer,omitempty"`
+}
+
+// CartOffer type.
+type CartOffer struct {
+	DisplayName string    `json:"displayName,omitempty"`
+	ID          int       `json:"id,omitempty"`
+	ExternalID  string    `json:"externalId,omitempty"`
+	XMLID       string    `json:"xmlId,omitempty"`
+	Name        string    `json:"name,omitempty"`
+	Article     string    `json:"article,omitempty"`
+	VatRate     string    `json:"vatRate,omitempty"`
+	Properties  StringMap `json:"properties,omitempty"`
+	Unit        CartUnit  `json:"unit,omitempty"`
+	Barcode     string    `json:"barcode,omitempty"`
+}
+
+// CartUnit type.
+type CartUnit struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Sym  string `json:"sym"`
 }
 
 // UnmarshalJSON method.

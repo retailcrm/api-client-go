@@ -1957,6 +1957,173 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 	return resp, status, nil
 }
 
+// ClearCart clears the current customer's shopping cart
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-customer-interaction-site-cart-clear
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ClearCart("site_id", SiteFilter{SiteBy: "id"},
+//		ClearCartRequest{
+//			CreatedAt: time.Now().String(),
+//			Customer: CartCustomer{
+//				ID:         1,
+//				ExternalID: "ext_id",
+//				Site:       "site",
+//				BrowserID:  "browser_id",
+//				GaClientID: "ga_client_id",
+//			},
+//			Order: ClearCartOrder{
+//				ID:         1,
+//				ExternalID: "ext_id",
+//				Number:     "abc123",
+//			},
+//		},
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) ClearCart(site string, filter SiteFilter, req ClearCartRequest) (
+	SuccessfulResponse, int, error,
+) {
+	var resp SuccessfulResponse
+
+	updateJSON, err := json.Marshal(&req)
+	if err != nil {
+		return SuccessfulResponse{}, 0, err
+	}
+
+	p := url.Values{
+		"cart": {string(updateJSON)},
+	}
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customer-interaction/%s/cart/clear?%s", site, params.Encode()), p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// SetCart creates or overwrites shopping cart data
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-customer-interaction-site-cart-set
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.SetCart("site_id", SiteFilter{SiteBy: "id"},
+//		SetCartRequest{
+//			ExternalID: "ext_id",
+//			DroppedAt:  time.Now().String(),
+//			Link:       "link",
+//			Customer: CartCustomer{
+//				ID:         1,
+//				ExternalID: "ext_id",
+//				Site:       "site",
+//				BrowserID:  "browser_id",
+//				GaClientID: "ga_client_id",
+//			},
+//			Items: []SetCartItem{
+//				{
+//					Quantity: 1,
+//					Price:    1.0,
+//					Offer: SetCartOffer{
+//						ID: 1,
+//						ExternalID: "ext_id",
+//						XMLID: "xml_id",
+//					},
+//				},
+//			},
+//		},
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) SetCart(site string, filter SiteFilter, req SetCartRequest) (
+	SuccessfulResponse, int, error,
+) {
+	var resp SuccessfulResponse
+
+	updateJSON, err := json.Marshal(&req)
+	if err != nil {
+		return SuccessfulResponse{}, 0, err
+	}
+
+	p := url.Values{
+		"cart": {string(updateJSON)},
+	}
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customer-interaction/%s/cart/set?%s", site, params.Encode()), p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// GetCart returns the current customer's shopping cart
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-customer-interaction-site-cart-customerId
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.GetCart("site_id","customer_id", GetCartFilter{ SiteBy: "code", By: "externalId"})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) GetCart(site, customer string, filter GetCartFilter) (CartResponse, int, error) {
+	var resp CartResponse
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customer-interaction/%s/cart/%s?%s", site, customer, params.Encode()))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // DeliveryTracking updates tracking data
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-delivery-generic-subcode-tracking

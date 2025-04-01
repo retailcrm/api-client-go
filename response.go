@@ -407,6 +407,12 @@ type ProductsPropertiesResponse struct {
 	Properties []Property  `json:"properties,omitempty"`
 }
 
+// CartResponse type.
+type CartResponse struct {
+	SuccessfulResponse
+	Cart Cart `json:"cart"`
+}
+
 // DeliveryShipmentsResponse type.
 type DeliveryShipmentsResponse struct {
 	Success           bool               `json:"success"`
