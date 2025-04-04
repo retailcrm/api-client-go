@@ -196,7 +196,7 @@ type DeliveryShipmentsRequest struct {
 
 // ClearCartRequest type.
 type ClearCartRequest struct {
-	CreatedAt string         `url:"createdAt,omitempty"`
+	ClearedAt string         `url:"clearedAt,omitempty"`
 	Customer  CartCustomer   `url:"customer,omitempty"`
 	Order     ClearCartOrder `url:"order,omitempty"`
 }

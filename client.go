@@ -1965,17 +1965,17 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := client.ClearCart("site_id", SiteFilter{SiteBy: "id"},
-//		ClearCartRequest{
-//			CreatedAt: time.Now().String(),
-//			Customer: CartCustomer{
+//	data, status, err := client.ClearCart("site_id", retailcrm.SiteFilter{SiteBy: "id"},
+//		retailcrm.ClearCartRequest{
+//			ClearedAt: time.Now().String(),
+//			Customer: retailcrm.CartCustomer{
 //				ID:         1,
 //				ExternalID: "ext_id",
 //				Site:       "site",
 //				BrowserID:  "browser_id",
 //				GaClientID: "ga_client_id",
 //			},
-//			Order: ClearCartOrder{
+//			Order: retailcrm.ClearCartOrder{
 //				ID:         1,
 //				ExternalID: "ext_id",
 //				Number:     "abc123",
@@ -2027,23 +2027,23 @@ func (c *Client) ClearCart(site string, filter SiteFilter, req ClearCartRequest)
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := client.SetCart("site_id", SiteFilter{SiteBy: "id"},
-//		SetCartRequest{
+//	data, status, err := client.SetCart("site_id", retailcrm.SiteFilter{SiteBy: "id"},
+//		retailcrm.SetCartRequest{
 //			ExternalID: "ext_id",
 //			DroppedAt:  time.Now().String(),
 //			Link:       "link",
-//			Customer: CartCustomer{
+//			Customer: retailcrm.CartCustomer{
 //				ID:         1,
 //				ExternalID: "ext_id",
 //				Site:       "site",
 //				BrowserID:  "browser_id",
 //				GaClientID: "ga_client_id",
 //			},
-//			Items: []SetCartItem{
+//			Items: []retailcrm.SetCartItem{
 //				{
 //					Quantity: 1,
 //					Price:    1.0,
-//					Offer: SetCartOffer{
+//					Offer: retailcrm.SetCartOffer{
 //						ID: 1,
 //						ExternalID: "ext_id",
 //						XMLID: "xml_id",
@@ -2097,7 +2097,8 @@ func (c *Client) SetCart(site string, filter SiteFilter, req SetCartRequest) (
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
-//	data, status, err := client.GetCart("site_id","customer_id", GetCartFilter{ SiteBy: "code", By: "externalId"})
+//	data, status, err := client.GetCart("site_id","customer_id",
+//		retailcrm.GetCartFilter{ SiteBy: "code", By: "externalId"})
 //
 //	if err != nil {
 //		if apiErr, ok := retailcrm.AsAPIError(err); ok {
