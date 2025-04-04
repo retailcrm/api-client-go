@@ -1883,7 +1883,7 @@ func TestClient_ClearCart(t *testing.T) {
 	site := "site_id"
 	filter := SiteFilter{SiteBy: "id"}
 	request := ClearCartRequest{
-		CreatedAt: time.Now().String(),
+		ClearedAt: time.Now().String(),
 		Customer: CartCustomer{
 			ID:         1,
 			ExternalID: "ext_id",
