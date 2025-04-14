@@ -196,18 +196,18 @@ type DeliveryShipmentsRequest struct {
 
 // ClearCartRequest type.
 type ClearCartRequest struct {
-	ClearedAt string         `url:"clearedAt,omitempty"`
-	Customer  CartCustomer   `url:"customer,omitempty"`
-	Order     ClearCartOrder `url:"order,omitempty"`
+	ClearedAt string         `json:"clearedAt,omitempty"`
+	Customer  CartCustomer   `json:"customer,omitempty"`
+	Order     ClearCartOrder `json:"order,omitempty"`
 }
 
 // SetCartRequest type.
 type SetCartRequest struct {
-	ExternalID string        `url:"externalId,omitempty"`
-	DroppedAt  string        `url:"droppedAt,omitempty"`
-	Link       string        `url:"link,omitempty"`
-	Customer   CartCustomer  `url:"customer,omitempty"`
-	Items      []SetCartItem `url:"items,omitempty"`
+	ExternalID string        `json:"externalId,omitempty"`
+	DroppedAt  string        `json:"droppedAt,omitempty"`
+	Link       string        `json:"link,omitempty"`
+	Customer   CartCustomer  `json:"customer,omitempty"`
+	Items      []SetCartItem `json:"items,omitempty"`
 }
 
 // CostsRequest type.
