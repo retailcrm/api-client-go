@@ -1,9 +1,13 @@
 package retailcrm
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/retailcrm/api-client-go/v2/constant"
 	"github.com/stretchr/testify/require"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -1880,15 +1884,18 @@ func TestClient_CorporateCustomerEdit(t *testing.T) {
 func TestClient_ClearCart(t *testing.T) {
 	c := client()
 
+	tm := "2025-04-14 15:50:00"
+	clearedAt, err := time.Parse("2006-01-02 15:04:05", tm)
+	require.NoError(t, err)
+
 	site := "site_id"
 	filter := SiteFilter{SiteBy: "id"}
 	request := ClearCartRequest{
-		ClearedAt: time.Now().String(),
+		ClearedAt: clearedAt.UTC().Format(constant.DateTimeWithZoneFormat),
 		Customer: CartCustomer{
 			ID:         1,
 			ExternalID: "ext_id",
 			Site:       "site",
-			BrowserID:  "browser_id",
 			GaClientID: "ga_client_id",
 		},
 		Order: ClearCartOrder{
@@ -1898,9 +1905,40 @@ func TestClient_ClearCart(t *testing.T) {
 		},
 	}
 
+	expectedJSON := `{
+	"clearedAt": "2025-04-14 15:50:00+00:00",
+	"customer": {
+		"id": 1,
+		"externalId": "ext_id",
+		"site": "site",
+		"gaClientId": "ga_client_id"
+	},
+	"order": {
+		"id": 1,
+		"externalId": "ext_id",
+		"number": "abc123"
+	}
+}`
+
 	defer gock.Off()
 	gock.New(crmURL).
 		Post(fmt.Sprintf("/customer-interaction/%s/cart/clear", site)).
+		AddMatcher(func(request *http.Request, _ *gock.Request) (bool, error) {
+			body, err := io.ReadAll(request.Body)
+			require.NoError(t, err)
+			request.Body = io.NopCloser(bytes.NewBuffer(body))
+
+			val, err := url.ParseQuery(string(body))
+			require.NoError(t, err)
+
+			val.Get("cart")
+
+			if !assert.JSONEq(t, expectedJSON, val.Get("cart")) {
+				return false, errors.New("unequal values")
+			}
+
+			return true, nil
+		}).
 		MatchParam("siteBy", filter.SiteBy).
 		Reply(200).
 		BodyString(`{"success":true}`)
@@ -1926,7 +1964,7 @@ func TestClient_SetCart(t *testing.T) {
 	filter := SiteFilter{SiteBy: "id"}
 	request := SetCartRequest{
 		ExternalID: "ext_id",
-		DroppedAt:  time.Now().String(),
+		DroppedAt:  time.Now().UTC().Format(constant.DateTimeWithZoneFormat),
 		Link:       "link",
 		Customer: CartCustomer{
 			ID:         1,
@@ -1951,6 +1989,36 @@ func TestClient_SetCart(t *testing.T) {
 	defer gock.Off()
 	gock.New(crmURL).
 		Post(fmt.Sprintf("/customer-interaction/%s/cart/set", site)).
+		AddMatcher(func(req *http.Request, _ *gock.Request) (bool, error) {
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+			req.Body = io.NopCloser(bytes.NewBuffer(body))
+
+			val, err := url.ParseQuery(string(body))
+			require.NoError(t, err)
+
+			cartJSON := val.Get("cart")
+			var cart SetCartRequest
+			require.NoError(t, json.Unmarshal([]byte(cartJSON), &cart))
+
+			equal := assert.Equal(t, "ext_id", cart.ExternalID) &&
+				assert.NotEmpty(t, cart.DroppedAt) &&
+				assert.Equal(t, 1, cart.Customer.ID) &&
+				assert.Equal(t, "ext_id", cart.Customer.ExternalID) &&
+				assert.Equal(t, "site", cart.Customer.Site) &&
+				assert.Equal(t, "ga_client_id", cart.Customer.GaClientID) &&
+				assert.Equal(t, float64(1), cart.Items[0].Quantity) &&
+				assert.Equal(t, float64(1), cart.Items[0].Price) &&
+				assert.Equal(t, 1, cart.Items[0].Offer.ID) &&
+				assert.Equal(t, "ext_id", cart.Items[0].Offer.ExternalID) &&
+				assert.Equal(t, "xml_id", cart.Items[0].Offer.XMLID)
+
+			if !equal {
+				return false, errors.New("unequal values")
+			}
+
+			return true, nil
+		}).
 		MatchParam("siteBy", filter.SiteBy).
 		Reply(200).
 		BodyString(`{"success":true}`)
@@ -1982,8 +2050,8 @@ func TestClient_GetCart(t *testing.T) {
 	expCart := Cart{
 		Currency:   "currency",
 		ExternalID: "ext_id",
-		DroppedAt:  time.Now().String(),
-		ClearedAt:  time.Now().String(),
+		DroppedAt:  "2025-04-14 14:32:14+03:00",
+		ClearedAt:  "2025-04-14 14:52:14+03:00",
 		Link:       "link",
 		Items: []CartItem{
 			{

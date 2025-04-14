@@ -411,7 +411,7 @@ type SerializedOrderLink struct {
 // ClearCartOrder type.
 type ClearCartOrder struct {
 	ID         int    `json:"id,omitempty"`
-	ExternalID string `json:"externalID,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
 	Number     string `json:"number,omitempty"`
 }
 
@@ -495,7 +495,7 @@ type SetCartItem struct {
 // SetCartOffer type.
 type SetCartOffer struct {
 	ID         int    `json:"id,omitempty"`
-	ExternalID string `json:"externalID,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
 	XMLID      string `json:"xmlId,omitempty"`
 }
 
