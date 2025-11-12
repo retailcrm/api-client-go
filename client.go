@@ -1959,7 +1959,7 @@ func (c *Client) CorporateCustomerEdit(customer CorporateCustomer, by string, si
 
 // ClearCart clears the current customer's shopping cart
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-customer-interaction-site-cart-clear
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-customer-interaction-site-cart-clear
 //
 // Example:
 //
@@ -2021,7 +2021,7 @@ func (c *Client) ClearCart(site string, filter SiteFilter, req ClearCartRequest)
 
 // SetCart creates or overwrites shopping cart data
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-customer-interaction-site-cart-set
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-customer-interaction-site-cart-set
 //
 // Example:
 //
@@ -2091,7 +2091,7 @@ func (c *Client) SetCart(site string, filter SiteFilter, req SetCartRequest) (
 
 // GetCart returns the current customer's shopping cart
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-customer-interaction-site-cart-customerId
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-customer-interaction-site-cart-customerId
 //
 // Example:
 //
@@ -2113,6 +2113,146 @@ func (c *Client) GetCart(site, customer string, filter GetCartFilter) (CartRespo
 	params, _ := query.Values(filter)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/customer-interaction/%s/cart/%s?%s", site, customer, params.Encode()))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// GetFavorites returns the current customer's list of favorite offers
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-customer-interaction-site-favorites-customerId
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.GetFavorites("site_id","customer_id",
+//		retailcrm.GetFavoritesFilter{ SiteBy: "code", By: "externalId"})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) GetFavorites(site, customer string, filter FavoritesFilter) (FavoritesResponse, int, error) {
+	var resp FavoritesResponse
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/customer-interaction/%s/favorites/%s?%s", site, customer, params.Encode()))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// AddFavorite adds favorite products for customer
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-customer-interaction-site-favorites-customerId-add
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.AddFavorite("site_id", "customer_external_id", retailcrm.FavoritesFilter{SiteBy: "id", By: "externalId"},
+//		retailcrm.AddFavoriteRequest{
+//			ID: 1,
+//			ExternalID: "ext_id",
+//			XMLID: "xml_id",
+//		},
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) AddFavorite(site, customer string, filter FavoritesFilter, req AddFavoriteRequest) (
+	SuccessfulResponse, int, error,
+) {
+	var resp SuccessfulResponse
+
+	updateJSON, err := json.Marshal(&req)
+	if err != nil {
+		return SuccessfulResponse{}, 0, err
+	}
+
+	p := url.Values{
+		"favorite": {string(updateJSON)},
+	}
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customer-interaction/%s/favorites/%s/add?%s", site, customer, params.Encode()), p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// RemoveFavorite removes favorite products from customer
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-customer-interaction-site-favorites-customerId-remove
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.RemoveFavorite("site_id", "customer_external_id", retailcrm.FavoritesFilter{SiteBy: "id", By: "externalId"},
+//		retailcrm.AddFavoriteRequest{
+//			ID: 1,
+//			ExternalID: "ext_id",
+//			XMLID: "xml_id",
+//		},
+//	)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+func (c *Client) RemoveFavorite(site, customer string, filter FavoritesFilter, req AddFavoriteRequest) (
+	SuccessfulResponse, int, error,
+) {
+	var resp SuccessfulResponse
+
+	updateJSON, err := json.Marshal(&req)
+	if err != nil {
+		return SuccessfulResponse{}, 0, err
+	}
+
+	p := url.Values{
+		"favorite": {string(updateJSON)},
+	}
+
+	params, _ := query.Values(filter)
+
+	data, status, err := c.PostRequest(fmt.Sprintf("/customer-interaction/%s/favorites/%s/remove?%s", site, customer, params.Encode()), p)
 	if err != nil {
 		return resp, status, err
 	}
@@ -6277,7 +6417,7 @@ func (c *Client) AccountBonusOperations(id int, parameters AccountBonusOperation
 
 // ProductsBatchEdit perform editing products batch
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-products-batch-edit
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-store-products-batch-edit
 //
 // Example:
 //
@@ -6333,7 +6473,7 @@ func (c *Client) ProductsBatchEdit(products []ProductEdit) (ProductsBatchEditRes
 
 // ProductsBatchCreate perform adding products batch
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-products-batch-create
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-store-products-batch-create
 //
 // Example:
 //
@@ -6387,7 +6527,7 @@ func (c *Client) ProductsBatchCreate(products []ProductCreate) (ProductsBatchEdi
 
 // LoyaltyAccountCreate аdd a client to the loyalty program
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-account-create
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-loyalty-account-create
 //
 // Example:
 //
@@ -6441,7 +6581,7 @@ func (c *Client) LoyaltyAccountCreate(site string, loyaltyAccount SerializedCrea
 
 // LoyaltyAccountEdit edit a client in the loyalty program
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-account-id-edit
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-loyalty-account-id-edit
 //
 // Example:
 //
@@ -6491,7 +6631,7 @@ func (c *Client) LoyaltyAccountEdit(id int, loyaltyAccount SerializedEditLoyalty
 
 // LoyaltyAccount return information about client in the loyalty program
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-account-id
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-account-id
 //
 // Example:
 //
@@ -6530,7 +6670,7 @@ func (c *Client) LoyaltyAccount(id int) (LoyaltyAccountResponse, int, error) {
 
 // LoyaltyAccountActivate activate participation in the loyalty program for client
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-account-id-activate
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-loyalty-account-id-activate
 //
 // Example:
 //
@@ -6569,7 +6709,7 @@ func (c *Client) LoyaltyAccountActivate(id int) (LoyaltyAccountActivateResponse,
 
 // LoyaltyBonusCredit accrue bonus participation in the program of loyalty
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-account-id-bonus-credit
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-loyalty-account-id-bonus-credit
 //
 // Example:
 //
@@ -6615,7 +6755,7 @@ func (c *Client) LoyaltyBonusCredit(id int, req LoyaltyBonusCreditRequest) (Loya
 
 // LoyaltyBonusStatusDetails get details on the bonus account
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-account-id-bonus-status-details
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-account-id-bonus-status-details
 //
 // Example:
 //
@@ -6665,7 +6805,7 @@ func (c *Client) LoyaltyBonusStatusDetails(
 
 // LoyaltyAccounts return list of participations in the loyalty program
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-accounts
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-accounts
 //
 // Example:
 //
@@ -6719,7 +6859,7 @@ func (c *Client) LoyaltyAccounts(req LoyaltyAccountsRequest) (LoyaltyAccountsRes
 
 // LoyaltyCalculate calculations of the maximum discount
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-loyalty-calculate
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-loyalty-calculate
 //
 // Example:
 //
@@ -6786,7 +6926,7 @@ func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculate
 
 // GetLoyalties returns list of loyalty programs
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-loyalties
 //
 // Example:
 //
@@ -6838,7 +6978,7 @@ func (c *Client) GetLoyalties(req LoyaltiesRequest) (LoyaltiesResponse, int, err
 
 // GetLoyaltyByID return program of loyalty by id
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#get--api-v5-loyalty-loyalties-id
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-loyalties-id
 //
 // Example:
 //
@@ -6878,7 +7018,7 @@ func (c *Client) GetLoyaltyByID(id int) (LoyaltyResponse, int, error) {
 
 // OrderIntegrationDeliveryCancel cancels of integration delivery
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-orders-externalId-delivery-cancel
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-orders-externalId-delivery-cancel
 //
 // Example:
 //
@@ -6922,7 +7062,7 @@ func (c *Client) OrderIntegrationDeliveryCancel(by string, force bool, id string
 
 // CreateProductsGroup adds a product group
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-product-groups-create
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-store-product-groups-create
 //
 // Example:
 //
@@ -6975,7 +7115,7 @@ func (c *Client) CreateProductsGroup(group ProductGroup) (ActionProductsGroupRes
 
 // EditProductsGroup edits a product group
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-store-product-groups-externalId-edit
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-store-product-groups-externalId-edit
 //
 // Example:
 //
@@ -7105,7 +7245,7 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 
 // NotificationsSend send a notification
 //
-// For more information see https://docs.retailcrm.ru/Developers/API/APIVersions/APIv5#post--api-v5-notifications-send
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-notifications-send
 //
 // Example:
 //

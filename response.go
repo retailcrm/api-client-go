@@ -413,6 +413,12 @@ type CartResponse struct {
 	Cart Cart `json:"cart"`
 }
 
+// FavoritesResponse type.
+type FavoritesResponse struct {
+	SuccessfulResponse
+	Favorites []FavoriteCustomerOffer `json:"cart"`
+}
+
 // DeliveryShipmentsResponse type.
 type DeliveryShipmentsResponse struct {
 	Success           bool               `json:"success"`

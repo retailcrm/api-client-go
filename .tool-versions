@@ -1,0 +1,3 @@
+go 1.23.12
+gotestsum 1.13.0
+golangci-lint 1.62.2

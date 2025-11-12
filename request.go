@@ -210,6 +210,12 @@ type SetCartRequest struct {
 	Items      []SetCartItem `json:"items,omitempty"`
 }
 
+type AddFavoriteRequest struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	XMLID      string `json:"xmlId,omitempty"`
+}
+
 // CostsRequest type.
 type CostsRequest struct {
 	Filter CostsFilter `url:"filter,omitempty"`
