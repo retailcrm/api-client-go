@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/retailcrm/api-client-go/v2/constant"
-	"github.com/stretchr/testify/require"
 	"io"
 	"io/ioutil"
 	"log"
@@ -19,6 +17,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/retailcrm/api-client-go/v2/constant"
+	"github.com/stretchr/testify/require"
 
 	"github.com/google/go-querystring/query"
 
@@ -2108,6 +2109,176 @@ func TestClient_GetCart(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 
+}
+
+func TestClient_GetFavorites(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	customer := "customer_id"
+	filter := FavoritesFilter{
+		SiteBy: "code",
+		By:     "externalId",
+	}
+
+	favoritesResp := FavoritesResponse{
+		SuccessfulResponse: SuccessfulResponse{Success: true},
+		Favorites: []FavoriteCustomerOffer{
+			{
+				Offer: Offer{
+					ID:         1,
+					ExternalID: "ext_id_1",
+					XMLID:      "xml_id_1",
+				},
+				CreatedAt: "2025-04-14 14:32:14+03:00",
+			},
+			{
+				Offer: Offer{
+					ID:         2,
+					ExternalID: "ext_id_2",
+					XMLID:      "xml_id_2",
+				},
+				CreatedAt: "2025-04-14 15:32:14+03:00",
+			},
+		},
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Get(fmt.Sprintf("/customer-interaction/%s/favorites/%s", site, customer)).
+		MatchParams(map[string]string{
+			"siteBy": filter.SiteBy,
+			"by":     filter.By,
+		}).
+		Reply(http.StatusOK).
+		JSON(favoritesResp)
+
+	data, status, err := c.GetFavorites(site, customer, filter)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+
+	if !reflect.DeepEqual(favoritesResp.Favorites, data.Favorites) {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_AddFavorite(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	customer := "customer_id"
+	filter := FavoritesFilter{SiteBy: "id"}
+	request := AddFavoriteRequest{
+		ID:         1,
+		ExternalID: "ext_id",
+		XMLID:      "xml_id",
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/customer-interaction/%s/favorites/%s/add", site, customer)).
+		AddMatcher(func(req *http.Request, _ *gock.Request) (bool, error) {
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+			req.Body = io.NopCloser(bytes.NewBuffer(body))
+
+			val, err := url.ParseQuery(string(body))
+			require.NoError(t, err)
+
+			data := val.Get("favorite")
+			var incoming AddFavoriteRequest
+			require.NoError(t, json.Unmarshal([]byte(data), &incoming))
+
+			equal := assert.Equal(t, 1, incoming.ID) &&
+				assert.Equal(t, "ext_id", incoming.ExternalID) &&
+				assert.Equal(t, "xml_id", incoming.XMLID)
+
+			if !equal {
+				return false, errors.New("unequal values")
+			}
+
+			return true, nil
+		}).
+		MatchParam("siteBy", filter.SiteBy).
+		Reply(http.StatusOK).
+		BodyString(`{"success":true}`)
+
+	data, status, err := c.AddFavorite(site, customer, filter, request)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
+}
+
+func TestClient_RemoveFavorite(t *testing.T) {
+	c := client()
+
+	site := "site_id"
+	customer := "customer_id"
+	filter := FavoritesFilter{SiteBy: "id"}
+	request := AddFavoriteRequest{
+		ID:         1,
+		ExternalID: "ext_id",
+		XMLID:      "xml_id",
+	}
+
+	defer gock.Off()
+	gock.New(crmURL).
+		Post(fmt.Sprintf("/customer-interaction/%s/favorites/%s/remove", site, customer)).
+		AddMatcher(func(req *http.Request, _ *gock.Request) (bool, error) {
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+			req.Body = io.NopCloser(bytes.NewBuffer(body))
+
+			val, err := url.ParseQuery(string(body))
+			require.NoError(t, err)
+
+			data := val.Get("favorite")
+			var incoming AddFavoriteRequest
+			require.NoError(t, json.Unmarshal([]byte(data), &incoming))
+
+			equal := assert.Equal(t, 1, incoming.ID) &&
+				assert.Equal(t, "ext_id", incoming.ExternalID) &&
+				assert.Equal(t, "xml_id", incoming.XMLID)
+
+			if !equal {
+				return false, errors.New("unequal values")
+			}
+
+			return true, nil
+		}).
+		MatchParam("siteBy", filter.SiteBy).
+		Reply(http.StatusOK).
+		BodyString(`{"success":true}`)
+
+	data, status, err := c.RemoveFavorite(site, customer, filter, request)
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status >= http.StatusBadRequest {
+		t.Errorf("(%d) %v", status, err)
+	}
+
+	if data.Success != true {
+		t.Errorf("%v", err)
+	}
 }
 
 func TestClient_NotesNotes(t *testing.T) {

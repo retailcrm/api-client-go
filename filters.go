@@ -495,3 +495,12 @@ type GetCartFilter struct {
 	// id|externalId, default is externalId.
 	By string `url:"by,omitempty"`
 }
+
+type FavoritesFilter struct {
+	// SiteBy contains information about what is betrayed site id or site code.
+	// id|code, default is code.
+	SiteBy string `url:"siteBy,omitempty"`
+	// By contains information about what is betrayed: customer id or customer externalId.
+	// id|externalId, default is externalId.
+	By string `url:"by,omitempty"`
+}

@@ -538,6 +538,12 @@ type CartUnit struct {
 	Sym  string `json:"sym"`
 }
 
+// FavoriteCustomerOffer type.
+type FavoriteCustomerOffer struct {
+	Offer     Offer  `json:"offer,omitempty"`
+	CreatedAt string `json:"createdAt,omitempty"`
+}
+
 // UnmarshalJSON method.
 func (v *OrderDeliveryData) UnmarshalJSON(b []byte) error {
 	var additionalData map[string]interface{}
