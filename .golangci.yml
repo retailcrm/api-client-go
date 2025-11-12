@@ -23,6 +23,7 @@ issues:
         - unused
         - errchkjson
         - varnamelen
+        - dupl
   exclude-use-default: true
   exclude-case-sensitive: false
   max-issues-per-linter: 0
