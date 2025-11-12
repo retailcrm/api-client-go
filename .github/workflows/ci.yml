@@ -60,20 +60,17 @@ jobs:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE != 1
         run: |
-          go install gotest.tools/gotestsum@latest
+          go install gotest.tools/gotestsum@v1.12.0
           gotestsum --format testdox ./... -tags=testutils -v -cpu 2 -timeout 60s -race
       - name: Tests with coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
         run: |
-          go install gotest.tools/gotestsum@latest
+          go install gotest.tools/gotestsum@v1.12.0
           gotestsum --format testdox ./... -tags=testutils -v -cpu 2 -timeout 60s -race -cover -coverprofile=coverage.txt -covermode=atomic "$d"
       - name: Coverage
         env:
           COVERAGE: ${{ matrix.coverage }}
         if: env.COVERAGE == 1
-        run: |
-          go install github.com/axw/gocov/gocov@latest
-          gocov convert ./coverage.txt | gocov report
-          bash <(curl -s https://codecov.io/bash)
+        run: bash <(curl -s https://codecov.io/bash)
