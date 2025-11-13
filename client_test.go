@@ -74,6 +74,14 @@ func client() *Client {
 	return c
 }
 
+func clientReal() *Client {
+	transport := http.DefaultTransport
+	if transport != gock.NativeTransport {
+		transport = gock.NativeTransport
+	}
+	return client().WithHTTPClient(&http.Client{Transport: transport, Timeout: time.Second})
+}
+
 func badurlclient() *Client {
 	return New(badURL, os.Getenv("RETAILCRM_KEY"))
 }
@@ -91,7 +99,7 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 	t.Run("Basic 404 response", func(t *testing.T) {
 		c := client()
 
-		defer gock.Off()
+		defer gock.OffAll()
 
 		gock.New(crmURL).
 			Get("/api/v5/fake-method").
@@ -105,9 +113,9 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 
 	t.Run("Rate limiter respects configured RPS", func(t *testing.T) {
 		c := client()
-		c.EnableRateLimiter(3)
+		c.EnableRateLimiter(1)
 
-		defer gock.Off()
+		defer gock.OffAll()
 
 		numRequests := 5
 
@@ -120,24 +128,25 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 
 		start := time.Now()
 		for i := 0; i < numRequests; i++ {
-			_, _, err := c.GetRequest("/test-method")
-			if err != nil {
-				t.Fatalf("Request %d failed: %v", i, err)
-			}
+			_, status, err := c.GetRequest("/test-method")
+			require.NoErrorf(t, err, "Request %d failed: %v", i, err)
+			require.Equal(t, http.StatusOK, status, "Request %d returned non-200 status", i)
 		}
 
 		elapsed := time.Since(start)
 		minExpectedTime := time.Duration(numRequests-1) * time.Second / 10
-		assert.Truef(t, elapsed > minExpectedTime,
+		assert.GreaterOrEqualf(t, elapsed, minExpectedTime,
 			"Rate limiter not working correctly. Expected minimum time %v, got %v",
 			minExpectedTime, elapsed)
+
+		assert.True(t, gock.IsDone(), "Not all mocked requests were consumed")
 	})
 
 	t.Run("Rate limiter respects telephony endpoint RPS", func(t *testing.T) {
 		c := client()
-		c.EnableRateLimiter(3)
+		c.EnableRateLimiter(1)
 
-		defer gock.Off()
+		defer gock.OffAll()
 
 		numRequests := 5
 
@@ -151,17 +160,18 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 		start := time.Now()
 
 		for i := 0; i < numRequests; i++ {
-			_, _, err := c.GetRequest("/telephony/test-call")
-			if err != nil {
-				t.Fatalf("Request %d failed: %v", i, err)
-			}
+			_, status, err := c.GetRequest("/telephony/test-call")
+			require.NoErrorf(t, err, "Request %d failed: %v", i, err)
+			require.Equal(t, http.StatusOK, status, "Request %d returned non-200 status", i)
 		}
 
 		elapsed := time.Since(start)
 		minExpectedTime := time.Duration(numRequests-1) * time.Second / 40
-		assert.Truef(t, elapsed > minExpectedTime,
+		assert.GreaterOrEqualf(t, elapsed, minExpectedTime,
 			"Rate limiter not working correctly for telephony. Expected minimum time %v, got %v",
 			minExpectedTime, elapsed)
+
+		assert.True(t, gock.IsDone(), "Not all mocked requests were consumed")
 	})
 
 	t.Run("Rate limiter retries on 503 responses", func(t *testing.T) {
@@ -169,7 +179,7 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 		c.EnableRateLimiter(3)
 		c.Debug = true
 
-		defer gock.Off()
+		defer gock.OffAll()
 
 		gock.New(crmURL).
 			Get("/api/v5/retry-test").
@@ -189,13 +199,13 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 		_, status, err := c.GetRequest("/retry-test")
 
 		require.NoErrorf(t, err, "Request failed despite retries: %v", err)
-		assert.Equal(t, http.StatusOK, status)
+		assert.Equal(t, http.StatusOK, status, "Expected successful response after retries")
 		assert.True(t, gock.IsDone(), "Not all expected requests were made")
 	})
 
 	t.Run("Rate limiter gives up after max attempts", func(t *testing.T) {
 		c := client()
-		c.EnableRateLimiter(2)
+		c.EnableRateLimiter(3)
 
 		defer gock.OffAll()
 
@@ -208,9 +218,16 @@ func TestGetRequestWithRateLimiter(t *testing.T) {
 
 		_, status, err := c.GetRequest("/retry-test")
 
-		assert.Equalf(t, http.StatusServiceUnavailable, status,
+		assert.Equal(t, http.StatusServiceUnavailable, status,
 			"Expected status 503 after max retries, got %d", status)
-		assert.ErrorIs(t, err, ErrRateLimited, "Expected error after max retries, got nil")
+		assert.Error(t, err, "Expected error after max retries")
+
+		if err != nil {
+			assert.Contains(t, err.Error(), "rate limit",
+				"Expected rate limit error, got: %v", err)
+		}
+
+		assert.True(t, gock.IsDone(), "Not all mocked requests were consumed")
 	})
 }
 

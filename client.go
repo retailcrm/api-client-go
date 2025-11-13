@@ -2,6 +2,7 @@ package retailcrm
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -32,46 +33,81 @@ func (c *Client) WithLogger(logger BasicLogger) *Client {
 	return c
 }
 
+// WithHTTPClient sets the provided HTTP client instance into the Client.
+func (c *Client) WithHTTPClient(client *http.Client) *Client {
+	c.httpClient = client
+	return c
+}
+
+// WithContext sets context.Context which, if cancelled, will terminate all active API calls.
+func (c *Client) WithContext(ctx context.Context) *Client {
+	c.ctx = ctx
+	return c
+}
+
 // EnableRateLimiter activates rate limiting with specified retry attempts.
 func (c *Client) EnableRateLimiter(maxAttempts uint) *Client {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	c.limiter = &RateLimiter{
-		maxAttempts: maxAttempts,
-		lastRequest: time.Now().Add(-time.Second), // Initialize to allow immediate first request.
+	c.limiter = NewSingleKeyLimiter()
+	c.maxAttempts = maxAttempts
+
+	return c
+}
+
+// EnableCustomRateLimiter activates rate limiting with custom limiter logic and specified retry attempts.
+func (c *Client) EnableCustomRateLimiter(limiter Limiter, maxAttempts uint) *Client {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	if limiter == nil {
+		c.limiter = nil
+		c.maxAttempts = 0
+
+		return c
 	}
+
+	c.limiter = limiter
+	c.maxAttempts = maxAttempts
 
 	return c
 }
 
 // applyRateLimit applies rate limiting before sending a request.
-func (c *Client) applyRateLimit(uri string) {
+func (c *Client) applyRateLimit(uri string) error {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
 	if c.limiter == nil {
+		return nil
+	}
+
+	ctx := c.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	return c.limiter.Limit(ctx, uri, c.Key)
+}
+
+// triggerResponseAwareLimiter sends *http.Response to the limiter for further reading (e.g. headers).
+func (c *Client) triggerResponseAwareLimiter(resp *http.Response) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
+	if c.limiter == nil || resp == nil {
 		return
 	}
 
-	c.limiter.mutex.Lock()
-	defer c.limiter.mutex.Unlock()
-
-	var delay time.Duration
-	if strings.HasPrefix(uri, "/telephony") {
-		delay = telephonyDelay
-	} else {
-		delay = regularDelay
+	if val, ok := c.limiter.(ResponseAware); ok {
+		val.ProcessResponse(resp)
 	}
-
-	elapsed := time.Since(c.limiter.lastRequest)
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
-	}
-
-	c.limiter.lastRequest = time.Now()
 }
 
 func (c *Client) executeWithRetryBytes(
 	uri string,
-	executeFunc func() (interface{}, int, error),
+	executeFunc func() (interface{}, *http.Response, int, error),
 ) ([]byte, int, error) {
 	res, status, err := c.executeWithRetry(uri, executeFunc)
 	if res == nil {
@@ -82,7 +118,7 @@ func (c *Client) executeWithRetryBytes(
 
 func (c *Client) executeWithRetryReadCloser(
 	uri string,
-	executeFunc func() (interface{}, int, error),
+	executeFunc func() (interface{}, *http.Response, int, error),
 ) (io.ReadCloser, int, error) {
 	res, status, err := c.executeWithRetry(uri, executeFunc)
 	if res == nil {
@@ -94,19 +130,21 @@ func (c *Client) executeWithRetryReadCloser(
 // executeWithRetry executes a request with retry logic for rate limiting.
 func (c *Client) executeWithRetry(
 	uri string,
-	executeFunc func() (interface{}, int, error),
+	executeFunc func() (interface{}, *http.Response, int, error),
 ) (interface{}, int, error) {
 	if c.limiter == nil {
-		return executeFunc()
+		resp, _, st, err := executeFunc()
+		return resp, st, err
 	}
 
 	var (
 		res           interface{}
+		httpResp      *http.Response
 		statusCode    int
 		err           error
 		lastAttempt   bool
 		attempt       uint = 1
-		maxAttempts        = c.limiter.maxAttempts
+		maxAttempts        = c.maxAttempts
 		totalAttempts      = "∞"
 		infinite           = maxAttempts == 0
 	)
@@ -123,17 +161,22 @@ func (c *Client) executeWithRetry(
 	}
 
 	for infinite || attempt <= maxAttempts {
-		c.applyRateLimit(uri)
-		res, statusCode, err = executeFunc()
+		if err := c.applyRateLimit(uri); err != nil {
+			return nil, 0, err
+		}
+
+		res, httpResp, statusCode, err = executeFunc()
+		c.triggerResponseAwareLimiter(httpResp)
 		lastAttempt = !infinite && attempt == maxAttempts
+		isRateLimited := statusCode == http.StatusServiceUnavailable || statusCode == http.StatusTooManyRequests
 
 		// If rate limited on final attempt, set error to ErrRateLimited. Return results otherwise.
-		if statusCode == http.StatusServiceUnavailable && lastAttempt {
+		if isRateLimited && lastAttempt {
 			return res, statusCode, ErrRateLimited
 		}
 
 		// If not rate limited or on final attempt, return result.
-		if statusCode != http.StatusServiceUnavailable || lastAttempt {
+		if !isRateLimited || lastAttempt {
 			return res, statusCode, err
 		}
 
@@ -173,12 +216,12 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 	uri := urlWithParameters
 
-	return c.executeWithRetryBytes(uri, func() (interface{}, int, error) {
+	return c.executeWithRetryBytes(uri, func() (interface{}, *http.Response, int, error) {
 		var res []byte
 
 		req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
 		if err != nil {
-			return res, 0, err
+			return res, nil, 0, err
 		}
 
 		req.Header.Set("X-API-KEY", c.Key)
@@ -189,30 +232,30 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			return res, 0, err
+			return res, resp, 0, err
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
-			return res, resp.StatusCode, CreateGenericAPIError(
+			return res, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}
 
 		res, err = buildRawResponse(resp)
 		if err != nil {
-			return res, 0, err
+			return res, resp, 0, err
 		}
 
 		if resp.StatusCode >= http.StatusBadRequest &&
 			resp.StatusCode < http.StatusInternalServerError &&
 			resp.StatusCode != http.StatusServiceUnavailable {
-			return res, resp.StatusCode, CreateAPIError(res)
+			return res, resp, resp.StatusCode, CreateAPIError(res)
 		}
 
 		if c.Debug {
 			c.writeLog("API Response: %s", res)
 		}
 
-		return res, resp.StatusCode, nil
+		return res, resp, resp.StatusCode, nil
 	})
 }
 
@@ -232,17 +275,17 @@ func (c *Client) PostRequest(
 
 	prefix := "/api/v5"
 
-	return c.executeWithRetryBytes(uri, func() (interface{}, int, error) {
+	return c.executeWithRetryBytes(uri, func() (interface{}, *http.Response, int, error) {
 		var res []byte
 
 		reader, err := getReaderForPostData(postData)
 		if err != nil {
-			return res, 0, err
+			return res, nil, 0, err
 		}
 
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
 		if err != nil {
-			return res, 0, err
+			return res, nil, 0, err
 		}
 
 		req.Header.Set("Content-Type", contentType)
@@ -254,30 +297,30 @@ func (c *Client) PostRequest(
 
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
-			return res, 0, err
+			return res, resp, 0, err
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
-			return res, resp.StatusCode, CreateGenericAPIError(
+			return res, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}
 
 		res, err = buildRawResponse(resp)
 		if err != nil {
-			return res, 0, err
+			return res, resp, 0, err
 		}
 
 		if resp.StatusCode >= http.StatusBadRequest &&
 			resp.StatusCode < http.StatusInternalServerError &&
 			resp.StatusCode != http.StatusServiceUnavailable {
-			return res, resp.StatusCode, CreateAPIError(res)
+			return res, resp, resp.StatusCode, CreateAPIError(res)
 		}
 
 		if c.Debug {
 			c.writeLog("API Response: %s", res)
 		}
 
-		return res, resp.StatusCode, nil
+		return res, resp, resp.StatusCode, nil
 	})
 }
 
@@ -7200,10 +7243,10 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 		"site": {site},
 	}.Encode())
 
-	return c.executeWithRetryReadCloser(requestURL, func() (interface{}, int, error) {
+	return c.executeWithRetryReadCloser(requestURL, func() (interface{}, *http.Response, int, error) {
 		req, err := http.NewRequest("GET", requestURL, nil)
 		if err != nil {
-			return nil, 0, err
+			return nil, nil, 0, err
 		}
 
 		req.Header.Set("X-API-KEY", c.Key)
@@ -7215,11 +7258,11 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 		resp, err := c.httpClient.Do(req)
 
 		if err != nil {
-			return nil, 0, err
+			return nil, resp, 0, err
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
-			return nil, resp.StatusCode, CreateGenericAPIError(
+			return nil, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}
 
@@ -7229,17 +7272,17 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 			res, err := buildRawResponse(resp)
 
 			if err != nil {
-				return nil, 0, err
+				return nil, resp, 0, err
 			}
 
-			return nil, resp.StatusCode, CreateAPIError(res)
+			return nil, resp, resp.StatusCode, CreateAPIError(res)
 		}
 
 		if err != nil {
-			return nil, 0, err
+			return nil, resp, 0, err
 		}
 
-		return resp.Body, resp.StatusCode, nil
+		return resp.Body, resp, resp.StatusCode, nil
 	})
 }
 
