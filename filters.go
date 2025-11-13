@@ -312,14 +312,16 @@ type PacksFilter struct {
 // InventoriesFilter type.
 type InventoriesFilter struct {
 	Ids               []int    `url:"ids,omitempty,brackets"`
-	ProductExternalID string   `url:"productExternalId,omitempty"`
-	ProductArticle    string   `url:"productArticle,omitempty"`
-	OfferExternalID   string   `url:"offerExternalId,omitempty"`
-	OfferXMLID        string   `url:"offerXmlId,omitempty"`
-	OfferArticle      string   `url:"offerArticle,omitempty"`
-	ProductActive     int      `url:"productActive,omitempty"`
-	Details           int      `url:"details,omitempty"`
 	Sites             []string `url:"sites,omitempty,brackets"`
+	Catalogs          []int    `url:"catalogs,omitempty,brackets"`
+	ProductExternalID string   `url:"productExternalId,omitempty"`
+	ProductArticle    []string `url:"productArticle,omitempty,brackets"`
+	ProductActive     int      `url:"productActive,omitempty"`
+	OfferExternalID   []string `url:"offerExternalId,omitempty,brackets"`
+	OfferXMLID        []string `url:"offerXmlId,omitempty,brackets"`
+	OfferArticle      []string `url:"offerArticle,omitempty,brackets"`
+	OfferActive       int      `url:"offerActive,omitempty"`
+	Details           int      `url:"details,omitempty"`
 }
 
 // ProductsGroupsFilter type.
