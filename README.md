@@ -159,6 +159,33 @@ func main() {
 }
 ```
 
+## Rate limits
+
+This client can work with default rate limits but doesn't do that unless specified explicitly. You can enable default 
+rate limits like this:
+
+```go
+client := retailcrm.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF").
+	EnableRateLimiter(0)
+```
+
+This `client` will automatically apply rate limiting. Requests will block until they are finished. You can also provide 
+different retry parameter instead of `0` if you don't want the client to block completely and would like to process 
+rate limit by yourself after several attempts.
+
+Custom rate limiter can be provided like this:
+
+```go
+limiter := retailcrm.NewSingleKeyLimiter()
+client := retailcrm.New("https://demo.retailcrm.pro", "09jIJ09j0JKhgyfvyuUIKhiugF").
+	EnableCustomRateLimiter(limiter, 0)
+```
+
+You can use your own version of limiter by implementing `retailcrm.Limiter`. Also, any instance of 
+`retailcrm.Limiter` which implements `retailcrm.ResponseAware` interface will be able to read response for each 
+request attempt (`(*http.Response).Body` is not guaranteed to be accessible). This feature can be used to control 
+rate limits for distributed applications using the same key.
+
 ## Upgrading
 
 Please check the [UPGRADING.md](UPGRADING.md) to learn how to upgrade to the new version.
