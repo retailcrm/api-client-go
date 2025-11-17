@@ -2194,10 +2194,12 @@ func TestClient_AddFavorite(t *testing.T) {
 	site := "site_id"
 	customer := "customer_id"
 	filter := FavoritesFilter{SiteBy: "id"}
-	request := AddFavoriteRequest{
-		ID:         1,
-		ExternalID: "ext_id",
-		XMLID:      "xml_id",
+	request := ChangeFavoritesRequest{
+		Offer: SerializedRelationOffer{
+			ID:         1,
+			ExternalID: "ext_id",
+			XMLID:      "xml_id",
+		},
 	}
 
 	defer gock.Off()
@@ -2212,12 +2214,12 @@ func TestClient_AddFavorite(t *testing.T) {
 			require.NoError(t, err)
 
 			data := val.Get("favorite")
-			var incoming AddFavoriteRequest
+			var incoming ChangeFavoritesRequest
 			require.NoError(t, json.Unmarshal([]byte(data), &incoming))
 
-			equal := assert.Equal(t, 1, incoming.ID) &&
-				assert.Equal(t, "ext_id", incoming.ExternalID) &&
-				assert.Equal(t, "xml_id", incoming.XMLID)
+			equal := assert.Equal(t, 1, incoming.Offer.ID) &&
+				assert.Equal(t, "ext_id", incoming.Offer.ExternalID) &&
+				assert.Equal(t, "xml_id", incoming.Offer.XMLID)
 
 			if !equal {
 				return false, errors.New("unequal values")
@@ -2249,10 +2251,12 @@ func TestClient_RemoveFavorite(t *testing.T) {
 	site := "site_id"
 	customer := "customer_id"
 	filter := FavoritesFilter{SiteBy: "id"}
-	request := AddFavoriteRequest{
-		ID:         1,
-		ExternalID: "ext_id",
-		XMLID:      "xml_id",
+	request := ChangeFavoritesRequest{
+		Offer: SerializedRelationOffer{
+			ID:         1,
+			ExternalID: "ext_id",
+			XMLID:      "xml_id",
+		},
 	}
 
 	defer gock.Off()
@@ -2267,12 +2271,12 @@ func TestClient_RemoveFavorite(t *testing.T) {
 			require.NoError(t, err)
 
 			data := val.Get("favorite")
-			var incoming AddFavoriteRequest
+			var incoming ChangeFavoritesRequest
 			require.NoError(t, json.Unmarshal([]byte(data), &incoming))
 
-			equal := assert.Equal(t, 1, incoming.ID) &&
-				assert.Equal(t, "ext_id", incoming.ExternalID) &&
-				assert.Equal(t, "xml_id", incoming.XMLID)
+			equal := assert.Equal(t, 1, incoming.Offer.ID) &&
+				assert.Equal(t, "ext_id", incoming.Offer.ExternalID) &&
+				assert.Equal(t, "xml_id", incoming.Offer.XMLID)
 
 			if !equal {
 				return false, errors.New("unequal values")

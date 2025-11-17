@@ -1710,3 +1710,9 @@ type MGChannelTemplate struct {
 	MGChannelID         int              `json:"mgChannelId"`
 	Active              bool             `json:"active"`
 }
+
+type SerializedRelationOffer struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	XMLID      string `json:"xmlId,omitempty"`
+}

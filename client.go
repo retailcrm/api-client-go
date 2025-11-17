@@ -2213,10 +2213,12 @@ func (c *Client) GetFavorites(site, customer string, filter FavoritesFilter) (Fa
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
 //	data, status, err := client.AddFavorite("site_id", "customer_external_id", retailcrm.FavoritesFilter{SiteBy: "id", By: "externalId"},
-//		retailcrm.AddFavoriteRequest{
-//			ID: 1,
-//			ExternalID: "ext_id",
-//			XMLID: "xml_id",
+//		retailcrm.ChangeFavoritesRequest{
+//			Offer: retailcrm.SerializedRelationOffer{
+//			    ID: 1,
+//			    ExternalID: "ext_id",
+//			    XMLID: "xml_id",
+//			},
 //		},
 //	)
 //
@@ -2227,7 +2229,7 @@ func (c *Client) GetFavorites(site, customer string, filter FavoritesFilter) (Fa
 //
 //		log.Fatalf("http status: %d, error: %s", status, err)
 //	}
-func (c *Client) AddFavorite(site, customer string, filter FavoritesFilter, req AddFavoriteRequest) (
+func (c *Client) AddFavorite(site, customer string, filter FavoritesFilter, req ChangeFavoritesRequest) (
 	SuccessfulResponse, int, error,
 ) {
 	var resp SuccessfulResponse
@@ -2265,10 +2267,12 @@ func (c *Client) AddFavorite(site, customer string, filter FavoritesFilter, req 
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
 //	data, status, err := client.RemoveFavorite("site_id", "customer_external_id", retailcrm.FavoritesFilter{SiteBy: "id", By: "externalId"},
-//		retailcrm.AddFavoriteRequest{
-//			ID: 1,
-//			ExternalID: "ext_id",
-//			XMLID: "xml_id",
+//		retailcrm.ChangeFavoritesRequest{
+//			Offer: retailcrm.SerializedRelationOffer{
+//			    ID: 1,
+//			    ExternalID: "ext_id",
+//			    XMLID: "xml_id",
+//			},
 //		},
 //	)
 //
@@ -2279,7 +2283,7 @@ func (c *Client) AddFavorite(site, customer string, filter FavoritesFilter, req 
 //
 //		log.Fatalf("http status: %d, error: %s", status, err)
 //	}
-func (c *Client) RemoveFavorite(site, customer string, filter FavoritesFilter, req AddFavoriteRequest) (
+func (c *Client) RemoveFavorite(site, customer string, filter FavoritesFilter, req ChangeFavoritesRequest) (
 	SuccessfulResponse, int, error,
 ) {
 	var resp SuccessfulResponse
