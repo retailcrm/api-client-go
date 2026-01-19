@@ -420,12 +420,12 @@ type FilesFilter struct {
 
 // CustomFieldsFilter type.
 type CustomFieldsFilter struct {
-	Name        string `url:"name,omitempty"`
-	Code        string `url:"code,omitempty"`
-	Type        string `url:"type,omitempty"`
-	Entity      string `url:"entity,omitempty"`
-	ViewMode    string `url:"viewMode,omitempty"`
-	DisplayArea string `url:"displayArea,omitempty"`
+	Name        string   `url:"name,omitempty"`
+	Code        string   `url:"code,omitempty"`
+	Type        []string `url:"type,omitempty,brackets"`
+	Entity      string   `url:"entity,omitempty"`
+	ViewMode    string   `url:"viewMode,omitempty"`
+	DisplayArea string   `url:"displayArea,omitempty"`
 }
 
 // CustomDictionariesFilter type.
