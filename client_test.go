@@ -7398,10 +7398,21 @@ func TestClient_CustomFields(t *testing.T) {
 
 	gock.New(crmURL).
 		Get("/custom-fields").
+		AddMatcher(func(r *http.Request, _ *gock.Request) (bool, error) {
+			typeValues, ok := r.URL.Query()["filter[type][]"]
+			if !ok || len(typeValues) != 2 {
+				return false, nil
+			}
+			return typeValues[0] == "string" && typeValues[1] == "text", nil
+		}).
 		Reply(200).
 		BodyString(`{"success": true}`)
 
-	data, status, err := c.CustomFields(CustomFieldsRequest{})
+	data, status, err := c.CustomFields(CustomFieldsRequest{
+		Filter: CustomFieldsFilter{
+			Type: []string{"string", "text"},
+		},
+	})
 
 	if err != nil {
 		t.Errorf("%v", err)
@@ -7423,11 +7434,11 @@ func TestClient_CustomFields_Fail(t *testing.T) {
 
 	gock.New(crmURL).
 		Get("/custom-fields").
-		MatchParam("filter[type]", codeFail).
+		MatchParam("filter[type][]", codeFail).
 		Reply(400).
 		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
 
-	data, _, err := c.CustomFields(CustomFieldsRequest{Filter: CustomFieldsFilter{Type: codeFail}})
+	data, _, err := c.CustomFields(CustomFieldsRequest{Filter: CustomFieldsFilter{Type: []string{codeFail}}})
 	if err == nil {
 		t.Errorf("%v", err)
 	}
