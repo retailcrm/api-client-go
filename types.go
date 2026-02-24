@@ -153,6 +153,7 @@ type Customer struct {
 	ManagerID                    int            `json:"managerId,omitempty"`
 	Vip                          bool           `json:"vip,omitempty"`
 	Bad                          bool           `json:"bad,omitempty"`
+	IsContact                    bool           `json:"isContact,omitempty"`
 	Site                         string         `json:"site,omitempty"`
 	Source                       *Source        `json:"source,omitempty"`
 	Contragent                   *Contragent    `json:"contragent,omitempty"`
