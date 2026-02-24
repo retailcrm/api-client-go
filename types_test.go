@@ -53,3 +53,30 @@ func TestClient_OrderDeliveryData(t *testing.T) {
 		t.Errorf("Unmarshaled: %#v\nExpected: %#v\n", d, expected)
 	}
 }
+
+func TestCustomer_IsContactJSON(t *testing.T) {
+	customer := Customer{ID: 1, IsContact: true}
+
+	data, err := json.Marshal(customer)
+	if err != nil {
+		t.Fatalf("marshal customer: %v", err)
+	}
+
+	var marshaled map[string]interface{}
+	if err := json.Unmarshal(data, &marshaled); err != nil {
+		t.Fatalf("unmarshal marshaled payload: %v", err)
+	}
+
+	if value, ok := marshaled["isContact"]; !ok || value != true {
+		t.Fatalf("expected isContact=true in marshaled payload, got %#v", marshaled["isContact"])
+	}
+
+	var decoded Customer
+	if err := json.Unmarshal([]byte(`{"id":2,"isContact":true}`), &decoded); err != nil {
+		t.Fatalf("unmarshal customer with isContact: %v", err)
+	}
+
+	if !decoded.IsContact {
+		t.Fatalf("expected IsContact=true after unmarshal")
+	}
+}
