@@ -87,6 +87,7 @@ type CorporateCustomersFilter struct {
 	Bad                   int               `url:"bad,omitempty"`
 	TasksCount            int               `url:"tasksCounts,omitempty"`
 	Ids                   []string          `url:"ids,omitempty,brackets"`
+	ContactIDs            []int             `url:"contactIds,omitempty,brackets"`
 	Sites                 []string          `url:"sites,omitempty,brackets"`
 	Managers              []string          `url:"managers,omitempty,brackets"`
 	ManagerGroups         []string          `url:"managerGroups,omitempty,brackets"`

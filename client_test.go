@@ -917,6 +917,8 @@ func TestClient_CorporateCustomersList(t *testing.T) {
 	gock.New(crmURL).
 		Get("/api/v5/customers-corporate").
 		MatchParam("filter[city]", "Москва").
+		MatchParam("filter[contactIds][]", "101").
+		MatchParam("filter[contactIds][]", "202").
 		MatchParam("page", "3").
 		Reply(200).
 		BodyString(`{"success":true,"pagination":{"limit":20,"totalCount":1,"currentPage":3,"totalPageCount":1}}`)
@@ -925,7 +927,8 @@ func TestClient_CorporateCustomersList(t *testing.T) {
 
 	data, status, err := c.CorporateCustomers(CorporateCustomersRequest{
 		Filter: CorporateCustomersFilter{
-			City: "Москва",
+			City:       "Москва",
+			ContactIDs: []int{101, 202},
 		},
 		Page: 3,
 	})
