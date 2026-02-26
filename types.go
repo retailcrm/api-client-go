@@ -362,6 +362,7 @@ type Order struct {
 	Source                        *Source           `json:"source,omitempty"`
 	Contragent                    *Contragent       `json:"contragent,omitempty"`
 	Customer                      *Customer         `json:"customer,omitempty"`
+	Contact                       *Customer         `json:"contact,omitempty"`
 	Delivery                      *OrderDelivery    `json:"delivery,omitempty"`
 	Marketplace                   *OrderMarketplace `json:"marketplace,omitempty"`
 	Items                         []OrderItem       `json:"items,omitempty"`
