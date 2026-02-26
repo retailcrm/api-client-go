@@ -2951,6 +2951,11 @@ func TestClient_OrderChange(t *testing.T) {
 		Patronymic: "Аристархович",
 		ExternalID: random,
 		Email:      fmt.Sprintf("%s@example.com", random),
+		Contact: &Customer{
+			ID:        4512,
+			BrowserID: "collector-browser-id",
+			Site:      "site",
+		},
 	}
 
 	defer gock.Off()
@@ -3059,6 +3064,10 @@ func TestClient_OrderChange(t *testing.T) {
 
 	if cr.Order.Number != "1A" {
 		t.Errorf("invalid order number: got %s want %s", cr.Order.Number, "1A")
+	}
+
+	if cr.Order.Contact == nil || cr.Order.Contact.ID != 4512 {
+		t.Errorf("unexpected contact: %#v", cr.Order.Contact)
 	}
 
 	f.ID = cr.ID
