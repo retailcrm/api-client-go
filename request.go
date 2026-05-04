@@ -194,6 +194,12 @@ type DeliveryShipmentsRequest struct {
 	Page   int            `url:"page,omitempty"`
 }
 
+// DeliveryCalculateRequest type.
+type DeliveryCalculateRequest struct {
+	DeliveryTypeCodes []string
+	Order             DeliveryCalculateOrder
+}
+
 // ClearCartRequest type.
 type ClearCartRequest struct {
 	ClearedAt string         `json:"clearedAt,omitempty"`

@@ -6797,6 +6797,114 @@ func TestClient_DeliveryShipments_Fail(t *testing.T) {
 	}
 }
 
+func TestClient_DeliveryCalculate(t *testing.T) {
+	defer gock.Off()
+
+	req := DeliveryCalculateRequest{
+		DeliveryTypeCodes: []string{"courier", "pickup"},
+		Order: DeliveryCalculateOrder{
+			Weight: 1.2,
+			Length: 10,
+			Width:  20,
+			Height: 30,
+			Items: []DeliveryCalculateOrderProduct{
+				{
+					InitialPrice:          1000,
+					DiscountManualAmount:  100,
+					DiscountManualPercent: 5,
+					Quantity:              2,
+				},
+			},
+			Delivery: &DeliveryCalculateSerializedDelivery{
+				Date: "2024-01-02",
+				Time: &DeliveryTime{
+					From: "10:00",
+					To:   "18:00",
+				},
+				Address: &Address{
+					City:     "Москва",
+					Street:   "Ленина",
+					Building: "1",
+				},
+			},
+		},
+	}
+
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"deliveryTypeCodes[]": req.DeliveryTypeCodes,
+		"order":               {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/delivery/calculate").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		BodyString(`{"success": true, "calculations": [{"code": "courier", "available": true, "vatRate": "20", "cost": 350.5}]}`)
+
+	res, status, err := client().DeliveryCalculate(req)
+
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if !statuses[status] {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, res.Success)
+	assert.Len(t, res.Calculations, 1)
+	assert.Equal(t, "courier", res.Calculations[0].Code)
+	assert.True(t, res.Calculations[0].Available)
+	assert.Equal(t, "20", res.Calculations[0].VatRate)
+	assert.Equal(t, float32(350.5), res.Calculations[0].Cost)
+}
+
+func TestClient_DeliveryCalculate_Fail(t *testing.T) {
+	defer gock.Off()
+
+	req := DeliveryCalculateRequest{
+		DeliveryTypeCodes: []string{codeFail},
+		Order: DeliveryCalculateOrder{
+			Delivery: &DeliveryCalculateSerializedDelivery{
+				Address: &Address{
+					City: "Москва",
+				},
+			},
+		},
+	}
+
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"deliveryTypeCodes[]": req.DeliveryTypeCodes,
+		"order":               {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/delivery/calculate").
+		BodyString(p.Encode()).
+		Reply(http.StatusBadRequest).
+		BodyString(`{"success": false, "errorMsg": "Errors in the input parameters"}`)
+
+	res, status, err := client().DeliveryCalculate(req)
+
+	if err == nil {
+		t.Error("Error must be return")
+	}
+
+	if status < http.StatusBadRequest {
+		t.Error(statusFail)
+	}
+
+	if res.Success != false {
+		t.Error(successFail)
+	}
+}
+
 func TestClient_Cost(t *testing.T) {
 	c := client()
 

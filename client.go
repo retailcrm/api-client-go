@@ -2547,6 +2547,64 @@ func (c *Client) DeliveryShipments(parameters DeliveryShipmentsRequest) (Deliver
 	return resp, status, nil
 }
 
+// DeliveryCalculate calculates delivery cost
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-delivery-calculate
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.DeliveryCalculate(retailcrm.DeliveryCalculateRequest{
+//		DeliveryTypeCodes: []string{"courier"},
+//		Order: retailcrm.DeliveryCalculateOrder{
+//			Weight: 1200,
+//			Delivery: &retailcrm.DeliveryCalculateSerializedDelivery{
+//				Address: &retailcrm.Address{
+//					City:     "Москва",
+//					Building: "1",
+//				},
+//			},
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Calculations {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) DeliveryCalculate(parameters DeliveryCalculateRequest) (DeliveryCalculateResponse, int, error) {
+	var resp DeliveryCalculateResponse
+
+	orderJSON, err := marshalToString(&parameters.Order)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	p := url.Values{
+		"deliveryTypeCodes[]": parameters.DeliveryTypeCodes,
+		"order":               {orderJSON},
+	}
+
+	data, status, err := c.PostRequest("/delivery/calculate", p)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // DeliveryShipmentCreate creates shipment
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-delivery-shipments-create

@@ -504,6 +504,40 @@ type OrderDeliveryData struct {
 	AdditionalFields map[string]interface{}
 }
 
+// DeliveryCalculateOrder type.
+type DeliveryCalculateOrder struct {
+	Weight   float32                              `json:"weight,omitempty"`
+	Length   int                                  `json:"length,omitempty"`
+	Width    int                                  `json:"width,omitempty"`
+	Height   int                                  `json:"height,omitempty"`
+	Items    []DeliveryCalculateOrderProduct      `json:"items,omitempty"`
+	Delivery *DeliveryCalculateSerializedDelivery `json:"delivery,omitempty"`
+}
+
+// DeliveryCalculateOrderProduct type.
+type DeliveryCalculateOrderProduct struct {
+	InitialPrice          float32 `json:"initialPrice,omitempty"`
+	DiscountManualAmount  float32 `json:"discountManualAmount,omitempty"`
+	DiscountManualPercent float32 `json:"discountManualPercent,omitempty"`
+	Quantity              float32 `json:"quantity,omitempty"`
+}
+
+// DeliveryCalculateSerializedDelivery type.
+type DeliveryCalculateSerializedDelivery struct {
+	Date    string        `json:"date,omitempty"`
+	Time    *DeliveryTime `json:"time,omitempty"`
+	Address *Address      `json:"address,omitempty"`
+}
+
+// DeliveryCalculation type.
+type DeliveryCalculation struct {
+	Code        string  `json:"code,omitempty"`
+	Available   bool    `json:"available,omitempty"`
+	VatRate     string  `json:"vatRate,omitempty"`
+	Cost        float32 `json:"cost,omitempty"`
+	Description string  `json:"description,omitempty"`
+}
+
 // SetCartItem type.
 type SetCartItem struct {
 	Quantity float64      `json:"quantity,omitempty"`

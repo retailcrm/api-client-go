@@ -426,6 +426,12 @@ type DeliveryShipmentsResponse struct {
 	DeliveryShipments []DeliveryShipment `json:"deliveryShipments,omitempty"`
 }
 
+// DeliveryCalculateResponse type.
+type DeliveryCalculateResponse struct {
+	SuccessfulResponse
+	Calculations []DeliveryCalculation `json:"calculations,omitempty"`
+}
+
 // DeliveryShipmentResponse type.
 type DeliveryShipmentResponse struct {
 	Success          bool              `json:"success"`
