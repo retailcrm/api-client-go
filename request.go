@@ -339,4 +339,6 @@ func (r ConnectRequest) Verify(secret string) bool {
 
 type OffersRequest struct {
 	OffersFilter `url:"filter,omitempty"`
+	Limit        int `url:"limit,omitempty"`
+	Page         int `url:"page,omitempty"`
 }

@@ -9219,11 +9219,46 @@ func TestClient_StoreOffers(t *testing.T) {
 		Get(prefix+"/store/offers").
 		MatchParam("filter[active]", "1").
 		MatchParam("filter[ids][]", "76").
+		MatchParam("filter[externalIds][]", "offer-external-id").
+		MatchParam("filter[xmlIds][]", "offer-xml-id").
+		MatchParam("filter[name]", "Название").
+		MatchParam("filter[sites][]", "main").
+		MatchParam("filter[catalogs][]", "2").
+		MatchParam("filter[groups][]", "10").
+		MatchParam("filter[priceType]", "base").
+		MatchParam("filter[properties][color]", "red").
+		MatchParam("filter[sinceId]", "75").
+		MatchParam("filter[minPrice]", "100").
+		MatchParam("filter[maxPrice]", "10000").
+		MatchParam("filter[minQuantity]", "1").
+		MatchParam("filter[maxQuantity]", "10").
+		MatchParam("limit", "20").
+		MatchParam("page", "1").
 		Reply(http.StatusOK).
 		JSON(getStoreOfferResponse())
 
 	a := 1
-	f := OffersRequest{OffersFilter{Ids: []int{76}, Active: &a}}
+	f := OffersRequest{
+		OffersFilter: OffersFilter{
+			Ids:         []int{76},
+			ExternalIDs: []string{"offer-external-id"},
+			XMLIDs:      []string{"offer-xml-id"},
+			Name:        "Название",
+			Sites:       []string{"main"},
+			Catalogs:    []int{2},
+			Groups:      []int{10},
+			PriceType:   "base",
+			Active:      &a,
+			Properties:  map[string]string{"color": "red"},
+			SinceID:     75,
+			MinPrice:    100,
+			MaxPrice:    10000,
+			MinQuantity: 1,
+			MaxQuantity: 10,
+		},
+		Limit: 20,
+		Page:  1,
+	}
 
 	resp, status, err := cl.StoreOffers(f)
 
@@ -9241,9 +9276,46 @@ func TestClient_StoreOffers(t *testing.T) {
 
 	assert.Len(t, resp.Offers, 1)
 	assert.Equal(t, 76, resp.Offers[0].ID)
+	assert.Equal(t, "offer-external-id", resp.Offers[0].ExternalID)
+	assert.Equal(t, "offer-xml-id", resp.Offers[0].XMLID)
+	assert.Equal(t, "main", resp.Offers[0].Site)
 	assert.Equal(t, "Название\nПеревод строки", resp.Offers[0].Name)
+	assert.Equal(t, "Артикул", resp.Offers[0].Article)
+	assert.Equal(t, "20", resp.Offers[0].VatRate)
 	assert.Equal(t, 222, resp.Offers[0].Product.ID)
+	assert.Equal(t, 2, resp.Offers[0].Product.CatalogID)
+	assert.Equal(t, ProductType("product"), resp.Offers[0].Product.Type)
+	assert.Equal(t, "product-article", resp.Offers[0].Product.Article)
+	assert.Equal(t, "Товар", resp.Offers[0].Product.Name)
+	assert.Equal(t, "https://example.com/product", resp.Offers[0].Product.URL)
+	assert.Equal(t, "https://example.com/product.jpg", resp.Offers[0].Product.ImageURL)
+	assert.Equal(t, "Описание товара", resp.Offers[0].Product.Description)
+	assert.True(t, resp.Offers[0].Product.Popular)
+	assert.True(t, resp.Offers[0].Product.Stock)
+	assert.True(t, resp.Offers[0].Product.Novelty)
+	assert.True(t, resp.Offers[0].Product.Recommended)
+	assert.Len(t, resp.Offers[0].Product.Options, 1)
+	assert.Len(t, resp.Offers[0].Product.Groups, 1)
+	assert.Equal(t, 10, resp.Offers[0].Product.Groups[0].ID)
+	assert.Equal(t, "group-external-id", resp.Offers[0].Product.Groups[0].ExternalID)
+	assert.Equal(t, "product-external-id", resp.Offers[0].Product.ExternalID)
+	assert.Equal(t, "Производитель", resp.Offers[0].Product.Manufacturer)
+	assert.Equal(t, "2024-01-02 03:04:05", resp.Offers[0].Product.UpdatedAt)
+	assert.True(t, resp.Offers[0].Product.Active)
+	assert.Equal(t, float32(5), resp.Offers[0].Product.Quantity)
+	assert.True(t, resp.Offers[0].Product.Markable)
+	assert.Equal(t, "chestny_znak", resp.Offers[0].Product.MarkingProvider)
 	assert.Equal(t, "base", resp.Offers[0].Prices[0].PriceType)
 	assert.Equal(t, float32(10000), resp.Offers[0].Prices[0].Price)
 	assert.Equal(t, "RUB", resp.Offers[0].Prices[0].Currency)
+	assert.Equal(t, float32(10), resp.Offers[0].PurchasePrice)
+	assert.Equal(t, float32(5), resp.Offers[0].Quantity)
+	assert.Equal(t, float32(1.5), resp.Offers[0].Weight)
+	assert.Equal(t, float32(10), resp.Offers[0].Length)
+	assert.Equal(t, float32(20), resp.Offers[0].Width)
+	assert.Equal(t, float32(30), resp.Offers[0].Height)
+	assert.Equal(t, "red", resp.Offers[0].Properties["color"])
+	assert.True(t, resp.Offers[0].Active)
+	assert.Equal(t, "1234567890", resp.Offers[0].Barcode)
+	assert.Equal(t, "pc", resp.Offers[0].Unit.Code)
 }

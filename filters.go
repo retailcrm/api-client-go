@@ -480,8 +480,21 @@ type LoyaltyAPIFilter struct {
 }
 
 type OffersFilter struct {
-	Ids    []int `url:"ids,omitempty,brackets"`
-	Active *int  `url:"active,omitempty"`
+	Ids         []int             `url:"ids,omitempty,brackets"`
+	ExternalIDs []string          `url:"externalIds,omitempty,brackets"`
+	XMLIDs      []string          `url:"xmlIds,omitempty,brackets"`
+	Name        string            `url:"name,omitempty"`
+	Sites       []string          `url:"sites,omitempty,brackets"`
+	Catalogs    []int             `url:"catalogs,omitempty,brackets"`
+	Groups      []int             `url:"groups,omitempty,brackets"`
+	PriceType   string            `url:"priceType,omitempty"`
+	Active      *int              `url:"active,omitempty"`
+	Properties  map[string]string `url:"-"`
+	SinceID     int               `url:"sinceId,omitempty"`
+	MinPrice    float32           `url:"minPrice,omitempty"`
+	MaxPrice    float32           `url:"maxPrice,omitempty"`
+	MinQuantity float32           `url:"minQuantity,omitempty"`
+	MaxQuantity float32           `url:"maxQuantity,omitempty"`
 }
 
 type SiteFilter struct {

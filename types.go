@@ -761,6 +761,7 @@ type Offer struct {
 	ExternalID    string       `json:"externalId,omitempty"`
 	Name          string       `json:"name,omitempty"`
 	XMLID         string       `json:"xmlId,omitempty"`
+	Site          string       `json:"site,omitempty"`
 	Article       string       `json:"article,omitempty"`
 	VatRate       string       `json:"vatRate,omitempty"`
 	Price         float32      `json:"price,omitempty"`
@@ -774,6 +775,8 @@ type Offer struct {
 	Properties    StringMap    `json:"properties,omitempty"`
 	Prices        []OfferPrice `json:"prices,omitempty"`
 	Images        []string     `json:"images,omitempty"`
+	Active        bool         `json:"active,omitempty"`
+	Barcode       string       `json:"barcode,omitempty"`
 	Unit          *Unit        `json:"unit,omitempty"`
 	Product       *Product     `json:"product,omitempty"`
 }
@@ -1270,15 +1273,19 @@ const (
 // Product type.
 type Product struct {
 	BaseProduct
-	ID         int            `json:"id,omitempty"`
-	Type       ProductType    `json:"type"`
-	MaxPrice   float32        `json:"maxPrice,omitempty"`
-	MinPrice   float32        `json:"minPrice,omitempty"`
-	ImageURL   string         `json:"imageUrl,omitempty"`
-	Quantity   float32        `json:"quantity,omitempty"`
-	Offers     []Offer        `json:"offers,omitempty"`
-	Properties StringMap      `json:"properties,omitempty"`
-	Groups     []ProductGroup `json:"groups,omitempty"`
+	ID              int            `json:"id,omitempty"`
+	Type            ProductType    `json:"type"`
+	CatalogID       int            `json:"catalogId,omitempty"`
+	MaxPrice        float32        `json:"maxPrice,omitempty"`
+	MinPrice        float32        `json:"minPrice,omitempty"`
+	ImageURL        string         `json:"imageUrl,omitempty"`
+	Quantity        float32        `json:"quantity,omitempty"`
+	Offers          []Offer        `json:"offers,omitempty"`
+	Properties      StringMap      `json:"properties,omitempty"`
+	Options         []interface{}  `json:"options,omitempty"`
+	Groups          []ProductGroup `json:"groups,omitempty"`
+	UpdatedAt       string         `json:"updatedAt,omitempty"`
+	MarkingProvider string         `json:"markingProvider,omitempty"`
 }
 
 // ProductEditGroupInput type.

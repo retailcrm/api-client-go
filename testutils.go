@@ -535,13 +535,39 @@ func getStoreOfferResponse() string {
                 "https://s3-s1.retailcrm.tech/ru-central1/retailcrm/dev-vega-d32aea7f9a5bc26eba6ad986077cea03/product/65a92fa0bb737-test.jpeg"
             ],
             "id": 76,
+            "externalId": "offer-external-id",
+            "xmlId": "offer-xml-id",
             "site": "main",
             "name": "Название\nПеревод строки",
             "article": "Артикул",
+            "vatRate": "20",
             "product": {
                 "type": "product",
                 "catalogId": 2,
-                "id": 222
+                "id": 222,
+                "article": "product-article",
+                "name": "Товар",
+                "url": "https://example.com/product",
+                "imageUrl": "https://example.com/product.jpg",
+                "description": "Описание товара",
+                "popular": true,
+                "stock": true,
+                "novelty": true,
+                "recommended": true,
+                "options": ["option"],
+                "groups": [
+                    {
+                        "id": 10,
+                        "externalId": "group-external-id"
+                    }
+                ],
+                "externalId": "product-external-id",
+                "manufacturer": "Производитель",
+                "updatedAt": "2024-01-02 03:04:05",
+                "active": true,
+                "quantity": 5,
+                "markable": true,
+                "markingProvider": "chestny_znak"
             },
             "prices": [
                 {
@@ -553,7 +579,15 @@ func getStoreOfferResponse() string {
             ],
             "purchasePrice": 10,
             "quantity": 5,
+            "weight": 1.5,
+            "length": 10,
+            "width": 20,
+            "height": 30,
+            "properties": {
+                "color": "red"
+            },
             "active": true,
+            "barcode": "1234567890",
             "unit": {
                 "code": "pc",
                 "name": "Штука",

@@ -7739,6 +7739,35 @@ func (c *Client) EditMGChannelTemplate(req EditMGChannelTemplateRequest) (int, e
 	return code, nil
 }
 
+// StoreOffers returns list of offers
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-store-offers
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	active := 1
+//	data, status, err := client.StoreOffers(retailcrm.OffersRequest{
+//		OffersFilter: retailcrm.OffersFilter{
+//			Ids:    []int{76},
+//			Active: &active,
+//		},
+//		Limit: 20,
+//		Page:  1,
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Offers {
+//		log.Printf("%v\n", value)
+//	}
 func (c *Client) StoreOffers(req OffersRequest) (StoreOffersResponse, int, error) {
 	var result StoreOffersResponse
 
@@ -7746,6 +7775,10 @@ func (c *Client) StoreOffers(req OffersRequest) (StoreOffersResponse, int, error
 
 	if err != nil {
 		return StoreOffersResponse{}, 0, err
+	}
+
+	for code, value := range req.Properties {
+		filter.Set(fmt.Sprintf("filter[properties][%s]", code), value)
 	}
 
 	resp, status, err := c.GetRequest(fmt.Sprintf("/store/offers?%s", filter.Encode()))
