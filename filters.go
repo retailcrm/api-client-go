@@ -480,7 +480,7 @@ type LoyaltyAPIFilter struct {
 }
 
 type OffersFilter struct {
-	Ids         []int             `url:"ids,omitempty,brackets"`
+	Ids         []int             `url:"ids,omitempty,brackets"` //nolint:revive
 	ExternalIDs []string          `url:"externalIds,omitempty,brackets"`
 	XMLIDs      []string          `url:"xmlIds,omitempty,brackets"`
 	Name        string            `url:"name,omitempty"`
