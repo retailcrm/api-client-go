@@ -1047,19 +1047,28 @@ type DeliveryService struct {
 
 // DeliveryType type.
 type DeliveryType struct {
-	Name                 string                `json:"name,omitempty"`
-	Code                 string                `json:"code,omitempty"`
-	Active               bool                  `json:"active,omitempty"`
-	DefaultCost          float32               `json:"defaultCost,omitempty"`
-	DefaultNetCost       float32               `json:"defaultNetCost,omitempty"`
-	Description          string                `json:"description,omitempty"`
-	IntegrationCode      string                `json:"integrationCode,omitempty"`
-	VatRate              string                `json:"vatRate,omitempty"`
-	DefaultForCrm        bool                  `json:"defaultForCrm,omitempty"`
-	DeliveryServices     []string              `json:"deliveryServices,omitempty"`
-	PaymentTypes         []string              `json:"paymentTypes,omitempty"` // Deprecated, use DeliveryPaymentTypes
-	DeliveryPaymentTypes []DeliveryPaymentType `json:"deliveryPaymentTypes,omitempty"`
-	Currency             string                `json:"currency,omitempty"`
+	Name                                 string                `json:"name,omitempty"`
+	Code                                 string                `json:"code,omitempty"`
+	Active                               bool                  `json:"active,omitempty"`
+	DefaultCost                          float32               `json:"defaultCost,omitempty"`
+	DefaultNetCost                       float32               `json:"defaultNetCost,omitempty"`
+	Description                          string                `json:"description,omitempty"`
+	IntegrationCode                      string                `json:"integrationCode,omitempty"`
+	VatRate                              string                `json:"vatRate,omitempty"`
+	DefaultForCrm                        bool                  `json:"defaultForCrm,omitempty"`
+	DeliveryServices                     []string              `json:"deliveryServices,omitempty"`
+	PaymentTypes                         []string              `json:"paymentTypes,omitempty"` // Deprecated, use DeliveryPaymentTypes
+	DeliveryPaymentTypes                 []DeliveryPaymentType `json:"deliveryPaymentTypes,omitempty"`
+	IsDynamicCostCalculation             bool                  `json:"isDynamicCostCalculation,omitempty"`
+	IsAutoCostCalculation                bool                  `json:"isAutoCostCalculation,omitempty"`
+	IsAutoNetCostCalculation             bool                  `json:"isAutoNetCostCalculation,omitempty"`
+	IsCostDependsOnRegionAndWeightAndSum bool                  `json:"isCostDependsOnRegionAndWeightAndSum,omitempty"`
+	IsCostDependsOnDateTime              bool                  `json:"isCostDependsOnDateTime,omitempty"`
+	Currency                             string                `json:"currency,omitempty"`
+	DefaultTariffCode                    string                `json:"defaultTariffCode,omitempty"`
+	DefaultTariffType                    string                `json:"defaultTariffType,omitempty"`
+	DefaultTariffName                    string                `json:"defaultTariffName,omitempty"`
+	Sites                                []string              `json:"sites,omitempty"`
 }
 
 type DeliveryPaymentType struct {

@@ -4257,6 +4257,16 @@ func TestClient_DeliveryTypes(t *testing.T) {
 				"name": "Доставка курьером",
 				"code": "courier",
 				"active": true,
+				"paymentTypes": ["cash"],
+				"isDynamicCostCalculation": true,
+				"isAutoCostCalculation": true,
+				"isAutoNetCostCalculation": true,
+				"isCostDependsOnRegionAndWeightAndSum": true,
+				"isCostDependsOnDateTime": true,
+				"currency": "RUB",
+				"defaultCost": 300,
+				"defaultNetCost": 250,
+				"description": "Курьерская доставка",
 				"deliveryPaymentTypes": [
 					{
 						"code": "cash",
@@ -4266,7 +4276,15 @@ func TestClient_DeliveryTypes(t *testing.T) {
 						"code": "bank-card",
 						"cod": false
 					}
-				]
+				],
+				"integrationCode": "delivery-integration",
+				"deliveryServices": ["service-1"],
+				"defaultForCrm": true,
+				"vatRate": "20",
+				"defaultTariffCode": "express",
+				"defaultTariffType": "courier",
+				"defaultTariffName": "Экспресс",
+				"sites": ["main"]
 			}
 		}
 	}`)
@@ -4287,10 +4305,28 @@ func TestClient_DeliveryTypes(t *testing.T) {
 	assert.Equal(t, "Доставка курьером", data.DeliveryTypes["courier"].Name)
 	assert.Equal(t, "courier", data.DeliveryTypes["courier"].Code)
 	assert.True(t, data.DeliveryTypes["courier"].Active)
+	assert.Equal(t, []string{"cash"}, data.DeliveryTypes["courier"].PaymentTypes)
+	assert.True(t, data.DeliveryTypes["courier"].IsDynamicCostCalculation)
+	assert.True(t, data.DeliveryTypes["courier"].IsAutoCostCalculation)
+	assert.True(t, data.DeliveryTypes["courier"].IsAutoNetCostCalculation)
+	assert.True(t, data.DeliveryTypes["courier"].IsCostDependsOnRegionAndWeightAndSum)
+	assert.True(t, data.DeliveryTypes["courier"].IsCostDependsOnDateTime)
+	assert.Equal(t, "RUB", data.DeliveryTypes["courier"].Currency)
+	assert.Equal(t, float32(300), data.DeliveryTypes["courier"].DefaultCost)
+	assert.Equal(t, float32(250), data.DeliveryTypes["courier"].DefaultNetCost)
+	assert.Equal(t, "Курьерская доставка", data.DeliveryTypes["courier"].Description)
 	assert.Equal(t, "cash", data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Code)
 	assert.Equal(t, "bank-card", data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Code)
 	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[0].Cod)
 	assert.False(t, data.DeliveryTypes["courier"].DeliveryPaymentTypes[1].Cod)
+	assert.Equal(t, "delivery-integration", data.DeliveryTypes["courier"].IntegrationCode)
+	assert.Equal(t, []string{"service-1"}, data.DeliveryTypes["courier"].DeliveryServices)
+	assert.True(t, data.DeliveryTypes["courier"].DefaultForCrm)
+	assert.Equal(t, "20", data.DeliveryTypes["courier"].VatRate)
+	assert.Equal(t, "express", data.DeliveryTypes["courier"].DefaultTariffCode)
+	assert.Equal(t, "courier", data.DeliveryTypes["courier"].DefaultTariffType)
+	assert.Equal(t, "Экспресс", data.DeliveryTypes["courier"].DefaultTariffName)
+	assert.Equal(t, []string{"main"}, data.DeliveryTypes["courier"].Sites)
 }
 
 func TestClient_LegalEntities(t *testing.T) {
