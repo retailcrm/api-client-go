@@ -376,6 +376,13 @@ type ProductsPropertiesFilter struct {
 	Sites []string `url:"sites,omitempty,brackets"`
 }
 
+// ProductsPropertiesValuesFilter type.
+type ProductsPropertiesValuesFilter struct {
+	PropertyName string `url:"propertyName,omitempty"`
+	PropertyCode string `url:"propertyCode,omitempty"`
+	Groups       []int  `url:"groups,omitempty,brackets"`
+}
+
 // ShipmentFilter type.
 type ShipmentFilter struct {
 	Ids           []int    `url:"ids,omitempty,brackets"`

@@ -3216,6 +3216,220 @@ func (c *Client) UpdateScopes(code string, request ScopesRequired) (UpdateScopes
 	return resp, status, nil
 }
 
+// PaymentCheck checks invoice parameters before charging.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-payment-check
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentCheck(retailcrm.PaymentCheckRequest{
+//		InvoiceUUID: "invoice-uuid",
+//		Amount:      1000,
+//		Currency:    "RUB",
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%v\n", data.Result.Success)
+func (c *Client) PaymentCheck(request PaymentCheckRequest) (PaymentCheckResponse, int, error) {
+	var resp PaymentCheckResponse
+
+	checkJSON, err := marshalToString(&request)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	data, status, err := c.PostRequest("/payment/check", url.Values{"check": {checkJSON}})
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// PaymentCreateInvoice creates a payment invoice link.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-payment-create-invoice
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentCreateInvoice(retailcrm.PaymentCreateInvoiceRequest{
+//		PaymentID: 12,
+//		ReturnURL: "https://example.com/return",
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%s\n", data.Result.Link)
+func (c *Client) PaymentCreateInvoice(request PaymentCreateInvoiceRequest) (
+	PaymentCreateInvoiceResponse, int, error,
+) {
+	var resp PaymentCreateInvoiceResponse
+
+	createInvoiceJSON, err := marshalToString(&request)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	data, status, err := c.PostRequest("/payment/create-invoice", url.Values{"createInvoice": {createInvoiceJSON}})
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// PaymentInvoiceImport imports a payment invoice.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-payment-invoice-import
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentInvoiceImport(retailcrm.PaymentInvoiceImportRequest{
+//		PaymentID:  12,
+//		ExternalID: "invoice-1",
+//		Amount:     1000,
+//		Currency:   "RUB",
+//		Status:     "succeeded",
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%v\n", data.Invoice)
+func (c *Client) PaymentInvoiceImport(request PaymentInvoiceImportRequest) (PaymentInvoiceResponse, int, error) {
+	var resp PaymentInvoiceResponse
+
+	invoiceJSON, err := marshalToString(&request)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	data, status, err := c.PostRequest("/payment/invoice/import", url.Values{"invoice": {invoiceJSON}})
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// PaymentInvoice returns payment invoice information.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-payment-invoice-invoiceUuid
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentInvoice("invoice-uuid")
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%v\n", data.Invoice)
+func (c *Client) PaymentInvoice(invoiceUUID string) (PaymentInvoiceResponse, int, error) {
+	var resp PaymentInvoiceResponse
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/payment/invoice/%s", invoiceUUID))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// PaymentUpdateInvoice updates payment invoice data.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-payment-update-invoice
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentUpdateInvoice(retailcrm.PaymentUpdateInvoiceRequest{
+//		InvoiceUUID: "invoice-uuid",
+//		Status:      "succeeded",
+//		Amount:      1000,
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%v\n", data.Success)
+func (c *Client) PaymentUpdateInvoice(request PaymentUpdateInvoiceRequest) (SuccessfulResponse, int, error) {
+	var resp SuccessfulResponse
+
+	updateInvoiceJSON, err := marshalToString(&request)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	data, status, err := c.PostRequest("/payment/update-invoice", url.Values{"updateInvoice": {updateInvoiceJSON}})
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // Orders returns list of orders matched the specified filters
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-orders
@@ -4040,6 +4254,20 @@ func (c *Client) PackEdit(pack Pack) (CreateResponse, int, error) {
 // Countries returns list of available country codes
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-countries
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Countries()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Countries() (CountriesResponse, int, error) {
 	var resp CountriesResponse
 
@@ -4059,6 +4287,20 @@ func (c *Client) Countries() (CountriesResponse, int, error) {
 // CostGroups returns costs groups list
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-cost-groups
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostGroups()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) CostGroups() (CostGroupsResponse, int, error) {
 	var resp CostGroupsResponse
 
@@ -4123,6 +4365,20 @@ func (c *Client) CostGroupEdit(costGroup CostGroup) (SuccessfulResponse, int, er
 // CostItems returns costs items list
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-cost-items
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.CostItems()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) CostItems() (CostItemsResponse, int, error) {
 	var resp CostItemsResponse
 
@@ -4187,6 +4443,20 @@ func (c *Client) CostItemEdit(costItem CostItem) (SuccessfulResponse, int, error
 // Couriers returns list of couriers
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-couriers
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Couriers()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Couriers() (CouriersResponse, int, error) {
 	var resp CouriersResponse
 
@@ -4302,6 +4572,20 @@ func (c *Client) CourierEdit(courier Courier) (SuccessfulResponse, int, error) {
 // DeliveryServices returns list of delivery services
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-delivery-services
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.DeliveryServices()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) DeliveryServices() (DeliveryServiceResponse, int, error) {
 	var resp DeliveryServiceResponse
 
@@ -4366,6 +4650,20 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 // DeliveryTypes returns list of delivery types
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-delivery-types
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.DeliveryTypes()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
@@ -4432,6 +4730,20 @@ func (c *Client) DeliveryTypeEdit(deliveryType DeliveryType) (SuccessfulResponse
 // LegalEntities returns list of legal entities
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-legal-entities
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.LegalEntities()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) LegalEntities() (LegalEntitiesResponse, int, error) {
 	var resp LegalEntitiesResponse
 
@@ -4493,9 +4805,60 @@ func (c *Client) LegalEntityEdit(legalEntity LegalEntity) (SuccessfulResponse, i
 	return resp, status, nil
 }
 
+// MGChannels returns list of MessageGateway channels
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-reference-mg-channels
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.MGChannels()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.MGChannels {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) MGChannels() (MGChannelsResponse, int, error) {
+	var resp MGChannelsResponse
+
+	data, status, err := c.GetRequest("/reference/mg-channels")
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // OrderMethods returns list of order methods
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-order-methods
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.OrderMethods()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) OrderMethods() (OrderMethodsResponse, int, error) {
 	var resp OrderMethodsResponse
 
@@ -4561,6 +4924,20 @@ func (c *Client) OrderMethodEdit(orderMethod OrderMethod) (SuccessfulResponse, i
 // OrderTypes return list of order types
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-order-types
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.OrderTypes()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 	var resp OrderTypesResponse
 
@@ -4626,6 +5003,20 @@ func (c *Client) OrderTypeEdit(orderType OrderType) (SuccessfulResponse, int, er
 // PaymentStatuses returns list of payment statuses
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-payment-statuses
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentStatuses()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 	var resp PaymentStatusesResponse
 
@@ -4645,6 +5036,20 @@ func (c *Client) PaymentStatuses() (PaymentStatusesResponse, int, error) {
 // PaymentStatusEdit payment status creation/editing
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-payment-statuses-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentStatusEdit(retailcrm.PaymentStatus{Code: "paid", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4673,6 +5078,20 @@ func (c *Client) PaymentStatusEdit(paymentStatus PaymentStatus) (SuccessfulRespo
 // PaymentTypes returns list of payment types
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-payment-types
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentTypes()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 	var resp PaymentTypesResponse
 
@@ -4692,6 +5111,20 @@ func (c *Client) PaymentTypes() (PaymentTypesResponse, int, error) {
 // PaymentTypeEdit payment type create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-payment-types-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PaymentTypeEdit(retailcrm.PaymentType{Code: "cash", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4720,6 +5153,20 @@ func (c *Client) PaymentTypeEdit(paymentType PaymentType) (SuccessfulResponse, i
 // PriceTypes returns list of price types
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-price-types
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PriceTypes()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 	var resp PriceTypesResponse
 
@@ -4739,6 +5186,20 @@ func (c *Client) PriceTypes() (PriceTypesResponse, int, error) {
 // PriceTypeEdit price type create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-price-types-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.PriceTypeEdit(retailcrm.PriceType{Code: "base", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4767,6 +5228,20 @@ func (c *Client) PriceTypeEdit(priceType PriceType) (SuccessfulResponse, int, er
 // ProductStatuses returns list of item statuses in order
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-product-statuses
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ProductStatuses()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 	var resp ProductStatusesResponse
 
@@ -4786,6 +5261,20 @@ func (c *Client) ProductStatuses() (ProductStatusesResponse, int, error) {
 // ProductStatusEdit order item status create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-product-statuses-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ProductStatusEdit(retailcrm.ProductStatus{Code: "available", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4814,6 +5303,20 @@ func (c *Client) ProductStatusEdit(productStatus ProductStatus) (SuccessfulRespo
 // Sites returns the sites list
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-sites
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Sites()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Sites() (SitesResponse, int, error) {
 	var resp SitesResponse
 
@@ -4833,6 +5336,20 @@ func (c *Client) Sites() (SitesResponse, int, error) {
 // SiteEdit site create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-sites-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.SiteEdit(retailcrm.Site{Code: "main", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4861,6 +5378,20 @@ func (c *Client) SiteEdit(site Site) (SuccessfulResponse, int, error) {
 // StatusGroups returns list of order status groups
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-status-groups
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StatusGroups()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 	var resp StatusGroupsResponse
 
@@ -4880,6 +5411,20 @@ func (c *Client) StatusGroups() (StatusGroupsResponse, int, error) {
 // Statuses returns list of order statuses
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-statuses
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Statuses()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Statuses() (StatusesResponse, int, error) {
 	var resp StatusesResponse
 
@@ -4899,6 +5444,20 @@ func (c *Client) Statuses() (StatusesResponse, int, error) {
 // StatusEdit order status create/edit
 //
 // For more information see www.retailcrm.pro/docs/Developers/ApiVersion5#post--api-v5-reference-sites-code-edit.
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StatusEdit(retailcrm.Status{Code: "new", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) StatusEdit(statusItem Status) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4927,6 +5486,20 @@ func (c *Client) StatusEdit(statusItem Status) (SuccessfulResponse, int, error) 
 // Stores returns list of warehouses
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-stores
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Stores()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Stores() (StoresResponse, int, error) {
 	var resp StoresResponse
 
@@ -4943,9 +5516,110 @@ func (c *Client) Stores() (StoresResponse, int, error) {
 	return resp, status, nil
 }
 
+// Subscriptions returns list of subscription categories
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-reference-subscriptions
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Subscriptions()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Subscriptions {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) Subscriptions() (SubscriptionsResponse, int, error) {
+	var resp SubscriptionsResponse
+
+	data, status, err := c.GetRequest("/reference/subscriptions")
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// SubscriptionEdit creates or edits subscription category
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-reference-subscriptions-channel-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.SubscriptionEdit(retailcrm.Subscription{
+//		Channel: "email",
+//		Code:    "news",
+//		Name:    "News",
+//		Active:  true,
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	log.Printf("%v\n", data.ID)
+func (c *Client) SubscriptionEdit(subscription Subscription) (CreateResponse, int, error) {
+	var resp CreateResponse
+
+	objJSON, err := marshalToString(&subscription)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	p := url.Values{"subscription": {objJSON}}
+
+	data, status, err := c.PostRequest(
+		fmt.Sprintf("/reference/subscriptions/%s/%s/edit", subscription.Channel, subscription.Code),
+		p,
+	)
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
 // StoreEdit warehouse create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-stores-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StoreEdit(retailcrm.Store{Code: "main", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -4974,6 +5648,20 @@ func (c *Client) StoreEdit(store Store) (SuccessfulResponse, int, error) {
 // Units returns units list
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-reference-units
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.Units()
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) Units() (UnitsResponse, int, error) {
 	var resp UnitsResponse
 
@@ -4993,6 +5681,20 @@ func (c *Client) Units() (UnitsResponse, int, error) {
 // UnitEdit unit create/edit
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-units-code-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.UnitEdit(retailcrm.Unit{Code: "pcs", Active: true})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) UnitEdit(unit Unit) (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -5410,7 +6112,7 @@ func (c *Client) StoreProducts(parameters StoreProductsRequest) (StoreProductsRe
 //
 //	data, status, err := client.ProductsProperties(retailcrm.ProductsPropertiesRequest{
 //		Filter: retailcrm.ProductsPropertiesFilter{
-//			Sites: []string["store"],
+//			Sites: []string{"store"},
 //		},
 //	})
 //
@@ -5431,6 +6133,52 @@ func (c *Client) ProductsProperties(parameters ProductsPropertiesRequest) (Produ
 	params, _ := query.Values(parameters)
 
 	data, status, err := c.GetRequest(fmt.Sprintf("/store/products/properties?%s", params.Encode()))
+	if err != nil {
+		return resp, status, err
+	}
+
+	err = json.Unmarshal(data, &resp)
+	if err != nil {
+		return resp, status, err
+	}
+
+	return resp, status, nil
+}
+
+// ProductsPropertiesValues returns list of product property values matched the specified filters
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-store-products-properties-values
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ProductsPropertiesValues(retailcrm.ProductsPropertiesValuesRequest{
+//		Filter: retailcrm.ProductsPropertiesValuesFilter{
+//			PropertyCode: "color",
+//			Groups: []int{10},
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.ProductPropertyValues {
+//		log.Printf("%v\n", value)
+//	}
+func (c *Client) ProductsPropertiesValues(
+	parameters ProductsPropertiesValuesRequest,
+) (ProductsPropertiesValuesResponse, int, error) {
+	var resp ProductsPropertiesValuesResponse
+
+	params, _ := query.Values(parameters)
+
+	data, status, err := c.GetRequest(fmt.Sprintf("/store/products/properties/values?%s", params.Encode()))
 	if err != nil {
 		return resp, status, err
 	}
@@ -5785,6 +6533,20 @@ func (c *Client) UserStatus(id int, status string) (SuccessfulResponse, int, err
 // StaticticsUpdate updates statistics
 //
 // For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#get--api-v5-statistic-update
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.StaticticsUpdate([]retailcrm.Statistic{{Name: "orders", Value: 10}})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) StaticticsUpdate() (SuccessfulResponse, int, error) {
 	var resp SuccessfulResponse
 
@@ -7743,6 +8505,27 @@ func (c *Client) NotificationsSend(req NotificationsSendRequest) (int, error) {
 	return status, nil
 }
 
+// ListMGChannelTemplates returns MessageGateway channel templates.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#get--api-v5-reference-mg-channels-templates
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	data, status, err := client.ListMGChannelTemplates(1, 1, 20)
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
+//
+//	for _, value := range data.Templates {
+//		log.Printf("%v\n", value)
+//	}
 func (c *Client) ListMGChannelTemplates(channelID, page, limit int) (MGChannelTemplatesResponse, int, error) {
 	var resp MGChannelTemplatesResponse
 
@@ -7767,6 +8550,32 @@ func (c *Client) ListMGChannelTemplates(channelID, page, limit int) (MGChannelTe
 	return resp, code, nil
 }
 
+// EditMGChannelTemplate creates or edits MessageGateway channel templates.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIMethods#post--api-v5-reference-mg-channels-templates-edit
+//
+// Example:
+//
+//	var client = retailcrm.New("https://demo.url", "09jIJ")
+//
+//	status, err := client.EditMGChannelTemplate(retailcrm.EditMGChannelTemplateRequest{
+//		Templates: []retailcrm.MGChannelTemplate{
+//			{
+//				Name: "Order status",
+//				Channel: &retailcrm.MGChannel{
+//					ID: 1,
+//				},
+//			},
+//		},
+//	})
+//
+//	if err != nil {
+//		if apiErr, ok := retailcrm.AsAPIError(err); ok {
+//			log.Fatalf("http status: %d, %s", status, apiErr.String())
+//		}
+//
+//		log.Fatalf("http status: %d, error: %s", status, err)
+//	}
 func (c *Client) EditMGChannelTemplate(req EditMGChannelTemplateRequest) (int, error) {
 	templates, err := json.Marshal(req.Templates)
 

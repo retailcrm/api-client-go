@@ -3668,6 +3668,99 @@ func TestClient_PaymentCreateEditDelete(t *testing.T) {
 	}
 }
 
+func TestClient_PaymentInvoiceMethods(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	check := PaymentCheckRequest{
+		InvoiceUUID: "invoice-uuid",
+		Amount:      1000,
+		Currency:    "RUB",
+	}
+	checkJSON, _ := json.Marshal(check)
+	gock.New(crmURL).
+		Post("/payment/check").
+		MatchType("url").
+		BodyString(url.Values{"check": {string(checkJSON)}}.Encode()).
+		Reply(http.StatusOK).
+		BodyString(`{"success": true, "result": {"success": true}}`)
+
+	checkResponse, status, err := c.PaymentCheck(check)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, checkResponse.Success)
+	assert.True(t, checkResponse.Result.Success)
+
+	createInvoice := PaymentCreateInvoiceRequest{
+		PaymentID: 12,
+		ReturnURL: "https://example.com/return",
+	}
+	createInvoiceJSON, _ := json.Marshal(createInvoice)
+	gock.New(crmURL).
+		Post("/payment/create-invoice").
+		MatchType("url").
+		BodyString(url.Values{"createInvoice": {string(createInvoiceJSON)}}.Encode()).
+		Reply(http.StatusOK).
+		BodyString(`{"success": true, "result": {"link": "https://pay.example/invoice"}}`)
+
+	createInvoiceResponse, status, err := c.PaymentCreateInvoice(createInvoice)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, createInvoiceResponse.Success)
+	assert.Equal(t, "https://pay.example/invoice", createInvoiceResponse.Result.Link)
+
+	invoiceImport := PaymentInvoiceImportRequest{
+		PaymentID:  12,
+		ExternalID: "invoice-1",
+		Amount:     1000,
+		Currency:   "RUB",
+		Status:     "succeeded",
+	}
+	invoiceImportJSON, _ := json.Marshal(invoiceImport)
+	gock.New(crmURL).
+		Post("/payment/invoice/import").
+		MatchType("url").
+		BodyString(url.Values{"invoice": {string(invoiceImportJSON)}}.Encode()).
+		Reply(http.StatusCreated).
+		BodyString(`{"success": true, "invoice": {"invoiceUuid": "invoice-uuid", "status": "succeeded"}}`)
+
+	invoiceResponse, status, err := c.PaymentInvoiceImport(invoiceImport)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusCreated, status)
+	assert.True(t, invoiceResponse.Success)
+	assert.Equal(t, "invoice-uuid", invoiceResponse.Invoice.InvoiceUUID)
+
+	gock.New(crmURL).
+		Get("/payment/invoice/invoice-uuid").
+		Reply(http.StatusOK).
+		BodyString(`{"success": true, "invoice": {"invoiceUuid": "invoice-uuid", "paymentId": 12}}`)
+
+	invoiceResponse, status, err = c.PaymentInvoice("invoice-uuid")
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, invoiceResponse.Success)
+	assert.Equal(t, 12, invoiceResponse.Invoice.PaymentID)
+
+	updateInvoice := PaymentUpdateInvoiceRequest{
+		InvoiceUUID: "invoice-uuid",
+		Amount:      1200,
+		Status:      "succeeded",
+	}
+	updateInvoiceJSON, _ := json.Marshal(updateInvoice)
+	gock.New(crmURL).
+		Post("/payment/update-invoice").
+		MatchType("url").
+		BodyString(url.Values{"updateInvoice": {string(updateInvoiceJSON)}}.Encode()).
+		Reply(http.StatusOK).
+		BodyString(`{"success": true}`)
+
+	updateResponse, status, err := c.PaymentUpdateInvoice(updateInvoice)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, updateResponse.Success)
+}
+
 func TestClient_PaymentCreateEditDelete_Fail(t *testing.T) {
 	c := client()
 
@@ -4353,6 +4446,35 @@ func TestClient_LegalEntities(t *testing.T) {
 	}
 }
 
+func TestClient_MGChannels(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/reference/mg-channels").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"mgChannels": [{
+				"id": 1,
+				"externalId": 2,
+				"type": "telegram",
+				"name": "Telegram",
+				"active": true,
+				"allowedSendByPhone": true
+			}]
+		}`)
+
+	data, st, err := c.MGChannels()
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, st)
+	assert.True(t, data.Success)
+	assert.Len(t, data.MGChannels, 1)
+	assert.Equal(t, "Telegram", data.MGChannels[0].Name)
+	assert.True(t, data.MGChannels[0].AllowedSendByPhone)
+}
+
 func TestClient_OrderMethods(t *testing.T) {
 	c := client()
 
@@ -4714,6 +4836,68 @@ func TestClient_Stores(t *testing.T) {
 	if data.Success != true {
 		t.Errorf("%v", err)
 	}
+}
+
+func TestClient_Subscriptions(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/reference/subscriptions").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"subscriptions": [{
+				"id": 10,
+				"channel": "email",
+				"code": "news",
+				"name": "News",
+				"active": true,
+				"autoSubscribe": true,
+				"ordering": 20
+			}]
+		}`)
+
+	data, st, err := c.Subscriptions()
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, st)
+	assert.True(t, data.Success)
+	assert.Len(t, data.Subscriptions, 1)
+	assert.Equal(t, "email", data.Subscriptions[0].Channel)
+	assert.True(t, data.Subscriptions[0].AutoSubscribe)
+}
+
+func TestClient_SubscriptionEdit(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	subscription := Subscription{
+		Channel:       "email",
+		Code:          "news",
+		Name:          "News",
+		Active:        true,
+		AutoSubscribe: true,
+	}
+
+	jr, _ := json.Marshal(&subscription)
+	p := url.Values{
+		"subscription": {string(jr)},
+	}
+
+	gock.New(crmURL).
+		Post("/reference/subscriptions/email/news/edit").
+		MatchType("url").
+		BodyString(p.Encode()).
+		Reply(http.StatusCreated).
+		BodyString(`{"success": true, "id": 10}`)
+
+	data, st, err := c.SubscriptionEdit(subscription)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusCreated, st)
+	assert.True(t, data.Success)
+	assert.Equal(t, 10, data.ID)
 }
 
 func TestClient_CostGroupItemEdit(t *testing.T) {
@@ -6818,7 +7002,7 @@ func TestClient_ProductsProperties(t *testing.T) {
 	defer gock.Off()
 
 	gock.New(crmURL).
-		Get("/store/products").
+		Get("/store/products/properties").
 		MatchParam("filter[sites][]", sites[0]).
 		Reply(200).
 		BodyString(`{"success": true}`)
@@ -6839,6 +7023,52 @@ func TestClient_ProductsProperties(t *testing.T) {
 	if g.Success != true {
 		t.Errorf("%v", err)
 	}
+}
+
+func TestClient_ProductsPropertiesValues(t *testing.T) {
+	c := client()
+
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get("/store/products/properties/values").
+		MatchParam("filter[propertyCode]", "color").
+		MatchParam("filter[propertyName]", "Color").
+		MatchParam("filter[groups][]", "10").
+		MatchParam("limit", "20").
+		MatchParam("page", "1").
+		Reply(http.StatusOK).
+		BodyString(`{
+			"success": true,
+			"productPropertyValues": [{
+				"property": {"code": "color", "name": "Color"},
+				"value": "red",
+				"offersCount": 2
+			}]
+		}`)
+
+	g, status, err := c.ProductsPropertiesValues(ProductsPropertiesValuesRequest{
+		Filter: ProductsPropertiesValuesFilter{
+			PropertyCode: "color",
+			PropertyName: "Color",
+			Groups:       []int{10},
+		},
+		Limit: 20,
+		Page:  1,
+	})
+	if err != nil {
+		t.Errorf("%v", err)
+	}
+
+	if status != http.StatusOK {
+		t.Errorf("%v", err)
+	}
+
+	assert.True(t, g.Success)
+	assert.Len(t, g.ProductPropertyValues, 1)
+	assert.Equal(t, "color", g.ProductPropertyValues[0].Property.Code)
+	assert.Equal(t, "red", g.ProductPropertyValues[0].Value)
+	assert.Equal(t, 2, g.ProductPropertyValues[0].OffersCount)
 }
 
 func TestClient_DeliveryTracking(t *testing.T) {

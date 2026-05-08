@@ -42,28 +42,35 @@ type Pagination struct {
 
 // Address type.
 type Address struct {
-	ID         int    `json:"id,omitempty"`
-	Index      string `json:"index,omitempty"`
-	CountryIso string `json:"countryIso,omitempty"`
-	Region     string `json:"region,omitempty"`
-	RegionID   int    `json:"regionId,omitempty"`
-	City       string `json:"city,omitempty"`
-	CityID     int    `json:"cityId,omitempty"`
-	CityType   string `json:"cityType,omitempty"`
-	Street     string `json:"street,omitempty"`
-	StreetID   int    `json:"streetId,omitempty"`
-	StreetType string `json:"streetType,omitempty"`
-	Building   string `json:"building,omitempty"`
-	Flat       string `json:"flat,omitempty"`
-	Floor      int    `json:"floor,omitempty"`
-	Block      int    `json:"block,omitempty"`
-	House      string `json:"house,omitempty"`
-	Housing    string `json:"housing,omitempty"`
-	Metro      string `json:"metro,omitempty"`
-	Notes      string `json:"notes,omitempty"`
-	Text       string `json:"text,omitempty"`
-	ExternalID string `json:"externalId,omitempty"`
-	Name       string `json:"name,omitempty"`
+	ID          int    `json:"id,omitempty"`
+	Index       string `json:"index,omitempty"`
+	CountryIso  string `json:"countryIso,omitempty"`
+	Region      string `json:"region,omitempty"`
+	RegionID    int    `json:"regionId,omitempty"`
+	City        string `json:"city,omitempty"`
+	CityID      int    `json:"cityId,omitempty"`
+	CityType    string `json:"cityType,omitempty"`
+	Street      string `json:"street,omitempty"`
+	StreetID    int    `json:"streetId,omitempty"`
+	StreetType  string `json:"streetType,omitempty"`
+	Building    string `json:"building,omitempty"`
+	Flat        string `json:"flat,omitempty"`
+	Floor       int    `json:"floor,omitempty"`
+	Block       int    `json:"block,omitempty"`
+	House       string `json:"house,omitempty"`
+	Housing     string `json:"housing,omitempty"`
+	Metro       string `json:"metro,omitempty"`
+	Notes       string `json:"notes,omitempty"`
+	Text        string `json:"text,omitempty"`
+	ExternalID  string `json:"externalId,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Coordinates *Point `json:"coordinates,omitempty"`
+}
+
+// Point type.
+type Point struct {
+	Latitude  float64 `json:"latitude,omitempty"`
+	Longitude float64 `json:"longitude,omitempty"`
 }
 
 // GeoID type. Can be empty string.
@@ -117,10 +124,20 @@ type APIKey struct {
 
 // Property type.
 type Property struct {
-	Code  string   `json:"code,omitempty"`
-	Name  string   `json:"name,omitempty"`
-	Value string   `json:"value,omitempty"`
-	Sites []string `json:"Sites,omitempty"`
+	Code      string   `json:"code,omitempty"`
+	Name      string   `json:"name,omitempty"`
+	Value     string   `json:"value,omitempty"`
+	Sites     []string `json:"sites,omitempty"`
+	IsNumeric bool     `json:"isNumeric,omitempty"`
+	Visible   bool     `json:"visible,omitempty"`
+	Variative bool     `json:"variative,omitempty"`
+}
+
+// ProductPropertyValue type.
+type ProductPropertyValue struct {
+	Property    Property `json:"property,omitempty"`
+	Value       string   `json:"value,omitempty"`
+	OffersCount int      `json:"offersCount,omitempty"`
 }
 
 // IdentifiersPair type.
@@ -481,6 +498,53 @@ type Currency struct {
 	IsBase                  bool    `json:"isBase,omitempty"`
 	IsAutoConvert           bool    `json:"isAutoConvert,omitempty"`
 	ManualConvertValue      float32 `json:"manualConvertValue,omitempty"`
+}
+
+// PaymentCheckResult type.
+type PaymentCheckResult struct {
+	Success      bool   `json:"success"`
+	ErrorMessage string `json:"errorMsg,omitempty"`
+}
+
+// PaymentCreateInvoiceResult type.
+type PaymentCreateInvoiceResult struct {
+	Link string `json:"link,omitempty"`
+}
+
+// PaymentInvoice type.
+type PaymentInvoice struct {
+	CreatedAt           string                 `json:"createdAt,omitempty"`
+	CustomerID          int                    `json:"customerId,omitempty"`
+	OrderID             int                    `json:"orderId,omitempty"`
+	PaymentID           int                    `json:"paymentId,omitempty"`
+	Amount              interface{}            `json:"amount,omitempty"`
+	Currency            string                 `json:"currency,omitempty"`
+	Email               string                 `json:"email,omitempty"`
+	Phone               string                 `json:"phone,omitempty"`
+	Status              string                 `json:"status,omitempty"`
+	StatusMessage       string                 `json:"statusMessage,omitempty"`
+	ExternalID          string                 `json:"externalId,omitempty"`
+	InvoiceUUID         string                 `json:"invoiceUuid,omitempty"`
+	InvoiceType         string                 `json:"invoiceType,omitempty"`
+	Link                string                 `json:"link,omitempty"`
+	ErrorMessage        string                 `json:"errorMsg,omitempty"`
+	PaidAt              string                 `json:"paidAt,omitempty"`
+	ExpiredAt           string                 `json:"expiredAt,omitempty"`
+	CancellationDetails string                 `json:"cancellationDetails,omitempty"`
+	Refundable          bool                   `json:"refundable,omitempty"`
+	Cancellable         bool                   `json:"cancellable,omitempty"`
+	Refunds             []PaymentInvoiceRefund `json:"refunds,omitempty"`
+	DiscountAmount      interface{}            `json:"discountAmount,omitempty"`
+}
+
+// PaymentInvoiceRefund type.
+type PaymentInvoiceRefund struct {
+	ID         int         `json:"id,omitempty"`
+	Status     string      `json:"status,omitempty"`
+	ExternalID string      `json:"externalId,omitempty"`
+	Comment    string      `json:"comment,omitempty"`
+	Amount     interface{} `json:"amount,omitempty"`
+	CreatedAt  string      `json:"createdAt,omitempty"`
 }
 
 // OrdersStatus type.
@@ -1292,7 +1356,7 @@ type PaymentType struct {
 	DefaultForAPI   bool     `json:"defaultForApi,omitempty"`
 	Description     string   `json:"description,omitempty"`
 	DeliveryTypes   []string `json:"deliveryTypes,omitempty"`
-	PaymentStatuses []string `json:"PaymentStatuses,omitempty"`
+	PaymentStatuses []string `json:"paymentStatuses,omitempty"`
 }
 
 // PriceType type.
@@ -1363,21 +1427,46 @@ type Site struct {
 	CatalogID         string       `json:"catalogId,omitempty"`
 	IsCatalogMainSite bool         `json:"isCatalogMainSite,omitempty"`
 	Currency          string       `json:"currency,omitempty"`
+	SenderEmail       string       `json:"senderEmail,omitempty"`
+	SenderName        string       `json:"senderName,omitempty"`
+	UsedInSimlaweb    bool         `json:"usedInSimlaweb,omitempty"`
 }
 
 // Store type.
 type Store struct {
-	Name          string   `json:"name,omitempty"`
-	Code          string   `json:"code,omitempty"`
-	ExternalID    string   `json:"externalId,omitempty"`
-	Description   string   `json:"description,omitempty"`
-	XMLID         string   `json:"xmlId,omitempty"`
-	Email         string   `json:"email,omitempty"`
-	Type          string   `json:"type,omitempty"`
-	InventoryType string   `json:"inventoryType,omitempty"`
-	Active        bool     `json:"active,omitempty"`
-	Phone         *Phone   `json:"phone,omitempty"`
-	Address       *Address `json:"address,omitempty"`
+	Name          string         `json:"name,omitempty"`
+	Code          string         `json:"code,omitempty"`
+	ExternalID    string         `json:"externalId,omitempty"`
+	Description   string         `json:"description,omitempty"`
+	XMLID         string         `json:"xmlId,omitempty"`
+	Email         string         `json:"email,omitempty"`
+	Type          string         `json:"type,omitempty"`
+	InventoryType string         `json:"inventoryType,omitempty"`
+	Active        bool           `json:"active,omitempty"`
+	Ordering      int            `json:"ordering,omitempty"`
+	Phone         *Phone         `json:"phone,omitempty"`
+	Address       *Address       `json:"address,omitempty"`
+	Contact       string         `json:"contact,omitempty"`
+	WorkTime      *WorkTimeByDay `json:"workTime,omitempty"`
+}
+
+// WorkTimeByDay type.
+type WorkTimeByDay struct {
+	Monday    []StoreWorkTime `json:"mo,omitempty"`
+	Tuesday   []StoreWorkTime `json:"tu,omitempty"`
+	Wednesday []StoreWorkTime `json:"we,omitempty"`
+	Thursday  []StoreWorkTime `json:"th,omitempty"`
+	Friday    []StoreWorkTime `json:"fr,omitempty"`
+	Saturday  []StoreWorkTime `json:"sa,omitempty"`
+	Sunday    []StoreWorkTime `json:"su,omitempty"`
+}
+
+// StoreWorkTime type.
+type StoreWorkTime struct {
+	StartTime      string `json:"startTime,omitempty"`
+	EndTime        string `json:"endTime,omitempty"`
+	LunchStartTime string `json:"lunchStartTime,omitempty"`
+	LunchEndTime   string `json:"lunchEndTime,omitempty"`
 }
 
 // ProductGroup type.
@@ -1503,30 +1592,35 @@ type ScopesRequired struct {
 
 // Integrations type.
 type Integrations struct {
-	Telephony   *Telephony   `json:"telephony,omitempty"`
-	Delivery    *Delivery    `json:"delivery,omitempty"`
-	Store       *Warehouse   `json:"store,omitempty"`
-	MgTransport *MgTransport `json:"mgTransport,omitempty"`
-	MgBot       *MgBot       `json:"mgBot,omitempty"`
+	Telephony      *Telephony      `json:"telephony,omitempty"`
+	Delivery       *Delivery       `json:"delivery,omitempty"`
+	Store          *Warehouse      `json:"store,omitempty"`
+	Recommendation *Recommendation `json:"recommendation,omitempty"`
+	Payment        *PaymentModule  `json:"payment,omitempty"`
+	EmbedJS        *EmbedJS        `json:"embedJs,omitempty"`
+	MgTransport    *MgTransport    `json:"mgTransport,omitempty"`
+	MgBot          *MgBot          `json:"mgBot,omitempty"`
 }
 
 // Delivery type.
 type Delivery struct {
-	Description           string              `json:"description,omitempty"`
-	Actions               StringMap           `json:"actions,omitempty"`
-	PayerType             []string            `json:"payerType,omitempty"`
-	PlatePrintLimit       int                 `json:"platePrintLimit,omitempty"`
-	RateDeliveryCost      bool                `json:"rateDeliveryCost,omitempty"`
-	AllowPackages         bool                `json:"allowPackages,omitempty"`
-	CodAvailable          bool                `json:"codAvailable,omitempty"`
-	SelfShipmentAvailable bool                `json:"selfShipmentAvailable,omitempty"`
-	AllowTrackNumber      bool                `json:"allowTrackNumber,omitempty"`
-	AvailableCountries    []string            `json:"availableCountries,omitempty"`
-	RequiredFields        []string            `json:"requiredFields,omitempty"`
-	StatusList            []DeliveryStatus    `json:"statusList,omitempty"`
-	PlateList             []Plate             `json:"plateList,omitempty"`
-	DeliveryDataFieldList []DeliveryDataField `json:"deliveryDataFieldList,omitempty"`
-	ShipmentDataFieldList []DeliveryDataField `json:"shipmentDataFieldList,omitempty"`
+	Description                    string              `json:"description,omitempty"`
+	Actions                        StringMap           `json:"actions,omitempty"`
+	PayerType                      []string            `json:"payerType,omitempty"`
+	PlatePrintLimit                int                 `json:"platePrintLimit,omitempty"`
+	RateDeliveryCost               bool                `json:"rateDeliveryCost,omitempty"`
+	AllowPackages                  bool                `json:"allowPackages,omitempty"`
+	CodAvailable                   bool                `json:"codAvailable,omitempty"`
+	SelfShipmentAvailable          bool                `json:"selfShipmentAvailable,omitempty"`
+	DuplicateOrderProductSupported bool                `json:"duplicateOrderProductSupported,omitempty"`
+	AllowTrackNumber               bool                `json:"allowTrackNumber,omitempty"`
+	AvailableCountries             []string            `json:"availableCountries,omitempty"`
+	RequiredFields                 []string            `json:"requiredFields,omitempty"`
+	StatusList                     []DeliveryStatus    `json:"statusList,omitempty"`
+	PlateList                      []Plate             `json:"plateList,omitempty"`
+	DeliveryDataFieldList          []DeliveryDataField `json:"deliveryDataFieldList,omitempty"`
+	ShipmentDataFieldList          []DeliveryDataField `json:"shipmentDataFieldList,omitempty"`
+	Settings                       *DeliverySettings   `json:"settings,omitempty"`
 }
 
 // DeliveryStatus type.
@@ -1540,21 +1634,113 @@ type DeliveryStatus struct {
 
 // Plate type.
 type Plate struct {
+	Type  string `json:"type,omitempty"`
 	Code  string `json:"code,omitempty"`
 	Label string `json:"label,omitempty"`
 }
 
 // DeliveryDataField type.
 type DeliveryDataField struct {
-	Code            string `json:"code,omitempty"`
-	Label           string `json:"label,omitempty"`
-	Hint            string `json:"hint,omitempty"`
-	Type            string `json:"type,omitempty"`
-	AutocompleteURL string `json:"autocompleteUrl,omitempty"`
-	Multiple        bool   `json:"multiple,omitempty"`
-	Required        bool   `json:"required,omitempty"`
-	AffectsCost     bool   `json:"affectsCost,omitempty"`
-	Editable        bool   `json:"editable,omitempty"`
+	Code            string   `json:"code,omitempty"`
+	Label           string   `json:"label,omitempty"`
+	Hint            string   `json:"hint,omitempty"`
+	Type            string   `json:"type,omitempty"`
+	AutocompleteURL string   `json:"autocompleteUrl,omitempty"`
+	Multiple        bool     `json:"multiple,omitempty"`
+	Choices         []string `json:"choices,omitempty"`
+	Visible         bool     `json:"visible,omitempty"`
+	Required        bool     `json:"required,omitempty"`
+	AffectsCost     bool     `json:"affectsCost,omitempty"`
+	Editable        bool     `json:"editable,omitempty"`
+}
+
+// DeliverySettings type.
+type DeliverySettings struct {
+	DefaultPayerType  string                          `json:"defaultPayerType,omitempty"`
+	CostCalculateBy   string                          `json:"costCalculateBy,omitempty"`
+	NullDeclaredValue bool                            `json:"nullDeclaredValue,omitempty"`
+	LockedByDefault   bool                            `json:"lockedByDefault,omitempty"`
+	PaymentTypes      []DeliverySettingsPaymentType   `json:"paymentTypes,omitempty"`
+	ShipmentPoints    []DeliverySettingsShipmentPoint `json:"shipmentPoints,omitempty"`
+	Statuses          []DeliverySettingsStatus        `json:"statuses,omitempty"`
+	DeliveryExtraData StringMap                       `json:"deliveryExtraData,omitempty"`
+	ShipmentExtraData StringMap                       `json:"shipmentExtraData,omitempty"`
+}
+
+// DeliverySettingsPaymentType type.
+type DeliverySettingsPaymentType struct {
+	Code   string `json:"code,omitempty"`
+	Active bool   `json:"active,omitempty"`
+	Cod    bool   `json:"cod,omitempty"`
+}
+
+// DeliverySettingsShipmentPoint type.
+type DeliverySettingsShipmentPoint struct {
+	Code               string `json:"code,omitempty"`
+	ShipmentPointID    string `json:"shipmentPointId,omitempty"`
+	ShipmentPointLabel string `json:"shipmentPointLabel,omitempty"`
+}
+
+// DeliverySettingsStatus type.
+type DeliverySettingsStatus struct {
+	Code               string `json:"code,omitempty"`
+	TrackingStatusCode string `json:"trackingStatusCode,omitempty"`
+}
+
+// Recommendation type.
+type Recommendation struct {
+	Actions         StringMap            `json:"actions,omitempty"`
+	AddDefaultModes bool                 `json:"addDefaultModes,omitempty"`
+	Modes           []RecommendationMode `json:"modes,omitempty"`
+}
+
+// RecommendationMode type.
+type RecommendationMode struct {
+	Code  string            `json:"code,omitempty"`
+	Names map[string]string `json:"names,omitempty"`
+}
+
+// PaymentModule type.
+type PaymentModule struct {
+	Actions      PaymentModuleActions `json:"actions,omitempty"`
+	Currencies   []string             `json:"currencies,omitempty"`
+	InvoiceTypes []string             `json:"invoiceTypes,omitempty"`
+	Shops        []PaymentModuleShop  `json:"shops,omitempty"`
+}
+
+// PaymentModuleActions type.
+type PaymentModuleActions struct {
+	Create  string `json:"create,omitempty"`
+	Approve string `json:"approve,omitempty"`
+	Cancel  string `json:"cancel,omitempty"`
+	Refund  string `json:"refund,omitempty"`
+}
+
+// PaymentModuleShop type.
+type PaymentModuleShop struct {
+	Code   string `json:"code,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Active bool   `json:"active,omitempty"`
+}
+
+// EmbedJS type.
+type EmbedJS struct {
+	Entrypoint string        `json:"entrypoint,omitempty"`
+	Stylesheet string        `json:"stylesheet,omitempty"`
+	Runner     string        `json:"runner,omitempty"`
+	Targets    []string      `json:"targets,omitempty"`
+	Pages      []EmbedJSPage `json:"pages,omitempty"`
+}
+
+// EmbedJSPage type.
+type EmbedJSPage struct {
+	Code               string            `json:"code,omitempty"`
+	Menu               string            `json:"menu,omitempty"`
+	ParentMenuItemCode string            `json:"parentMenuItemCode,omitempty"`
+	MenuItemOrdering   int               `json:"menuItemOrdering,omitempty"`
+	MenuItemTitle      map[string]string `json:"menuItemTitle,omitempty"`
+	PageHelpLink       string            `json:"pageHelpLink,omitempty"`
+	IsSettingsMainPage bool              `json:"isSettingsMainPage,omitempty"`
 }
 
 // Telephony type.
@@ -1595,6 +1781,8 @@ type Action struct {
 
 // MgTransport type.
 type MgTransport struct {
+	Token        string              `json:"token,omitempty"`
+	IsActive     bool                `json:"isActive,omitempty"`
 	WebhookURL   string              `json:"webhookUrl,omitempty"`
 	RefreshToken bool                `json:"refreshToken,omitempty"`
 	Actions      *MgTransportActions `json:"actions,omitempty"`
@@ -1608,7 +1796,11 @@ type MgTransportActions struct {
 
 // MgBot type.
 type MgBot struct {
-	RefreshToken bool `json:"refreshToken,omitempty"`
+	IsActive     bool   `json:"isActive,omitempty"`
+	Logo         string `json:"logo,omitempty"`
+	Token        string `json:"token,omitempty"`
+	Name         string `json:"name,omitempty"`
+	RefreshToken bool   `json:"refreshToken,omitempty"`
 }
 
 /**

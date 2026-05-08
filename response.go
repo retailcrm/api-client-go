@@ -413,6 +413,13 @@ type ProductsPropertiesResponse struct {
 	Properties []Property  `json:"properties,omitempty"`
 }
 
+// ProductsPropertiesValuesResponse type.
+type ProductsPropertiesValuesResponse struct {
+	Success               bool                   `json:"success"`
+	Pagination            *Pagination            `json:"pagination,omitempty"`
+	ProductPropertyValues []ProductPropertyValue `json:"productPropertyValues,omitempty"`
+}
+
 // CartResponse type.
 type CartResponse struct {
 	SuccessfulResponse
@@ -467,6 +474,36 @@ type UpdateScopesResponse struct {
 type IntegrationModuleEditResponse struct {
 	Success bool         `json:"success"`
 	Info    ResponseInfo `json:"info,omitempty"`
+}
+
+// PaymentCheckResponse type.
+type PaymentCheckResponse struct {
+	Success bool               `json:"success"`
+	Result  PaymentCheckResult `json:"result,omitempty"`
+}
+
+// PaymentCreateInvoiceResponse type.
+type PaymentCreateInvoiceResponse struct {
+	Success bool                       `json:"success"`
+	Result  PaymentCreateInvoiceResult `json:"result,omitempty"`
+}
+
+// PaymentInvoiceResponse type.
+type PaymentInvoiceResponse struct {
+	Success bool            `json:"success"`
+	Invoice *PaymentInvoice `json:"invoice,omitempty"`
+}
+
+// MGChannelsResponse type.
+type MGChannelsResponse struct {
+	Success    bool        `json:"success"`
+	MGChannels []MGChannel `json:"mgChannels,omitempty"`
+}
+
+// SubscriptionsResponse type.
+type SubscriptionsResponse struct {
+	Success       bool           `json:"success"`
+	Subscriptions []Subscription `json:"subscriptions,omitempty"`
 }
 
 // ResponseInfo type.

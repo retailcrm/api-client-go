@@ -185,6 +185,13 @@ type ProductsPropertiesRequest struct {
 	Page   int                      `url:"page,omitempty"`
 }
 
+// ProductsPropertiesValuesRequest type.
+type ProductsPropertiesValuesRequest struct {
+	Filter ProductsPropertiesValuesFilter `url:"filter,omitempty"`
+	Limit  int                            `url:"limit,omitempty"`
+	Page   int                            `url:"page,omitempty"`
+}
+
 // DeliveryTrackingRequest type.
 type DeliveryTrackingRequest struct {
 	DeliveryID  string                  `json:"deliveryId,omitempty"`
@@ -320,6 +327,49 @@ type NotificationsSendRequest struct {
 type EditMGChannelTemplateRequest struct {
 	Templates []MGChannelTemplate `json:"templates"`
 	Removed   []int               `json:"removed"`
+}
+
+// PaymentCheckRequest type.
+type PaymentCheckRequest struct {
+	InvoiceUUID string  `json:"invoiceUuid,omitempty"`
+	Amount      float64 `json:"amount,omitempty"`
+	Currency    string  `json:"currency,omitempty"`
+}
+
+// PaymentCreateInvoiceRequest type.
+type PaymentCreateInvoiceRequest struct {
+	PaymentID int    `json:"paymentId,omitempty"`
+	ReturnURL string `json:"returnUrl,omitempty"`
+}
+
+// PaymentInvoiceImportRequest type.
+type PaymentInvoiceImportRequest struct {
+	PaymentID      int                    `json:"paymentId,omitempty"`
+	ExternalID     string                 `json:"externalId,omitempty"`
+	Amount         float64                `json:"amount,omitempty"`
+	Currency       string                 `json:"currency,omitempty"`
+	Status         string                 `json:"status,omitempty"`
+	CreatedAt      string                 `json:"createdAt,omitempty"`
+	PaidAt         string                 `json:"paidAt,omitempty"`
+	DiscountAmount float64                `json:"discountAmount,omitempty"`
+	Refunds        []PaymentInvoiceRefund `json:"refunds,omitempty"`
+	Refundable     bool                   `json:"refundable,omitempty"`
+}
+
+// PaymentUpdateInvoiceRequest type.
+type PaymentUpdateInvoiceRequest struct {
+	InvoiceUUID         string                `json:"invoiceUuid,omitempty"`
+	PaymentID           string                `json:"paymentId,omitempty"`
+	Amount              float64               `json:"amount,omitempty"`
+	Status              string                `json:"status,omitempty"`
+	CancellationDetails string                `json:"cancellationDetails,omitempty"`
+	InvoiceURL          string                `json:"invoiceUrl,omitempty"`
+	PaidAt              string                `json:"paidAt,omitempty"`
+	ExpiredAt           string                `json:"expiredAt,omitempty"`
+	Refund              *PaymentInvoiceRefund `json:"refund,omitempty"`
+	DiscountAmount      float64               `json:"discountAmount,omitempty"`
+	Refundable          bool                  `json:"refundable,omitempty"`
+	Cancellable         bool                  `json:"cancellable,omitempty"`
 }
 
 // SystemURL returns system URL from the connection request without trailing slash.
