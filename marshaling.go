@@ -1,6 +1,7 @@
 package retailcrm
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -8,6 +9,32 @@ import (
 
 func (t Tag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(t.Name)
+}
+
+func (v *StringOrNumber) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		*v = ""
+		return nil
+	}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+
+	var value any
+	if err := decoder.Decode(&value); err != nil {
+		return err
+	}
+
+	switch value := value.(type) {
+	case string:
+		*v = StringOrNumber(value)
+	case json.Number:
+		*v = StringOrNumber(value.String())
+	default:
+		return fmt.Errorf("string or number: expected string or number, got %T", value)
+	}
+
+	return nil
 }
 
 func (a *APIErrorsList) UnmarshalJSON(data []byte) error {

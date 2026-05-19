@@ -26,6 +26,40 @@ func TestTag_MarshalJSON(t *testing.T) {
 	}
 }
 
+func TestStringOrNumber_UnmarshalJSON(t *testing.T) {
+	var value StringOrNumber
+
+	require.NoError(t, json.Unmarshal([]byte(`"10"`), &value))
+	assert.Equal(t, StringOrNumber("10"), value)
+
+	require.NoError(t, json.Unmarshal([]byte(`20`), &value))
+	assert.Equal(t, StringOrNumber("20"), value)
+
+	require.NoError(t, json.Unmarshal([]byte(`null`), &value))
+	assert.Empty(t, value)
+
+	require.Error(t, json.Unmarshal([]byte(`true`), &value))
+}
+
+func TestStringOrNumber_MarshalJSON(t *testing.T) {
+	store := Store{Code: "main", Ordering: "10"}
+
+	data, err := json.Marshal(store)
+
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"code":"main","ordering":"10"}`, string(data))
+}
+
+func TestStoreOrdering_UnmarshalStringOrNumber(t *testing.T) {
+	var fromString Store
+	require.NoError(t, json.Unmarshal([]byte(`{"ordering":"10"}`), &fromString))
+	assert.Equal(t, StringOrNumber("10"), fromString.Ordering)
+
+	var fromNumber Store
+	require.NoError(t, json.Unmarshal([]byte(`{"ordering":20}`), &fromNumber))
+	assert.Equal(t, StringOrNumber("20"), fromNumber.Ordering)
+}
+
 func TestAPIErrorsList_UnmarshalJSON(t *testing.T) {
 	var list APIErrorsList
 

@@ -76,6 +76,9 @@ type Point struct {
 // GeoID type. Can be empty string.
 type GeoID json.Number
 
+// StringOrNumber stores API fields that are documented as strings, but may be returned as JSON numbers.
+type StringOrNumber string
+
 // GeoHierarchyRow type.
 type GeoHierarchyRow struct {
 	Country  string `json:"country,omitempty"`
@@ -1450,7 +1453,7 @@ type Store struct {
 	Type          string         `json:"type,omitempty"`
 	InventoryType string         `json:"inventoryType,omitempty"`
 	Active        bool           `json:"active,omitempty"`
-	Ordering      int            `json:"ordering,omitempty"`
+	Ordering      StringOrNumber `json:"ordering,omitempty"`
 	Phone         *Phone         `json:"phone,omitempty"`
 	Address       *Address       `json:"address,omitempty"`
 	Contact       string         `json:"contact,omitempty"`
