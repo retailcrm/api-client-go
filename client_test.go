@@ -801,6 +801,74 @@ func TestClient_CustomersUpload_Fail(t *testing.T) {
 	assert.Equal(t, "Something went wrong", err.(APIError).Errors()["managerId"]) //nolint:errorlint
 }
 
+func TestClient_CustomersPushTokensBatch(t *testing.T) {
+	defer gock.Off()
+
+	pushTokens := []PushTokenInput{{
+		Customer:   PushTokenCustomer{ExternalID: "customer-1", Site: "main"},
+		FID:        "firebase-installation-id",
+		Type:       "firebase-project",
+		DeviceType: "android",
+		Categories: []string{"news"},
+	}}
+	pushTokensJSON, err := json.Marshal(pushTokens)
+	require.NoError(t, err)
+
+	p := url.Values{pushTokensParameter: {string(pushTokensJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/customers/push-tokens/batch").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{
+			"success": true,
+			"pushTokens": [{
+				"id": 123,
+				"customer": {"externalId": "customer-1"},
+				"fid": "firebase-installation-id",
+				"type": "firebase-project",
+				"deviceType": "android",
+				"categories": [{"id": 1, "name": "News", "code": "news", "active": true}]
+			}]
+		}`)
+
+	resp, status, err := client().CustomersPushTokensBatch(pushTokens)
+	require.NoError(t, err)
+	assert.Equal(t, http.StatusOK, status)
+	assert.True(t, resp.Success)
+	require.Len(t, resp.PushTokens, 1)
+	assert.Equal(t, 123, resp.PushTokens[0].ID)
+	assert.Equal(t, "firebase-installation-id", resp.PushTokens[0].FID)
+	require.Len(t, resp.PushTokens[0].Categories, 1)
+	assert.Equal(t, "news", resp.PushTokens[0].Categories[0].Code)
+}
+
+func TestClient_CustomersPushTokensBatchFail(t *testing.T) {
+	defer gock.Off()
+
+	pushTokens := []PushTokenInput{{
+		Customer:   PushTokenCustomer{ID: 123},
+		FID:        "firebase-installation-id",
+		Type:       "firebase-project",
+		DeviceType: "ios",
+	}}
+	pushTokensJSON, err := json.Marshal(pushTokens)
+	require.NoError(t, err)
+
+	p := url.Values{pushTokensParameter: {string(pushTokensJSON)}}
+
+	gock.New(crmURL).
+		Post(prefix + "/customers/push-tokens/batch").
+		BodyString(p.Encode()).
+		Reply(http.StatusBadRequest).
+		JSON(`{"success":false,"errorMsg":"Invalid push token"}`)
+
+	resp, status, err := client().CustomersPushTokensBatch(pushTokens)
+	require.Error(t, err)
+	assert.Equal(t, http.StatusBadRequest, status)
+	assert.False(t, resp.Success)
+}
+
 func TestClient_CustomersCombine(t *testing.T) {
 	c := client()
 

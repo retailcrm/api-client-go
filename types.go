@@ -212,6 +212,45 @@ type Customer struct {
 	MainCompany                  *IdentifiersPair          `json:"mainCompany,omitempty"`
 }
 
+// PushTokenCustomer identifies the customer who owns a mobile application push token.
+type PushTokenCustomer struct {
+	ID         int    `json:"id,omitempty"`
+	ExternalID string `json:"externalId,omitempty"`
+	BrowserID  string `json:"browserId,omitempty"`
+	Site       string `json:"site,omitempty"`
+}
+
+// PushTokenInput contains mobile application push token data for batch creation or editing.
+type PushTokenInput struct {
+	Customer   PushTokenCustomer `json:"customer"`
+	Token      string            `json:"token,omitempty"` // Deprecated: use FID.
+	FID        string            `json:"fid,omitempty"`
+	Type       string            `json:"type"`
+	DeviceType string            `json:"deviceType"`
+	Categories []string          `json:"categories,omitempty"`
+}
+
+// PushCategory describes a mobile push notification category.
+type PushCategory struct {
+	ID        int    `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Code      string `json:"code,omitempty"`
+	Active    bool   `json:"active,omitempty"`
+	CreatedAt string `json:"createdAt,omitempty"`
+}
+
+// PushToken describes a customer's mobile application push token.
+type PushToken struct {
+	ID         int               `json:"id,omitempty"`
+	Customer   PushTokenCustomer `json:"customer,omitempty"`
+	Token      string            `json:"token,omitempty"` // Deprecated: use FID.
+	FID        string            `json:"fid,omitempty"`
+	Type       string            `json:"type,omitempty"`
+	DeviceType string            `json:"deviceType,omitempty"`
+	Categories []PushCategory    `json:"categories,omitempty"`
+	CreatedAt  string            `json:"createdAt,omitempty"`
+}
+
 // MGCustomer type.
 type MGCustomer struct {
 	ID         int        `json:"id,omitempty"`

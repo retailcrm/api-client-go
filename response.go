@@ -77,6 +77,12 @@ type CustomersResponse struct {
 	Customers  []Customer  `json:"customers,omitempty"`
 }
 
+// CustomersPushTokensBatchResponse type.
+type CustomersPushTokensBatchResponse struct {
+	Success    bool        `json:"success"`
+	PushTokens []PushToken `json:"pushTokens,omitempty"`
+}
+
 // CorporateCustomersResponse type.
 type CorporateCustomersResponse struct {
 	Success            bool                `json:"success"`
