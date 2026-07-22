@@ -253,9 +253,9 @@ type PushToken struct {
 
 // MGCustomer type.
 type MGCustomer struct {
-	ID         int        `json:"id,omitempty"`
-	ExternalID string     `json:"externalId,omitempty"`
-	MGChannel  *MGChannel `json:"mgChannel,omitempty"`
+	ID         int            `json:"id,omitempty"`
+	ExternalID StringOrNumber `json:"externalId,omitempty"`
+	MGChannel  *MGChannel     `json:"mgChannel,omitempty"`
 }
 
 // CustomerSubscription type.

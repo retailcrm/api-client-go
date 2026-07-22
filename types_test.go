@@ -81,6 +81,47 @@ func TestCustomer_IsContactJSON(t *testing.T) {
 	}
 }
 
+func TestCustomer_MGCustomersExternalIDJSON(t *testing.T) {
+	var fromString Customer
+	if err := json.Unmarshal([]byte(`{"mgCustomers":[{"id":1,"externalId":"123"}]}`), &fromString); err != nil {
+		t.Fatalf("unmarshal customer with string mgCustomers externalId: %v", err)
+	}
+
+	if len(fromString.MgCustomers) != 1 {
+		t.Fatalf("expected one mgCustomer from string payload, got %d", len(fromString.MgCustomers))
+	}
+
+	if fromString.MgCustomers[0].ExternalID != "123" {
+		t.Fatalf("expected mgCustomers[0].ExternalID=123 from string, got %q", fromString.MgCustomers[0].ExternalID)
+	}
+
+	var fromNumber Customer
+	if err := json.Unmarshal([]byte(`{"mgCustomers":[{"id":1,"externalId":123}]}`), &fromNumber); err != nil {
+		t.Fatalf("unmarshal customer with numeric mgCustomers externalId: %v", err)
+	}
+
+	if len(fromNumber.MgCustomers) != 1 {
+		t.Fatalf("expected one mgCustomer from numeric payload, got %d", len(fromNumber.MgCustomers))
+	}
+
+	if fromNumber.MgCustomers[0].ExternalID != "123" {
+		t.Fatalf("expected mgCustomers[0].ExternalID=123 from number, got %q", fromNumber.MgCustomers[0].ExternalID)
+	}
+
+	var fromNull Customer
+	if err := json.Unmarshal([]byte(`{"mgCustomers":[{"id":1,"externalId":null}]}`), &fromNull); err != nil {
+		t.Fatalf("unmarshal customer with null mgCustomers externalId: %v", err)
+	}
+
+	if len(fromNull.MgCustomers) != 1 {
+		t.Fatalf("expected one mgCustomer from null payload, got %d", len(fromNull.MgCustomers))
+	}
+
+	if fromNull.MgCustomers[0].ExternalID != "" {
+		t.Fatalf("expected empty mgCustomers[0].ExternalID from null, got %q", fromNull.MgCustomers[0].ExternalID)
+	}
+}
+
 func TestAPIMethodDTOFieldsJSON(t *testing.T) {
 	order := Order{
 		Company:                &Company{ID: 10, ExternalID: "company-ext"},
