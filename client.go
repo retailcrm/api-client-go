@@ -5015,16 +5015,17 @@ func (c *Client) OrderTypes() (OrderTypesResponse, int, error) {
 
 // OrderTypeEdit create/edit order type
 //
-// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-order-methods-code-edit
+// For more information see http://www.simla.com/docs/Developers/API/APIVersions/APIv5#post--api-v5-reference-order-types-code-edit
 //
 // Example:
 //
 //	var client = retailcrm.New("https://demo.url", "09jIJ")
 //
 //	data, status, err := client.OrderTypeEdit(retailcrm.OrderType{
-//		Code:          "order-type-1",
-//		Active:        false,
-//		DefaultForCRM: false,
+//		Name:     "Order type 1",
+//		Code:     "order-type-1",
+//		Active:   true,
+//		Ordering: 100,
 //	})
 //
 //	if err != nil {

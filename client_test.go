@@ -4716,20 +4716,30 @@ func TestClient_OrderTypes(t *testing.T) {
 	gock.New(crmURL).
 		Get("/reference/order-types").
 		Reply(200).
-		BodyString(`{"success": true}`)
+		BodyString(`{
+			"success": true,
+			"orderTypes": {
+				"ycp_order": {
+					"name": "Yandex Checkout",
+					"code": "ycp_order",
+					"active": true,
+					"ordering": 100
+				}
+			}
+		}`)
 
 	data, st, err := c.OrderTypes()
-	if err != nil {
-		t.Errorf("%v", err)
-	}
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, st)
+	require.True(t, data.Success)
+	require.Contains(t, data.OrderTypes, "ycp_order")
 
-	if st != http.StatusOK {
-		t.Errorf("%v", err)
-	}
-
-	if data.Success != true {
-		t.Errorf("%v", err)
-	}
+	assert.Equal(t, OrderType{
+		Name:     "Yandex Checkout",
+		Code:     "ycp_order",
+		Active:   true,
+		Ordering: 100,
+	}, data.OrderTypes["ycp_order"])
 }
 
 func TestClient_PaymentStatuses(t *testing.T) {
@@ -5614,14 +5624,17 @@ func TestClient_OrderTypeEdit(t *testing.T) {
 	orderType := OrderType{
 		Code:          RandomString(5),
 		Name:          RandomString(5),
-		Active:        false,
+		Active:        true,
 		DefaultForCRM: false,
+		Ordering:      100,
 	}
 
-	jr, _ := json.Marshal(&orderType)
-
 	p := url.Values{
-		"orderType": {string(jr)},
+		"orderType": {fmt.Sprintf(
+			`{"name":"%s","code":"%s","active":true,"ordering":100}`,
+			orderType.Name,
+			orderType.Code,
+		)},
 	}
 
 	gock.New(crmURL).

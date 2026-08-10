@@ -1389,6 +1389,7 @@ type OrderType struct {
 	Active        bool   `json:"active,omitempty"`
 	DefaultForCRM bool   `json:"defaultForCrm,omitempty"`
 	DefaultForAPI bool   `json:"defaultForApi,omitempty"`
+	Ordering      int    `json:"ordering"`
 }
 
 // PaymentStatus type.
