@@ -734,6 +734,13 @@ type LoyaltyCalculateResponse struct {
 	Loyalty      SerializedLoyalty      `json:"loyalty,omitempty"`
 }
 
+// OrderLoyaltyApplyResponse type.
+type OrderLoyaltyApplyResponse struct {
+	SuccessfulResponse
+	Order        SerializedLoyaltyOrder `json:"order,omitempty"`
+	Verification SmsVerification        `json:"verification,omitempty"`
+}
+
 type LoyaltiesResponse struct {
 	SuccessfulResponse
 	Pagination *Pagination `json:"pagination"`
