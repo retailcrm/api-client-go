@@ -8202,6 +8202,65 @@ func (c *Client) LoyaltyCalculate(req LoyaltyCalculateRequest) (LoyaltyCalculate
 	return result, status, nil
 }
 
+// OrderLoyaltyApply applies loyalty bonuses to an order.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-orders-loyalty-apply
+func (c *Client) OrderLoyaltyApply(req OrderLoyaltyApplyRequest) (OrderLoyaltyApplyResponse, int, error) {
+	var result OrderLoyaltyApplyResponse
+
+	orderJSON, err := marshalToString(req.Order)
+	if err != nil {
+		return result, 0, err
+	}
+
+	p := url.Values{
+		"site":    {req.Site},
+		"order":   {orderJSON},
+		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
+	}
+
+	resp, status, err := c.PostRequest("/orders/loyalty/apply", p)
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
+// OrderLoyaltyCancelBonusOperations cancels loyalty bonus operations for an order.
+//
+// For more information see https://docs.retailcrm.ru/Developers/API/APIv5#post--api-v5-orders-loyalty-cancel-bonus-operations
+func (c *Client) OrderLoyaltyCancelBonusOperations(req OrderLoyaltyCancelBonusOperationsRequest) (OrderResponse, int, error) {
+	var result OrderResponse
+
+	orderJSON, err := marshalToString(req.Order)
+	if err != nil {
+		return result, 0, err
+	}
+
+	p := url.Values{
+		"site":  {req.Site},
+		"order": {orderJSON},
+	}
+
+	resp, status, err := c.PostRequest("/orders/loyalty/cancel-bonus-operations", p)
+	if err != nil {
+		return result, status, err
+	}
+
+	err = json.Unmarshal(resp, &result)
+	if err != nil {
+		return result, status, err
+	}
+
+	return result, status, nil
+}
+
 // GetLoyalties returns list of loyalty programs
 //
 // For more information see https://docs.retailcrm.ru/Developers/API/APIv5#get--api-v5-loyalty-loyalties

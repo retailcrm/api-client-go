@@ -9413,6 +9413,84 @@ func TestClient_LoyaltyCalculate(t *testing.T) {
 	assert.Equal(t, float32(1), res.Loyalty.ChargeRate)
 }
 
+func TestClient_OrderLoyaltyApply(t *testing.T) {
+	defer gock.Off()
+
+	applyRound := true
+	req := OrderLoyaltyApplyRequest{
+		Site:    "main",
+		Order:   Order{ID: 7751, ApplyRound: &applyRound},
+		Bonuses: 10,
+	}
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"site":    {req.Site},
+		"bonuses": {fmt.Sprintf("%f", req.Bonuses)},
+		"order":   {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/orders/loyalty/apply").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{"success":true,"verification":{"checkId":"check-id","actionType":"bonus_charge"}}`)
+
+	res, status, err := client().OrderLoyaltyApply(req)
+
+	assert.NoError(t, err)
+	assert.True(t, statuses[status])
+	assert.True(t, res.Success)
+	assert.Equal(t, "check-id", res.Verification.CheckID)
+}
+
+func TestClient_OrderLoyaltyCancelBonusOperations(t *testing.T) {
+	defer gock.Off()
+
+	applyRound := true
+	req := OrderLoyaltyCancelBonusOperationsRequest{
+		Site:  "main",
+		Order: Order{ID: 7751, ApplyRound: &applyRound},
+	}
+	orderJSON, err := json.Marshal(req.Order)
+	assert.NoError(t, err)
+
+	p := url.Values{
+		"site":  {req.Site},
+		"order": {string(orderJSON)},
+	}
+
+	gock.New(crmURL).
+		Post(prefix + "/orders/loyalty/cancel-bonus-operations").
+		BodyString(p.Encode()).
+		Reply(http.StatusOK).
+		JSON(`{"success":true,"order":{"id":7751,"bonusesChargeTotal":0}}`)
+
+	res, status, err := client().OrderLoyaltyCancelBonusOperations(req)
+
+	assert.NoError(t, err)
+	assert.True(t, statuses[status])
+	assert.True(t, res.Success)
+	require.NotNil(t, res.Order)
+	assert.Equal(t, 7751, res.Order.ID)
+}
+
+func TestClient_LoyaltyAccountsDecodesStringLastCheckID(t *testing.T) {
+	defer gock.Off()
+
+	gock.New(crmURL).
+		Get(prefix + "/loyalty/accounts").
+		Reply(http.StatusOK).
+		JSON(`{"success":true,"pagination":{"totalPageCount":1},"loyaltyAccounts":[{"id":14,"lastCheckId":"check-id"}]}`)
+
+	res, _, err := client().LoyaltyAccounts(LoyaltyAccountsRequest{})
+
+	assert.NoError(t, err)
+	require.Len(t, res.LoyaltyAccounts, 1)
+	assert.Equal(t, "check-id", res.LoyaltyAccounts[0].LastCheckID)
+}
+
 func TestClient_GetLoyalties(t *testing.T) {
 	defer gock.Off()
 

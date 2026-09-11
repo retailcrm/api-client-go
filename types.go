@@ -2068,7 +2068,7 @@ type LoyaltyAccount struct {
 	CreatedAt        string         `json:"createdAt,omitempty"`
 	ActivatedAt      string         `json:"activatedAt,omitempty"`
 	ConfirmedPhoneAt string         `json:"confirmedPhoneAt,omitempty"`
-	LastCheckID      int            `json:"lastCheckId,omitempty"`
+	LastCheckID      string         `json:"lastCheckId,omitempty"`
 	CustomFields     CustomFieldMap `json:"customFields,omitempty"`
 	Loyalty          Loyalty        `json:"loyalty,omitempty"`
 	Customer         Customer       `json:"customer,omitempty"`

@@ -311,6 +311,19 @@ type LoyaltyCalculateRequest struct {
 	Bonuses float32
 }
 
+// OrderLoyaltyApplyRequest type.
+type OrderLoyaltyApplyRequest struct {
+	Site    string
+	Order   Order
+	Bonuses float32
+}
+
+// OrderLoyaltyCancelBonusOperationsRequest type.
+type OrderLoyaltyCancelBonusOperationsRequest struct {
+	Site  string
+	Order Order
+}
+
 type LoyaltiesRequest struct {
 	Limit  int              `url:"limit,omitempty"`
 	Page   int              `url:"page,omitempty"`
