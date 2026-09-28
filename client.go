@@ -4724,9 +4724,34 @@ func (c *Client) DeliveryServiceEdit(deliveryService DeliveryService) (Successfu
 //		log.Fatalf("http status: %d, error: %s", status, err)
 //	}
 func (c *Client) DeliveryTypes() (DeliveryTypesResponse, int, error) {
+	return c.DeliveryTypesWithParams(DeliveryTypesRequest{})
+}
+
+// DeliveryTypesWithParams returns delivery types with optional filtering and cost settings.
+// IncludeCostSettings requires at least one code in Filter.Codes; otherwise the API returns HTTP 400.
+//
+// For more information see https://rest-api-docs.retailcrm.ru/v5/.
+//
+// Example:
+//
+//	data, status, err := client.DeliveryTypesWithParams(retailcrm.DeliveryTypesRequest{
+//		Filter: retailcrm.DeliveryTypesFilter{Codes: []string{"courier"}},
+//		IncludeCostSettings: true,
+//	})
+func (c *Client) DeliveryTypesWithParams(parameters DeliveryTypesRequest) (DeliveryTypesResponse, int, error) {
 	var resp DeliveryTypesResponse
 
-	data, status, err := c.GetRequest("/reference/delivery-types")
+	params, err := query.Values(parameters)
+	if err != nil {
+		return resp, 0, err
+	}
+
+	path := "/reference/delivery-types"
+	if encoded := params.Encode(); encoded != "" {
+		path += "?" + encoded
+	}
+
+	data, status, err := c.GetRequest(path)
 	if err != nil {
 		return resp, status, err
 	}

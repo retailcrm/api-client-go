@@ -1339,6 +1339,41 @@ type DeliveryType struct {
 	DefaultTariffType                    string                `json:"defaultTariffType,omitempty"`
 	DefaultTariffName                    string                `json:"defaultTariffName,omitempty"`
 	Sites                                []string              `json:"sites,omitempty"`
+
+	// Cost settings are returned when IncludeCostSettings is enabled.
+	CostCalculationType        string                          `json:"costCalculationType,omitempty"`
+	NetCostCalculationType     string                          `json:"netCostCalculationType,omitempty"`
+	CODMarkup                  float32                         `json:"codMarkup,omitempty"`
+	LimitByRegions             bool                            `json:"limitByRegions,omitempty"`
+	RegionWeightCostConditions []DeliveryRegionCostCondition   `json:"regionWeightCostConditions,omitempty"`
+	DateTimeCostConditions     []DeliveryDateTimeCostCondition `json:"dateTimeCostConditions,omitempty"`
+}
+
+// DeliveryDateTimeCostCondition contains delivery surcharges for days and time ranges.
+// Days contains weekday numbers encoded as strings by the API.
+type DeliveryDateTimeCostCondition struct {
+	Days      []string `json:"days,omitempty"`
+	TimeStart string   `json:"timeStart,omitempty"`
+	TimeEnd   string   `json:"timeEnd,omitempty"`
+	Value     float32  `json:"value,omitempty"`
+	NetValue  float32  `json:"netValue,omitempty"`
+}
+
+// DeliveryRegionCostCondition contains delivery costs for a region, weight and order sum.
+// Optional range bounds retain the distinction between zero and an unset value.
+type DeliveryRegionCostCondition struct {
+	Country      string   `json:"country,omitempty"`
+	Region       string   `json:"region,omitempty"`
+	RegionID     int      `json:"regionId,omitempty"`
+	City         string   `json:"city,omitempty"`
+	CityID       int      `json:"cityId,omitempty"`
+	WeightStart  *float32 `json:"weightStart,omitempty"`
+	WeightEnd    *float32 `json:"weightEnd,omitempty"`
+	SummStart    *float32 `json:"summStart,omitempty"`
+	SummEnd      *float32 `json:"summEnd,omitempty"`
+	Value        float32  `json:"value,omitempty"`
+	NetValue     float32  `json:"netValue,omitempty"`
+	NetValueType string   `json:"netValueType,omitempty"`
 }
 
 type DeliveryPaymentType struct {
