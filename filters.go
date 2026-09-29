@@ -1,5 +1,10 @@
 package retailcrm
 
+// DeliveryTypesFilter filters delivery types by their symbolic codes.
+type DeliveryTypesFilter struct {
+	Codes []string `url:"codes,omitempty,brackets"`
+}
+
 // CustomersFilter type.
 type CustomersFilter struct {
 	Ids                        []string          `url:"ids,omitempty,brackets"`

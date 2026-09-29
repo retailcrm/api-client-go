@@ -192,6 +192,12 @@ type ProductsPropertiesValuesRequest struct {
 	Page   int                            `url:"page,omitempty"`
 }
 
+// DeliveryTypesRequest configures delivery type filtering and cost settings.
+type DeliveryTypesRequest struct {
+	Filter              DeliveryTypesFilter `url:"filter,omitempty"`
+	IncludeCostSettings bool                `url:"includeCostSettings,omitempty"`
+}
+
 // DeliveryTrackingRequest type.
 type DeliveryTrackingRequest struct {
 	DeliveryID  string                  `json:"deliveryId,omitempty"`
