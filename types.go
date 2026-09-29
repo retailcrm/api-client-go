@@ -640,7 +640,7 @@ type OrderDeliveryDataBasic struct {
 	Status                           string                      `json:"status,omitempty"`
 	Locked                           bool                        `json:"locked,omitempty"`
 	PickuppointAddress               string                      `json:"pickuppointAddress,omitempty"`
-	Days                             int                         `json:"days,omitempty"`
+	Days                             StringOrNumber              `json:"days,omitempty"`
 	StatusText                       string                      `json:"statusText,omitempty"`
 	StatusDate                       string                      `json:"statusDate,omitempty"`
 	Tariff                           string                      `json:"tariff,omitempty"`
