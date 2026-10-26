@@ -2936,8 +2936,8 @@ func TestClient_SourcesUpload(t *testing.T) {
 			Keyword:  "keyword",
 			Content:  "content",
 			ClientID: "10",
-			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
-			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
+			Order:    &LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+			Customer: &SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
 			Site:     "site",
 		},
 	}
@@ -2982,8 +2982,8 @@ func TestClient_SourcesUpload_Fail(t *testing.T) {
 			Keyword:  "keyword",
 			Content:  "content",
 			ClientID: "12",
-			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
-			Customer: SerializedEntityCustomer{},
+			Order:    &LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+			Customer: &SerializedEntityCustomer{},
 			Site:     "site",
 		},
 	}
