@@ -90,15 +90,15 @@ type GeoHierarchyRow struct {
 
 // Source type.
 type Source struct {
-	Source   string                   `json:"source,omitempty"`
-	Medium   string                   `json:"medium,omitempty"`
-	Campaign string                   `json:"campaign,omitempty"`
-	Keyword  string                   `json:"keyword,omitempty"`
-	Content  string                   `json:"content,omitempty"`
-	ClientID string                   `json:"client_id,omitempty"`
-	Site     string                   `json:"site,omitempty"`
-	Order    LinkedOrder              `json:"order,omitempty"`
-	Customer SerializedEntityCustomer `json:"customer,omitempty"`
+	Source   string                    `json:"source,omitempty"`
+	Medium   string                    `json:"medium,omitempty"`
+	Campaign string                    `json:"campaign,omitempty"`
+	Keyword  string                    `json:"keyword,omitempty"`
+	Content  string                    `json:"content,omitempty"`
+	ClientID string                    `json:"client_id,omitempty"`
+	Site     string                    `json:"site,omitempty"`
+	Order    LinkedOrder               `json:"order,omitempty"`
+	Customer *SerializedEntityCustomer `json:"customer,omitempty"`
 }
 
 // Contragent type.
