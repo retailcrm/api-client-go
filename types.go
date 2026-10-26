@@ -1949,8 +1949,9 @@ type File struct {
 
 // Attachment type.
 type Attachment struct {
-	Customer *Customer `json:"customer,omitempty"`
-	Order    *Order    `json:"order,omitempty"`
+	KnowledgeBaseDocument *KnowledgeBaseDocumentReference `json:"knowledgeBaseDocument,omitempty"`
+	Customer              *Customer                       `json:"customer,omitempty"`
+	Order                 *Order                          `json:"order,omitempty"`
 }
 
 // CustomFields type.
