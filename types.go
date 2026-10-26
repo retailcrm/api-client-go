@@ -97,7 +97,7 @@ type Source struct {
 	Content  string                    `json:"content,omitempty"`
 	ClientID string                    `json:"client_id,omitempty"`
 	Site     string                    `json:"site,omitempty"`
-	Order    LinkedOrder               `json:"order,omitempty"`
+	Order    *LinkedOrder              `json:"order,omitempty"`
 	Customer *SerializedEntityCustomer `json:"customer,omitempty"`
 }
 

@@ -2982,7 +2982,7 @@ func (c *Client) ClientIdsUpload(clientIds []ClientID) (ClientIDResponse, int, e
 //			Keyword:  "keyword",
 //			Content:  "content",
 //			ClientID: "10",
-//			Order:    LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
+//			Order:    &LinkedOrder{ID: 10, ExternalID: "externalId", Number: "number"},
 //			Customer: SerializedEntityCustomer{ID: 10, ExternalID: "externalId"},
 //			Site:     "site",
 //		},
