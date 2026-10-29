@@ -41,10 +41,31 @@ func (c *Client) WithHTTPClient(client *http.Client) *Client {
 	return c
 }
 
-// WithContext sets context.Context which, if canceled, will terminate all active API calls.
+// WithContext returns a clone of the client using ctx for subsequent requests,
+// rate limiting and retry waits. The original client is not modified.
+// The clone shares the HTTP client, logger and rate limiter with the original.
+// A nil context is treated as context.Background().
 func (c *Client) WithContext(ctx context.Context) *Client {
-	c.ctx = ctx
-	return c
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
+	return &Client{
+		ctx:         ctx,
+		URL:         c.URL,
+		Key:         c.Key,
+		Debug:       c.Debug,
+		httpClient:  c.httpClient,
+		logger:      c.logger,
+		limiter:     c.limiter,
+		maxAttempts: c.maxAttempts,
+	}
+}
+
+func (c *Client) requestContext() context.Context {
+	if c.ctx != nil {
+		return c.ctx
+	}
+	return context.Background()
 }
 
 // EnableRateLimiter activates rate limiting with specified retry attempts.
@@ -85,12 +106,7 @@ func (c *Client) applyRateLimit(uri string) error {
 		return nil
 	}
 
-	ctx := c.ctx
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	return c.limiter.Limit(ctx, uri, c.Key)
+	return c.limiter.Limit(c.requestContext(), uri, c.Key)
 }
 
 // triggerResponseAwareLimiter sends *http.Response to the limiter for further reading (e.g. headers).
@@ -134,6 +150,10 @@ func (c *Client) executeWithRetry(
 	uri string,
 	executeFunc func() (interface{}, *http.Response, int, error),
 ) (interface{}, int, error) {
+	ctx := c.requestContext()
+	if err := ctx.Err(); err != nil {
+		return nil, 0, err
+	}
 	if c.limiter == nil {
 		resp, _, st, err := executeFunc()
 		return resp, st, err
@@ -163,6 +183,9 @@ func (c *Client) executeWithRetry(
 	}
 
 	for infinite || attempt <= maxAttempts {
+		if err := ctx.Err(); err != nil {
+			return nil, statusCode, err
+		}
 		if err := c.applyRateLimit(uri); err != nil {
 			return nil, 0, err
 		}
@@ -189,7 +212,13 @@ func (c *Client) executeWithRetry(
 				backoffDelay, attempt, totalAttempts)
 		}
 
-		time.Sleep(backoffDelay)
+		timer := time.NewTimer(backoffDelay)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return nil, statusCode, ctx.Err()
+		case <-timer.C:
+		}
 		attempt++
 	}
 
@@ -221,7 +250,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 	return c.executeWithRetryBytes(uri, func() (interface{}, *http.Response, int, error) {
 		var res []byte
 
-		req, err := http.NewRequest("GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
+		req, err := http.NewRequestWithContext(c.requestContext(), "GET", fmt.Sprintf("%s%s%s", c.URL, prefix, urlWithParameters), nil)
 		if err != nil {
 			return res, nil, 0, err
 		}
@@ -238,6 +267,7 @@ func (c *Client) GetRequest(urlWithParameters string, versioned ...bool) ([]byte
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
+			resp.Body.Close()
 			return res, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}
@@ -285,7 +315,7 @@ func (c *Client) PostRequest(
 			return res, nil, 0, err
 		}
 
-		req, err := http.NewRequest("POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
+		req, err := http.NewRequestWithContext(c.requestContext(), "POST", fmt.Sprintf("%s%s%s", c.URL, prefix, uri), reader)
 		if err != nil {
 			return res, nil, 0, err
 		}
@@ -303,6 +333,7 @@ func (c *Client) PostRequest(
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
+			resp.Body.Close()
 			return res, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}
@@ -8536,7 +8567,7 @@ func (c *Client) EditProductsGroup(by, groupID, site string, group ProductGroup)
 
 // GetOrderPlate receives a print form file for the order
 //
-// # Body of response is already closed
+// The caller must close the returned body after a successful request.
 //
 // For more information see https://help.retailcrm.ru/api_v5_ru.html#get--api-v5-orders-externalId-plates-plateId-print
 //
@@ -8569,7 +8600,7 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 	}.Encode())
 
 	return c.executeWithRetryReadCloser(requestURL, func() (interface{}, *http.Response, int, error) {
-		req, err := http.NewRequest("GET", requestURL, nil)
+		req, err := http.NewRequestWithContext(c.requestContext(), "GET", requestURL, nil)
 		if err != nil {
 			return nil, nil, 0, err
 		}
@@ -8586,7 +8617,8 @@ func (c *Client) GetOrderPlate(by, orderID, site string, plateID int) (io.ReadCl
 			return nil, resp, 0, err
 		}
 
-		if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
+		if resp.StatusCode >= http.StatusInternalServerError {
+			resp.Body.Close()
 			return nil, resp, resp.StatusCode, CreateGenericAPIError(
 				fmt.Sprintf("HTTP request error. Status code: %d.", resp.StatusCode))
 		}

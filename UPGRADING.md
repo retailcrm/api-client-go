@@ -68,3 +68,25 @@ func main() {
 
 This major release contains some breaking changes regarding field names and fully redesigned error handling. Use the second example from 
 the readme to learn how to process errors correctly.
+
+
+## WithContext now returns a clone
+
+Always use the return value of `WithContext`. It no longer modifies the original client:
+
+```go
+// Before:
+client.WithContext(ctx)
+response, status, err := client.Customers(retailcrm.CustomersRequest{})
+
+// After:
+response, status, err := client.WithContext(ctx).Customers(retailcrm.CustomersRequest{})
+// Or save the clone for multiple calls:
+requestClient := client.WithContext(ctx)
+```
+
+The clone uses the context for HTTP requests, response body reads, rate limiting and retry waits.
+Cancellation no longer affects other clones or the original client.
+Configure the client before cloning: later configuration changes on the original do not propagate to existing clones.
+The HTTP client, logger and rate limiter are shared; cloning does not reset rate limits.
+Do not modify client settings concurrently with cloning or requests.
