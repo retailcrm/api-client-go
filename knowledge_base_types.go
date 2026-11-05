@@ -91,7 +91,7 @@ type KnowledgeBaseDocumentsFilter struct {
 type KnowledgeBaseDocumentsRequest struct {
 	Filter KnowledgeBaseDocumentsFilter `url:"filter,omitempty"`
 	Limit  int                          `url:"limit,omitempty"`
-	Page   int                          `url:"page,omitempty"`
+	Cursor string                       `url:"cursor,omitempty"`
 }
 
 // KnowledgeBaseDocumentsHistoryFilter retrieves changes after SinceID or within a date range.
@@ -119,7 +119,7 @@ type KnowledgeBaseSectionsResponse struct {
 // KnowledgeBaseDocumentsResponse contains a page of documents.
 type KnowledgeBaseDocumentsResponse struct {
 	SuccessfulResponse
-	Pagination *Pagination             `json:"pagination"`
+	Pagination *CursorPagination       `json:"pagination"`
 	Documents  []KnowledgeBaseDocument `json:"documents"`
 }
 

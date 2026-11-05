@@ -86,12 +86,12 @@ func TestKnowledgeBaseReads(t *testing.T) {
 		{name: "external ID", path: "documents/doc-7", query: url.Values{}, response: `{"success":true,"document":{"id":7,"externalId":"doc-7"}}`,
 			call: func(c *Client) (any, int, error) { return c.KnowledgeBaseDocument("doc-7", "") }},
 		{name: "documents", path: "documents", query: url.Values{
-			"limit": {"20"}, "page": {"1"}, "filter[ids][]": {"7", "8"}, "filter[externalIds][]": {"doc-7"},
+			"limit": {"20"}, "cursor": {"opaque+/="}, "filter[ids][]": {"7", "8"}, "filter[externalIds][]": {"doc-7"},
 			"filter[sectionId]": {"1"}, "filter[directOnly]": {"1"}, "filter[availableForCopilot]": {"0"},
 			"filter[hasFile]": {"0"}, "filter[search]": {"Shipping"},
-		}, response: `{"success":true,"pagination":{"currentPage":1},"documents":[{"id":7,"title":"Shipping","content":"# Shipping","availableForCopilot":false}]}`,
+		}, response: `{"success":true,"pagination":{"nextCursor":"next+/="},"documents":[{"id":7,"title":"Shipping","content":"# Shipping","availableForCopilot":false}]}`,
 			call: func(c *Client) (any, int, error) {
-				return c.KnowledgeBaseDocuments(KnowledgeBaseDocumentsRequest{Limit: 20, Page: 1, Filter: KnowledgeBaseDocumentsFilter{
+				return c.KnowledgeBaseDocuments(KnowledgeBaseDocumentsRequest{Limit: 20, Cursor: "opaque+/=", Filter: KnowledgeBaseDocumentsFilter{
 					IDs: []int{7, 8}, ExternalIDs: []string{"doc-7"}, SectionID: 1, DirectOnly: &enabled, AvailableForCopilot: &disabled, HasFile: &disabled, Search: "Shipping",
 				}})
 			}},
@@ -135,7 +135,7 @@ func TestKnowledgeBaseReads(t *testing.T) {
 				}
 			case KnowledgeBaseDocumentsResponse:
 				assert.Equal(t, "# Shipping", *result.Documents[0].Content)
-				assert.Equal(t, 1, result.Pagination.CurrentPage)
+				assert.Equal(t, "next+/=", result.Pagination.NextCursor)
 			case KnowledgeBaseDocumentsHistoryResponse:
 				assert.Equal(t, 13, result.History[0].ID)
 				assert.Equal(t, map[string]any{"id": float64(2)}, result.History[0].NewValue)
@@ -188,4 +188,40 @@ func TestKnowledgeBaseClearExternalID(t *testing.T) {
 	encoded, err := json.Marshal(KnowledgeBaseDocumentInput{})
 	require.NoError(t, err)
 	assert.JSONEq(t, `{}`, string(encoded))
+}
+
+func TestKnowledgeBaseDocumentsCursorPagination(t *testing.T) {
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		calls++
+		expected := url.Values{"limit": {"20"}}
+		body := `{"success":true,"documents":[{"id":7}],"pagination":{"nextCursor":"next+/="}}`
+		if calls == 2 {
+			expected.Set("cursor", "next+/=")
+			body = `{"success":true,"documents":[{"id":8}],"pagination":{"nextCursor":""}}`
+		}
+		assert.Equal(t, expected, req.URL.Query())
+		w.Header().Set("Content-Type", "application/json")
+		_, err := io.WriteString(w, body)
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+	client := New(server.URL, "key").WithHTTPClient(server.Client())
+	request := KnowledgeBaseDocumentsRequest{Limit: 20}
+	var ids []int
+	for {
+		response, _, err := client.KnowledgeBaseDocuments(request)
+		require.NoError(t, err)
+		require.NotNil(t, response.Pagination)
+		for _, document := range response.Documents {
+			ids = append(ids, document.ID)
+		}
+		request.Cursor = response.Pagination.NextCursor
+		if request.Cursor == "" || calls > 2 {
+			break
+		}
+	}
+	assert.Equal(t, []int{7, 8}, ids)
+	assert.Equal(t, 2, calls)
+	assert.Empty(t, request.Cursor)
 }
